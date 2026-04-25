@@ -1,0 +1,220 @@
+---
+---
+<div id="chatbox-root">
+  <div id="chat-auth" class="chat-panel">
+    <div class="chat-lock-icon">&#9752;</div>
+    <p class="chat-auth-label">acceso requerido</p>
+    <input id="chat-password" type="password" class="chat-input-field" placeholder="contraseña..." autocomplete="current-password" />
+    <button id="chat-login-btn" class="chat-btn">entrar</button>
+    <p id="chat-auth-error" class="chat-error" style="display:none">contraseña incorrecta</p>
+  </div>
+  <div id="chat-main" class="chat-panel" style="display:none">
+    <div id="chat-messages"></div>
+    <div class="chat-input-row">
+      <textarea id="chat-input" class="chat-textarea" placeholder="escribe algo..." rows="1"></textarea>
+      <button id="chat-send" class="chat-btn chat-btn-send">&#9654;</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  #chatbox-root { display:flex;flex-direction:column;height:calc(100vh - 120px);max-width:760px;margin:0 auto;font-family:var(--font-mono,'JetBrains Mono',monospace); }
+  .chat-panel { display:flex;flex-direction:column;flex:1;gap:12px; }
+  #chat-auth { align-items:center;justify-content:center;gap:16px; }
+  .chat-lock-icon { font-size:2.4rem;color:var(--color-accent,#A855F7);line-height:1; }
+  .chat-auth-label { color:var(--color-muted,#A78BFA);font-size:0.85rem;letter-spacing:0.08em;margin:0; }
+  .chat-input-field { background:var(--color-surface,rgba(255,255,255,0.04));border:1px solid var(--color-border-accent,rgba(168,85,247,0.25));border-radius:8px;color:var(--color-ink,#F8FAFC);font-family:inherit;font-size:0.9rem;padding:10px 14px;outline:none;width:240px;text-align:center; }
+  .chat-input-field:focus { border-color:var(--color-accent,#A855F7);box-shadow:0 0 0 2px rgba(168,85,247,0.15); }
+  .chat-error { color:#f87171;font-size:0.8rem;margin:0; }
+  #chat-main { flex:1;min-height:0; }
+  #chat-messages { flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:16px;padding:8px 0 16px;min-height:0;max-height:calc(100vh - 240px);scrollbar-width:thin;scrollbar-color:var(--color-accent,#A855F7) transparent; }
+  .msg { display:flex;flex-direction:column;gap:4px;max-width:88%;animation:msgIn 0.18s ease; }
+  @keyframes msgIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+  .msg-user { align-self:flex-end;align-items:flex-end; }
+  .msg-assistant { align-self:flex-start;align-items:flex-start; }
+  .msg-label { font-size:0.7rem;letter-spacing:0.06em;color:var(--color-muted-2,#94A3B8);padding:0 4px; }
+  .msg-bubble { padding:10px 14px;border-radius:12px;font-size:0.88rem;line-height:1.6;white-space:pre-wrap;word-break:break-word; }
+  .msg-user .msg-bubble { background:rgba(168,85,247,0.18);border:1px solid rgba(168,85,247,0.3);color:var(--color-ink,#F8FAFC);border-bottom-right-radius:4px; }
+  .msg-assistant .msg-bubble { background:var(--color-surface,rgba(255,255,255,0.04));border:1px solid var(--color-border,rgba(255,255,255,0.08));color:var(--color-ink-soft,#E2E8F0);border-bottom-left-radius:4px; }
+  .msg-assistant .msg-bubble.streaming::after { content:'▋';color:var(--color-accent,#A855F7);animation:blink 0.9s step-end infinite;margin-left:2px; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .chat-input-row { display:flex;gap:8px;align-items:flex-end;padding-top:8px;border-top:1px solid var(--color-border,rgba(255,255,255,0.08)); }
+  .chat-textarea { flex:1;resize:none;background:var(--color-surface,rgba(255,255,255,0.04));border:1px solid var(--color-border,rgba(255,255,255,0.08));border-radius:10px;color:var(--color-ink,#F8FAFC);font-family:inherit;font-size:0.88rem;padding:10px 14px;outline:none;line-height:1.5;max-height:140px;overflow-y:auto;transition:border-color 0.15s; }
+  .chat-textarea:focus { border-color:var(--color-accent,#A855F7); }
+  .chat-btn { background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.35);border-radius:8px;color:var(--color-accent,#A855F7);cursor:pointer;font-family:inherit;font-size:0.88rem;padding:10px 18px;transition:background 0.15s,border-color 0.15s;letter-spacing:0.04em; }
+  .chat-btn:hover { background:rgba(168,85,247,0.28);border-color:rgba(168,85,247,0.6); }
+  .chat-btn-send { padding:10px 16px;font-size:1rem; }
+  .chat-btn:disabled { opacity:0.45;cursor:not-allowed; }
+  .think-block { margin-bottom:8px;border:1px solid rgba(168,85,247,0.2);border-radius:6px;padding:4px 8px; }
+  .think-block summary { cursor:pointer;font-size:0.75rem;color:var(--color-muted,#A78BFA);letter-spacing:0.05em;list-style:none; }
+  .think-block pre { font-size:0.75rem;color:var(--color-muted-2,#94A3B8);white-space:pre-wrap;margin:6px 0 2px;max-height:200px;overflow-y:auto; }
+</style>
+
+<script>
+  (function () {
+    const PASSWORD_KEY = 'aris_chat_pw';
+    let savedPw = sessionStorage.getItem(PASSWORD_KEY) || '';
+    let messages = [];
+    let streaming = false;
+
+    const authPanel  = document.getElementById('chat-auth');
+    const mainPanel  = document.getElementById('chat-main');
+    const pwInput    = document.getElementById('chat-password');
+    const loginBtn   = document.getElementById('chat-login-btn');
+    const authError  = document.getElementById('chat-auth-error');
+    const messagesEl = document.getElementById('chat-messages');
+    const inputEl    = document.getElementById('chat-input');
+    const sendBtn    = document.getElementById('chat-send');
+
+    function showMain() {
+      authPanel.style.display = 'none';
+      mainPanel.style.display = 'flex';
+      inputEl.focus();
+    }
+
+    if (savedPw) showMain();
+
+    loginBtn.addEventListener('click', async () => {
+      const pw = pwInput.value.trim();
+      if (!pw) return;
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw, messages: [{ role: 'user', content: 'hola' }] }),
+      });
+      if (res.status === 401) { authError.style.display = ''; pwInput.value = ''; return; }
+      savedPw = pw;
+      sessionStorage.setItem(PASSWORD_KEY, pw);
+      authError.style.display = 'none';
+      showMain();
+      res.body?.cancel();
+    });
+
+    pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loginBtn.click(); });
+
+    async function sendMessage() {
+      const text = inputEl.value.trim();
+      if (!text || streaming) return;
+      streaming = true;
+      sendBtn.disabled = true;
+      inputEl.value = '';
+      inputEl.style.height = 'auto';
+
+      messages.push({ role: 'user', content: text });
+
+      // Burbuja usuario
+      const userWrap = document.createElement('div');
+      userWrap.className = 'msg msg-user';
+      const userLabel = document.createElement('div');
+      userLabel.className = 'msg-label';
+      userLabel.textContent = '[tú]';
+      const userBubble = document.createElement('div');
+      userBubble.className = 'msg-bubble';
+      userBubble.textContent = text;
+      userWrap.appendChild(userLabel);
+      userWrap.appendChild(userBubble);
+      messagesEl.appendChild(userWrap);
+
+      // Burbuja gemma con sección de pensamiento
+      const aWrap = document.createElement('div');
+      aWrap.className = 'msg msg-assistant';
+      const aLabel = document.createElement('div');
+      aLabel.className = 'msg-label';
+      aLabel.textContent = '[gemma]';
+      const aBubble = document.createElement('div');
+      aBubble.className = 'msg-bubble streaming';
+
+      const thinkDetails = document.createElement('details');
+      thinkDetails.className = 'think-block';
+      thinkDetails.style.display = 'none';
+      const thinkSummary = document.createElement('summary');
+      thinkSummary.textContent = '[pensando...]';
+      const thinkPre = document.createElement('pre');
+      thinkDetails.appendChild(thinkSummary);
+      thinkDetails.appendChild(thinkPre);
+
+      const answerDiv = document.createElement('div');
+
+      aBubble.appendChild(thinkDetails);
+      aBubble.appendChild(answerDiv);
+      aWrap.appendChild(aLabel);
+      aWrap.appendChild(aBubble);
+      messagesEl.appendChild(aWrap);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: savedPw, messages }),
+        });
+        if (res.status === 401) { sessionStorage.removeItem(PASSWORD_KEY); location.reload(); return; }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        const START = '<|channel>thought';
+        const END = '<channel|>';
+        let full = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          for (const line of chunk.split('\n')) {
+            if (!line.startsWith('data: ')) continue;
+            const data = line.slice(6).trim();
+            if (data === '[DONE]') continue;
+            try {
+              const delta = JSON.parse(data).choices?.[0]?.delta?.content || '';
+              full += delta;
+
+              const si = full.indexOf(START);
+              const ei = full.indexOf(END);
+
+              if (si !== -1) {
+                // Hay pensamiento
+                thinkDetails.style.display = '';
+                thinkDetails.open = true;
+                const thoughtRaw = full.slice(si + START.length, ei !== -1 ? ei : undefined);
+                thinkPre.textContent = thoughtRaw;
+                thinkSummary.textContent = ei !== -1 ? '[pensamiento ▾]' : '[pensando...]';
+              }
+
+              // Respuesta = todo después de <channel|>, o el texto completo si no hay pensamiento
+              if (ei !== -1) {
+                answerDiv.textContent = full.slice(ei + END.length).trim();
+              } else if (si === -1) {
+                answerDiv.textContent = full;
+              }
+
+              messagesEl.scrollTop = messagesEl.scrollHeight;
+            } catch {}
+          }
+        }
+
+        aBubble.classList.remove('streaming');
+        const finalAnswer = full.indexOf(END) !== -1
+          ? full.slice(full.indexOf(END) + END.length).trim()
+          : full;
+        messages.push({ role: 'assistant', content: finalAnswer });
+
+      } catch (err) {
+        answerDiv.textContent = '[error de conexión]';
+        aBubble.classList.remove('streaming');
+      }
+
+      streaming = false;
+      sendBtn.disabled = false;
+      inputEl.focus();
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+    inputEl.addEventListener('input', () => {
+      inputEl.style.height = 'auto';
+      inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
+    });
+  })();
+</script>

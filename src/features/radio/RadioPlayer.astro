@@ -1,0 +1,257 @@
+---
+// RadioPlayer.astro
+import { existsSync } from 'fs';
+import { join } from 'path';
+
+const hasLocalSong = existsSync(join(process.cwd(), 'public', 'aris_song.mp3'));
+const LOCAL_URL    = '/aris_song.mp3';
+// Streams de respaldo — se prueban en orden hasta que uno funcione
+const FALLBACK_STREAMS = [
+  'https://streams.ilovemusic.de/iloveradio17.mp3',   // lo-fi hits
+  'https://radio.plaza.one/mp3',                       // plaza.one
+  'https://listen.moe/stream',                         // listen.moe J-pop
+];
+const STATION_NAME = hasLocalSong ? 'aris · song' : 'lo-fi · aris fm';
+const IS_LOCAL     = hasLocalSong;
+---
+<div id="radio-player" class="radio-player" transition:persist>
+  <button id="radio-toggle" class="radio-btn" aria-label="Reproducir" aria-pressed="false">
+    <span class="radio-icon radio-icon--play" aria-hidden="true">▶</span>
+    <span class="radio-icon radio-icon--pause" aria-hidden="true">⏸</span>
+    <span class="radio-bars" aria-hidden="true">
+      <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    </span>
+  </button>
+  <div class="radio-info">
+    <span class="radio-name" id="radio-name">{STATION_NAME}</span>
+    <span class="radio-status" id="radio-status">pausado</span>
+  </div>
+  <input type="range" id="radio-volume" class="radio-volume"
+    min="0" max="1" step="0.05" value="0.6" aria-label="Volumen" />
+</div>
+
+<script define:vars={{ LOCAL_URL, FALLBACK_STREAMS, IS_LOCAL, STATION_NAME }}>
+if (!window.__radioInitialized) {
+  window.__radioInitialized = true;
+  let audio = null, playing = false, streamIndex = 0;
+
+  function getEls() {
+    return {
+      btn:    document.getElementById('radio-toggle'),
+      status: document.getElementById('radio-status'),
+      name:   document.getElementById('radio-name'),
+      vol:    document.getElementById('radio-volume'),
+      player: document.getElementById('radio-player'),
+    };
+  }
+
+  function setUI(isPlaying, statusText) {
+    const { btn, status, player } = getEls();
+    if (!btn) return;
+    playing = isPlaying;
+    btn.setAttribute('aria-pressed', String(isPlaying));
+    player.classList.toggle('is-playing', isPlaying);
+    if (status) {
+      status.textContent = statusText ?? (isPlaying
+        ? (IS_LOCAL ? '▶ reproduciendo' : '● en vivo')
+        : 'pausado');
+    }
+  }
+
+  function tryNextStream() {
+    if (streamIndex >= FALLBACK_STREAMS.length) {
+      setUI(false, 'sin señal');
+      return;
+    }
+    const url = FALLBACK_STREAMS[streamIndex++];
+    const { name } = getEls();
+    if (name) name.textContent = 'lo-fi · buscando...';
+    audio.src = url;
+    audio.loop = false;
+    audio.play().catch(() => tryNextStream());
+  }
+
+  function initAudio() {
+    if (audio) return;
+    audio = new Audio(IS_LOCAL ? LOCAL_URL : FALLBACK_STREAMS[streamIndex++]);
+    if (IS_LOCAL) audio.loop = true;
+    audio.volume = parseFloat(document.getElementById('radio-volume')?.value ?? '0.6');
+
+    audio.addEventListener('playing', () => {
+      const { name } = getEls();
+      if (name && !IS_LOCAL) name.textContent = 'lo-fi · aris fm';
+      setUI(true);
+    });
+    audio.addEventListener('pause',   () => setUI(false));
+    audio.addEventListener('ended',   () => setUI(false));
+    audio.addEventListener('error', () => {
+      if (IS_LOCAL && audio.src.includes(LOCAL_URL)) {
+        // Local falló → intentar streams
+        tryNextStream();
+      } else {
+        tryNextStream();
+      }
+    });
+  }
+
+  function toggle() {
+    initAudio();
+    if (playing) {
+      audio.pause();
+    } else {
+      setUI(false, 'conectando...');
+      audio.play().catch(() => {
+        // Autoplay bloqueado — el usuario debe hacer click
+        setUI(false, 'click para activar');
+      });
+    }
+  }
+
+  function bind() {
+    const { btn, vol } = getEls();
+    if (!btn) return;
+    btn.removeEventListener('click', toggle);
+    btn.addEventListener('click', toggle);
+    if (vol) vol.addEventListener('input', e => { if (audio) audio.volume = parseFloat(e.target.value); });
+    if (playing) setUI(true);
+  }
+
+  bind();
+  document.addEventListener('astro:page-load', bind);
+}
+</script>
+
+<style>
+.radio-player {
+  position: fixed; bottom: var(--space-6); right: var(--space-6); z-index: 50;
+  display: flex; align-items: center; gap: var(--space-3);
+  background: rgba(5,5,10,0.85);
+  border: 1px solid rgba(200,52,100,0.2);
+  border-radius: var(--radius-xl); padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(20px);
+}
+.radio-btn {
+  width: 2.25rem; height: 2.25rem; border-radius: var(--radius-full);
+  border: none; background: var(--color-accent); color: var(--color-bg);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: transform var(--duration) var(--ease-out);
+  position: relative; overflow: hidden;
+}
+.radio-btn:hover { transform: scale(1.08); }
+.radio-icon { font-size: 0.7rem; position: absolute; transition: opacity var(--duration); }
+.radio-icon--play { opacity: 1; } .radio-icon--pause { opacity: 0; }
+.radio-bars { display: flex; align-items: flex-end; gap: 2px; height: 12px; opacity: 0; transition: opacity var(--duration); position: absolute; }
+.bar { width: 3px; background: var(--color-bg); border-radius: 2px; animation: bar-bounce 0.8s ease-in-out infinite; }
+.bar:nth-child(1) { height: 8px; } .bar:nth-child(2) { height: 12px; animation-delay: .15s; } .bar:nth-child(3) { height: 6px; animation-delay: .3s; }
+@keyframes bar-bounce { 0%,100% { transform: scaleY(.4); } 50% { transform: scaleY(1); } }
+.is-playing .radio-icon--play, .is-playing .radio-icon--pause { opacity: 0; }
+.is-playing .radio-bars { opacity: 1; }
+.radio-info { display: flex; flex-direction: column; gap: 2px; min-width: 5rem; }
+.radio-name { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-ink); letter-spacing: .04em; }
+.radio-status { font-size: .65rem; color: var(--color-muted); letter-spacing: .06em; text-transform: uppercase; }
+.radio-volume { -webkit-appearance: none; appearance: none; width: 5rem; height: 3px; background: var(--color-surface-2); border-radius: var(--radius-full); outline: none; cursor: pointer; }
+.radio-volume::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--color-accent); cursor: pointer; }
+@media (max-width: 640px) { .radio-player { bottom: var(--space-4); right: var(--space-4); } .radio-volume { width: 3.5rem; } }
+
+  <!-- Cargar audio local — solo en memoria del browser, no sube nada -->
+  <input type="file" id="radio-file-input" accept="audio/*,video/mp4,video/webm,.mp3,.mp4,.ogg,.opus,.flac,.wav,.aac,.m4a" style="display:none" />
+  <button id="radio-file-btn" title="Cargar archivo local" style="width:1.6rem;height:1.6rem;border-radius:50%;border:1px solid rgba(200,52,100,0.3);background:transparent;color:#A78BFA;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;transition:background 0.2s,color 0.2s,border-color 0.2s;">
+    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 1v8M4 4l3-3 3 3M2 10v2a1 1 0 001 1h8a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</style>
+
+<script>
+document.addEventListener('astro:page-load', () => {
+  const fileBtn   = document.getElementById('radio-file-btn');
+  const fileInput = document.getElementById('radio-file-input');
+  if (!fileBtn || !fileInput) return;
+
+  let audioCtx = null, analyser = null, sourceNode = null;
+  let localObjURL = null;
+
+  window.__radioSynth = window.__radioSynth || {
+    active:false, bass:0, mid:0, high:0, energy:0, beat:false
+  };
+
+  function ensureCtx() {
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.75;
+    analyser.connect(audioCtx.destination);
+  }
+
+  function startAnalysis(el) {
+    ensureCtx();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (sourceNode) { try { sourceNode.disconnect(); } catch(e){} }
+    sourceNode = audioCtx.createMediaElementSource(el);
+    sourceNode.connect(analyser);
+
+    const freqData = new Uint8Array(analyser.frequencyBinCount);
+    const NYQ = audioCtx.sampleRate / 2;
+    const BINS = analyser.frequencyBinCount;
+    const f = hz => Math.round(hz / NYQ * BINS);
+    const BLO = f(20), BHI = f(250), MHI = f(4000), HHI = f(18000);
+    let prevBass = 0, beatCD = 0;
+
+    function tick() {
+      requestAnimationFrame(tick);
+      analyser.getByteFrequencyData(freqData);
+      let bs=0,ms=0,hs=0,ts=0;
+      for(let i=BLO;i<BHI;i++) bs+=freqData[i];
+      for(let i=BHI;i<MHI;i++) ms+=freqData[i];
+      for(let i=MHI;i<HHI;i++) hs+=freqData[i];
+      for(let i=0;i<BINS;i++)   ts+=freqData[i];
+      const bn=bs/((BHI-BLO)*255), mn=ms/((MHI-BHI)*255),
+            hn=hs/((HHI-MHI)*255), en=ts/(BINS*255);
+      let beat=false;
+      if(beatCD<=0 && bn-prevBass>0.18 && bn>0.35){beat=true;beatCD=12;}
+      if(beatCD>0) beatCD--;
+      prevBass=bn*0.6+prevBass*0.4;
+      window.__radioSynth={active:true,bass:bn,mid:mn,high:hn,energy:en,beat};
+    }
+    tick();
+  }
+
+  // Conectar al <audio> existente del player si ya existe
+  function hookExistingAudio() {
+    const existing = document.querySelector('audio');
+    if (existing && !existing.__synthHooked) {
+      existing.__synthHooked = true;
+      startAnalysis(existing);
+    }
+  }
+  setTimeout(hookExistingAudio, 800);
+
+  // Archivo local
+  fileBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    if (localObjURL) URL.revokeObjectURL(localObjURL);
+    localObjURL = URL.createObjectURL(file);
+
+    let el = document.querySelector('audio');
+    if (!el) { el = new Audio(); el.loop = true; document.body.appendChild(el); }
+    el.pause();
+    el.src = localObjURL;
+    el.loop = true;
+    if (!el.__synthHooked) { el.__synthHooked = true; startAnalysis(el); }
+    el.play().catch(e => console.warn('[synth]', e));
+
+    // Actualizar label del player si existe
+    const station = document.getElementById('radio-station') ||
+                    document.querySelector('[class*="station"]');
+    if (station) station.textContent = file.name.replace(/\.[^.]+$/, '');
+    fileBtn.style.color = '#22D3EE';
+    fileBtn.style.borderColor = 'rgba(34,211,238,0.5)';
+  });
+
+  document.addEventListener('astro:before-swap', () => {
+    window.__radioSynth = {active:false,bass:0,mid:0,high:0,energy:0,beat:false};
+  }, { once: true });
+});
+</script>

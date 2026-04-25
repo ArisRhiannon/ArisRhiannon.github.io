@@ -1,0 +1,28 @@
+{
+  "games": [
+    {
+      "id": "gi",
+      "name": "Genshin Impact",
+      "uid": "603731692",
+      "color": "#4FC3F7",
+      "icon": "✦",
+      "apiEndpoint": "/api/enka-gi"
+    },
+    {
+      "id": "hsr",
+      "name": "Honkai: Star Rail",
+      "uid": "600180174",
+      "color": "#CE93D8",
+      "icon": "★",
+      "apiEndpoint": "/api/enka-hsr"
+    },
+    {
+      "id": "zzz",
+      "name": "Zenless Zone Zero",
+      "uid": "1000026834",
+      "color": "#F9A825",
+      "icon": "◈",
+      "apiEndpoint": "/api/enka-zzz"
+    }
+  ]
+}

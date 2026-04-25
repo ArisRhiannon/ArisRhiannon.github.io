@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.astro/
+*.db
+.env
+.env.*
+!.env.example
+public/uploads/
+public/thumbs/

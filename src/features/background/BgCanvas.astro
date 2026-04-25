@@ -1,0 +1,437 @@
+---
+---
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+<style is:global>
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+</style>
+<script>
+document.addEventListener('astro:page-load', () => {
+  const canvas = document.getElementById('bg-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, raf, cx, cy;
+
+  function resize() {
+    const r = window.devicePixelRatio || 1;
+    canvas.width  = window.innerWidth  * r;
+    canvas.height = window.innerHeight * r;
+    ctx.scale(r, r);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    cx = 148;
+    cy = H / 2;
+  }
+
+  const PHI = (1 + Math.sqrt(5)) / 2;
+  const BASE_VERTS = [
+    [-1,PHI,0],[1,PHI,0],[-1,-PHI,0],[1,-PHI,0],
+    [0,-1,PHI],[0,1,PHI],[0,-1,-PHI],[0,1,-PHI],
+    [PHI,0,-1],[PHI,0,1],[-PHI,0,-1],[-PHI,0,1],
+  ].map(v => { const l = Math.hypot(...v); return v.map(x => x/l); });
+
+  const FACES = [
+    [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],
+    [1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
+    [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],
+    [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1],
+  ];
+
+  // --- Rotación ---
+  let angY = 0, angX = 0.3;
+  let velY = 0.006, velX = 0.002;
+  const BASE_VY = 0.006, BASE_VX = 0.002;
+
+  // --- Idle FSM ---
+  // fases: calm | surge | peak | settle
+  let phase = 'calm';
+  let phaseT = 0, phaseDur = 2.5 + Math.random() * 2;
+  let targetVY = BASE_VY, targetVX = BASE_VX;
+  let idleT = 0; // tiempo global idle para senoidales
+
+  // --- Combo / interacción ---
+  let comboMeter = 0;       // 0..1
+  let comboDecay = 0.008;
+  let interacting = false;
+  let interactT = 0;        // tiempo acumulado de interacción activa
+  let rings = [];           // anillos de energía expansivos
+
+  // --- Estelas gema ---
+  const GEM_TRAIL_MAX = 32;
+  let gemTrail = [];
+
+  // --- Drag ---
+  let dragging = false, lastMX = 0, lastMY = 0;
+
+  function onDown(e, x, y) {
+    const dist = Math.hypot(x - cx, y - cy);
+    if (dist > 140) return;
+    e.preventDefault(); e.stopPropagation();
+    dragging = true; interacting = true;
+    lastMX = x; lastMY = y;
+  }
+  function onMove(x, y) {
+    if (!dragging) return;
+    const dx = x - lastMX, dy = y - lastMY;
+    velY += dx * 0.0018;
+    velX += dy * 0.0018;
+    // combo acumula con velocidad de arrastre
+    comboMeter = Math.min(1, comboMeter + Math.abs(dx) * 0.004 + Math.abs(dy) * 0.002);
+    lastMX = x; lastMY = y;
+  }
+  function onUp() {
+    dragging = false;
+    // no resetear interacting inmediatamente, dejar que decaiga
+  }
+
+  window.addEventListener('mousedown',  e => onDown(e, e.clientX, e.clientY));
+  window.addEventListener('mousemove',  e => onMove(e.clientX, e.clientY));
+  window.addEventListener('mouseup',    onUp);
+  window.addEventListener('touchstart', e => onDown(e, e.touches[0].clientX, e.touches[0].clientY), { passive: false });
+  window.addEventListener('touchmove',  e => { if(dragging) { e.preventDefault(); onMove(e.touches[0].clientX, e.touches[0].clientY); } }, { passive: false });
+  window.addEventListener('touchend',   onUp);
+
+  function rotY(v,a){ const[x,y,z]=v; return[x*Math.cos(a)+z*Math.sin(a),y,-x*Math.sin(a)+z*Math.cos(a)]; }
+  function rotX(v,a){ const[x,y,z]=v; return[x,y*Math.cos(a)-z*Math.sin(a),y*Math.sin(a)+z*Math.cos(a)]; }
+  function project(v, R){
+    const fov=3.8, z=v[2]+fov, s=R*(fov/z);
+    return [cx+v[0]*s, cy+v[1]*s, v[2]];
+  }
+  function easeIn3(t){ return t*t*t; }
+  function easeOut3(t){ return 1-Math.pow(1-t,3); }
+  function easeInOut5(t){ return t<0.5?16*t*t*t*t*t:(1+Math.pow(-2*t+2,5))/2; }
+
+  // Paleta iridiscente amatista: violeta→magenta suave→oro rosado→cian frío
+  function iridHue(t, combo) {
+    // sin interacción: rango amatista 245-295
+    // con combo: abre hacia 180-340 (cian frío a magenta)
+    const base = 330;
+    const range = 25 + combo * 85;
+    return base + Math.sin(t * 2.3) * range;
+  }
+  function iridSat(combo){ return 72 + combo * 22; }
+  function iridLit(n, combo){ return 52 + n*35 + combo*18; }
+
+  // --- Wisps ---
+  // Dos modos: idle (Lissajous suave) e interact (caótico, más exótico)
+  const WISPS = [
+    { ax:1.55,ay:0.65,az:1.05, fx:0.71,fy:1.31,fz:0.91, ph:0.0,  trail:[] },
+    { ax:0.85,ay:1.55,az:1.15, fx:1.13,fy:0.53,fz:1.43, ph:2.1,  trail:[] },
+    { ax:1.28,ay:1.08,az:0.72, fx:1.73,fy:0.93,fz:0.63, ph:4.2,  trail:[] },
+    { ax:0.62,ay:1.42,az:1.48, fx:0.43,fy:1.83,fz:1.13, ph:1.05, trail:[] },
+    { ax:1.12,ay:0.82,az:1.42, fx:1.33,fy:1.13,fz:0.53, ph:3.3,  trail:[] },
+  ];
+  const TRAIL_IDLE    = 16;
+  const TRAIL_INTERACT = 28;
+
+  // Frecuencias caóticas para modo interacción
+  const CHAOS_FX = [1.97, 0.73, 2.31, 0.41, 1.61];
+  const CHAOS_FY = [0.83, 2.17, 0.59, 1.89, 0.97];
+  const CHAOS_FZ = [1.43, 1.07, 1.79, 0.67, 2.03];
+
+  let lastT = 0;
+
+  function updateIdle(dt, t) {
+    if (dragging) return;
+    idleT += dt;
+    phaseT += dt;
+
+    if (phase === 'calm') {
+      // Meditación activa: nunca plana, siempre con personalidad
+      // Figura-8 suave: combina sen en Y y cos en X con distintas frecuencias
+      const breathY = BASE_VY
+        + 0.004 * Math.sin(idleT * 0.7)
+        + 0.002 * Math.sin(idleT * 1.9 + 1.1)
+        + 0.001 * Math.sin(idleT * 3.3 + 2.2);
+      const breathX = BASE_VX
+        + 0.002 * Math.cos(idleT * 0.5 + 0.8)
+        + 0.001 * Math.cos(idleT * 2.1 + 0.3);
+      velY += (breathY - velY) * 0.06;
+      velX += (breathX - velX) * 0.06;
+
+      if (phaseT > phaseDur) {
+        phase = 'surge';
+        phaseT = 0;
+        phaseDur = 0.5 + Math.random() * 0.4;
+        // dirección del spin: a veces figura-8, a veces puro lateral, a veces diagonal loca
+        const mode = Math.floor(Math.random() * 3);
+        if (mode === 0) { // spin lateral fuerte
+          targetVY = (Math.random()>0.5?1:-1) * (0.032 + Math.random()*0.028);
+          targetVX = (Math.random()-0.5) * 0.012;
+        } else if (mode === 1) { // figura-8 agresiva
+          targetVY = (Math.random()>0.5?1:-1) * (0.022 + Math.random()*0.018);
+          targetVX = (Math.random()>0.5?1:-1) * (0.018 + Math.random()*0.014);
+        } else { // spin diagonal con roll
+          targetVY = (Math.random()>0.5?1:-1) * (0.038 + Math.random()*0.022);
+          targetVX = (Math.random()>0.5?1:-1) * (0.022 + Math.random()*0.016);
+        }
+      }
+
+    } else if (phase === 'surge') {
+      const prog = Math.min(phaseT / phaseDur, 1);
+      const ease = easeIn3(prog);
+      velY += (targetVY * ease - velY) * 0.08;
+      velX += (targetVX * ease - velX) * 0.08;
+      if (prog >= 1) {
+        phase = 'peak';
+        phaseT = 0;
+        phaseDur = 0.6 + Math.random() * 1.4; // peak más largo = más adrenalina
+      }
+
+    } else if (phase === 'peak') {
+      // Adrenalina: velocidad pico con modulación senoidal de lujo
+      const mod = 1 + 0.18 * Math.sin(idleT * 4.1) + 0.08 * Math.sin(idleT * 7.3);
+      velY += (targetVY * mod - velY) * 0.055;
+      velX += (targetVX * mod - velX) * 0.055;
+      if (phaseT > phaseDur) {
+        phase = 'settle';
+        phaseT = 0;
+        phaseDur = 1.4 + Math.random() * 0.8;
+      }
+
+    } else if (phase === 'settle') {
+      const prog = Math.min(phaseT / phaseDur, 1);
+      const ease = easeOut3(prog);
+      const tY = BASE_VY + (targetVY - BASE_VY) * (1 - ease);
+      const tX = BASE_VX + (targetVX - BASE_VX) * (1 - ease);
+      velY += (tY - velY) * 0.04;
+      velX += (tX - velX) * 0.04;
+
+      for (let i = gemTrail.length-1; i>=0; i--) {
+        gemTrail[i].alpha -= 0.025;
+        if (gemTrail[i].alpha <= 0) gemTrail.splice(i,1);
+      }
+      if (prog >= 1) {
+        phase = 'calm';
+        phaseT = 0;
+        phaseDur = 1.8 + Math.random() * 2.8; // calma más corta = más acción
+        gemTrail = [];
+      }
+    }
+  }
+
+  let lastMs = 0;
+  function draw(ms) {
+    raf = requestAnimationFrame(draw);
+    const dt = Math.min((ms - lastMs) * 0.001, 0.05);
+    if (ms - lastT < 20) return;
+    lastT = ms;
+    lastMs = ms;
+    const t = ms * 0.001;
+
+    updateIdle(dt, t);
+
+    // Combo decay
+    if (!dragging) {
+      comboMeter = Math.max(0, comboMeter - comboDecay);
+      if (comboMeter < 0.05) interacting = false;
+    } else {
+      interactT += dt;
+      interacting = true;
+    }
+
+    // Retorno suave post-drag
+    if (!dragging && phase === 'calm') {
+      velY += (BASE_VY - velY) * 0.025;
+      velX += (BASE_VX - velX) * 0.025;
+    }
+
+    angY += velY;
+    angX += velX;
+
+    ctx.clearRect(0, 0, W, H);
+
+    const R = Math.min(W, H) * 0.065;
+    const spinI = Math.min((Math.abs(velY) - BASE_VY*0.5) / 0.04, 1);
+    const spinIntensity = Math.max(0, spinI) + comboMeter * 0.5;
+    const clampedSpin = Math.min(spinIntensity, 1);
+    const pulse = 0.78 + 0.22 * Math.sin(t * 0.85);
+    const hueBase = 330 + 14 * Math.sin(t * 0.13);
+
+    // Transformar vértices
+    const v3 = BASE_VERTS.map(v => rotX(rotY(v, angY), angX));
+    const v2 = v3.map(v => project(v, R));
+
+    // Anillos de energía al llegar a combo alto
+    if (comboMeter > 0.75 && Math.random() < 0.08) {
+      rings.push({ r: R*0.3, maxR: R*2.8, alpha: 0.6, hue: iridHue(t, comboMeter) });
+    }
+    // Actualizar y dibujar anillos
+    for (let i = rings.length-1; i>=0; i--) {
+      const rg = rings[i];
+      rg.r += 2.5;
+      rg.alpha -= 0.018;
+      if (rg.alpha <= 0 || rg.r > rg.maxR) { rings.splice(i,1); continue; }
+      ctx.beginPath();
+      ctx.arc(cx, cy, rg.r, 0, Math.PI*2);
+      ctx.strokeStyle = `hsla(${rg.hue},85%,72%,${rg.alpha})`;
+      ctx.lineWidth = 1.2;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = `hsl(${rg.hue},90%,80%)`;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    // Estelas gema (en surge/peak/settle o con combo)
+    const doTrail = phase==='surge'||phase==='peak'||clampedSpin>0.25;
+    if (doTrail) {
+      gemTrail.push({ v2: v2.map(v=>[...v]), alpha: 0.22 * clampedSpin, hue: hueBase });
+      if (gemTrail.length > GEM_TRAIL_MAX) gemTrail.shift();
+    }
+    for (let ti=0; ti<gemTrail.length; ti++) {
+      const frame = gemTrail[ti];
+      if (frame.alpha <= 0) continue;
+      const prog = ti / gemTrail.length;
+      const seen = new Set();
+      for (const f of FACES) {
+        for (const [i,j] of [[f[0],f[1]],[f[1],f[2]],[f[2],f[0]]]) {
+          const key = i<j?`${i}-${j}`:`${j}-${i}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          ctx.beginPath();
+          ctx.moveTo(frame.v2[i][0], frame.v2[i][1]);
+          ctx.lineTo(frame.v2[j][0], frame.v2[j][1]);
+          const trailHue = frame.hue + prog * 40 * (comboMeter > 0.5 ? 2 : 1);
+          ctx.strokeStyle = `hsla(${trailHue},80%,65%,${frame.alpha * prog})`;
+          ctx.lineWidth = 0.5 + prog * 0.8;
+          ctx.shadowBlur = 0;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Caras
+    const faces = FACES.map(f => {
+      const d = (v3[f[0]][2]+v3[f[1]][2]+v3[f[2]][2])/3;
+      return { f, d };
+    }).sort((a,b)=>a.d-b.d);
+
+    for (const { f, d } of faces) {
+      const [a,b,c] = f.map(i=>v2[i]);
+      const nd = (d+1)/2;
+      const dx1=b[0]-a[0], dy1=b[1]-a[1];
+      const dx2=c[0]-a[0], dy2=c[1]-a[1];
+      const front = dx1*dy2-dy1*dx2 < 0;
+      const alpha = (front ? 0.03+nd*0.11*pulse : 0.008+nd*0.016) + clampedSpin*0.06;
+      const faceHue = iridHue(t + nd*0.3, comboMeter) - nd*38;
+      const lit = 26 + nd*40 + clampedSpin*12;
+      ctx.beginPath();
+      ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.lineTo(c[0],c[1]);
+      ctx.closePath();
+      ctx.fillStyle = `hsla(${faceHue},${iridSat(comboMeter)}%,${lit}%,${alpha})`;
+      ctx.fill();
+    }
+
+    // Aristas
+    const seenE = new Set();
+    for (const { f, d } of faces) {
+      for (const [i,j] of [[f[0],f[1]],[f[1],f[2]],[f[2],f[0]]]) {
+        const key = i<j?`${i}-${j}`:`${j}-${i}`;
+        if (seenE.has(key)) continue;
+        seenE.add(key);
+        const ed = (v3[i][2]+v3[j][2])/2;
+        const en = (ed+1)/2;
+        const hue = iridHue(t + en*0.5, comboMeter) - en*48;
+        const alpha = (0.10 + en*0.72*pulse) + clampedSpin*0.18 + comboMeter*0.12;
+        const lit = iridLit(en, comboMeter);
+        ctx.beginPath();
+        ctx.moveTo(v2[i][0],v2[i][1]); ctx.lineTo(v2[j][0],v2[j][1]);
+        ctx.strokeStyle = `hsla(${hue},${iridSat(comboMeter)}%,${lit}%,${alpha})`;
+        ctx.lineWidth = 0.5 + en*0.9 + clampedSpin*0.6 + comboMeter*0.5;
+        ctx.shadowBlur  = 2 + en*9*pulse + clampedSpin*8 + comboMeter*10;
+        ctx.shadowColor = `hsl(${hue},95%,82%)`;
+        ctx.stroke();
+      }
+    }
+    ctx.shadowBlur = 0;
+
+    // Vértices
+    for (let i=0; i<v3.length; i++) {
+      const vn = (v3[i][2]+1)/2;
+      const hue = iridHue(t + vn*0.8, comboMeter) - vn*55;
+      const vr = 0.9 + vn*2.8 + clampedSpin*1.6 + comboMeter*2.5;
+      ctx.beginPath();
+      ctx.arc(v2[i][0],v2[i][1],vr,0,Math.PI*2);
+      ctx.fillStyle = `hsla(${hue},92%,90%,${0.20+vn*0.80*pulse + comboMeter*0.15})`;
+      ctx.shadowBlur = 4 + vn*14 + clampedSpin*10 + comboMeter*14;
+      ctx.shadowColor = `hsl(${hue+12},98%,92%)`;
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+
+    // Wisps
+    const trailLen = interacting ? TRAIL_INTERACT : TRAIL_IDLE;
+    for (let wi=0; wi<WISPS.length; wi++) {
+      const w = WISPS[wi];
+      // Frecuencias: idle vs caótico según combo
+      const fx = w.fx + (CHAOS_FX[wi] - w.fx) * comboMeter;
+      const fy = w.fy + (CHAOS_FY[wi] - w.fy) * comboMeter;
+      const fz = w.fz + (CHAOS_FZ[wi] - w.fz) * comboMeter;
+      // Amplitud crece con combo
+      const amp = 1.0 + comboMeter * 0.6;
+
+      const wp3 = [
+        w.ax * amp * Math.sin(fx*t + w.ph),
+        w.ay * amp * Math.sin(fy*t + w.ph + 1.1),
+        w.az * amp * Math.sin(fz*t + w.ph + 2.3),
+      ];
+      const wRot = rotX(rotY(wp3, angY), angX);
+      const wProj = project(wRot, R);
+      const wn = (wRot[2]+2.5)/5;
+
+      w.trail.push([wProj[0], wProj[1], wn]);
+      if (w.trail.length > trailLen) w.trail.shift();
+
+      // Color iridiscente por wisp: cada uno tiene offset de fase distinto
+      const wHueBase = iridHue(t + wi * 0.8 + w.ph, comboMeter);
+
+      for (let k=1; k<w.trail.length; k++) {
+        const prog = k / w.trail.length;
+        const [px,py,pn] = w.trail[k];
+        const [ppx,ppy] = w.trail[k-1];
+        const wHue = wHueBase + prog * 35 * comboMeter;
+        const wSat = iridSat(comboMeter * prog);
+        const wLit = 55 + prog*38;
+        const alpha = prog * (0.45 + comboMeter*0.35) * pn * pulse;
+        ctx.beginPath();
+        ctx.moveTo(ppx,ppy); ctx.lineTo(px,py);
+        ctx.strokeStyle = `hsla(${wHue},${wSat}%,${wLit}%,${alpha})`;
+        ctx.lineWidth = prog * (1.6 + comboMeter*1.4);
+        ctx.shadowBlur  = prog * (5 + comboMeter*10) * pulse;
+        ctx.shadowColor = `hsl(${wHue},90%,88%)`;
+        ctx.stroke();
+      }
+      ctx.shadowBlur = 0;
+
+      if (w.trail.length > 0) {
+        const [hx,hy,hn] = w.trail[w.trail.length-1];
+        const headHue = wHueBase + 20;
+        const headR = 1.3 + hn*1.6 + comboMeter*1.8;
+        ctx.beginPath();
+        ctx.arc(hx,hy,headR,0,Math.PI*2);
+        ctx.fillStyle = `hsla(${headHue},95%,93%,${0.55+hn*0.45})`;
+        ctx.shadowBlur = 7 + hn*11 + comboMeter*12;
+        ctx.shadowColor = `hsl(${headHue},100%,92%)`;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+  }
+
+  resize();
+  const ro = new ResizeObserver(resize);
+  ro.observe(document.documentElement);
+  draw(0);
+
+  document.addEventListener('astro:before-swap', () => {
+    cancelAnimationFrame(raf);
+    ro.disconnect();
+  }, { once: true });
+});
+</script>

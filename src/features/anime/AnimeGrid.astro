@@ -1,0 +1,287 @@
+---
+---
+<div id="anime-root">
+
+  <div class="af-topbar">
+    <div class="af-filters" role="tablist">
+      <button class="af-pill active" data-status="ALL">todo</button>
+      <button class="af-pill" data-status="CURRENT"><span class="af-dot" style="background:#22D3EE"></span>viendo</button>
+      <button class="af-pill" data-status="COMPLETED"><span class="af-dot" style="background:#4ADE80"></span>completado</button>
+      <button class="af-pill" data-status="PAUSED"><span class="af-dot" style="background:#FBBF24"></span>pausado</button>
+      <button class="af-pill" data-status="DROPPED"><span class="af-dot" style="background:#F87171"></span>dropped</button>
+      <button class="af-pill" data-status="PLANNING"><span class="af-dot" style="background:#A78BFA"></span>plan to watch</button>
+    </div>
+    <div class="af-stats">
+      <span id="af-count">—</span>
+      <span class="af-sep">·</span>
+      <span id="af-avg">—</span>
+      <span class="af-sep">·</span>
+      <span id="af-eps">—</span>
+    </div>
+  </div>
+
+  <div id="af-loading" class="af-loading">
+    <div class="af-bars"><span></span><span></span><span></span><span></span><span></span></div>
+    <p>conectando con anilist<span class="af-ellipsis"></span></p>
+  </div>
+
+  <div id="af-error" class="af-error" style="display:none">
+    <span>✕</span> no se pudo cargar la lista de AniList
+  </div>
+
+  <div id="af-content" style="display:none"></div>
+
+</div>
+
+<style is:global>
+  #anime-root * { box-sizing:border-box; margin:0; padding:0; }
+
+  .af-topbar {
+    display:flex; flex-wrap:wrap; align-items:center;
+    justify-content:space-between; gap:1rem; margin-bottom:1.75rem;
+  }
+  .af-filters { display:flex; flex-wrap:wrap; gap:.3rem; }
+  .af-pill {
+    display:inline-flex; align-items:center; gap:.4rem;
+    padding:.28rem .75rem; background:transparent;
+    border:1px solid rgba(255,255,255,.07); border-radius:100px;
+    color:var(--color-muted-2); font-family:var(--font-mono);
+    font-size:.6rem; letter-spacing:.12em; text-transform:uppercase;
+    cursor:pointer; transition:all .16s; white-space:nowrap;
+  }
+  .af-pill:hover { border-color:rgba(168,85,247,.35); color:var(--color-ink-soft); background:rgba(168,85,247,.06); }
+  .af-pill.active { border-color:var(--color-accent); color:var(--color-accent); background:rgba(168,85,247,.1); }
+  .af-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+
+  .af-stats {
+    display:flex; align-items:center; gap:.5rem;
+    font-family:var(--font-mono); font-size:.62rem;
+    color:var(--color-muted-2); letter-spacing:.04em; white-space:nowrap;
+  }
+  .af-stats strong { color:var(--color-accent); }
+  .af-sep { opacity:.18; }
+
+  .af-loading {
+    display:flex; flex-direction:column; align-items:center;
+    gap:1.25rem; padding:6rem 0; font-family:var(--font-mono);
+    font-size:.72rem; color:var(--color-muted-2); letter-spacing:.08em;
+  }
+  .af-bars { display:flex; align-items:flex-end; gap:3px; height:22px; }
+  .af-bars span { display:block; width:3px; border-radius:2px; background:var(--color-accent); animation:af-eq 1.1s ease-in-out infinite; }
+  .af-bars span:nth-child(1){animation-delay:0s}
+  .af-bars span:nth-child(2){animation-delay:.12s}
+  .af-bars span:nth-child(3){animation-delay:.24s}
+  .af-bars span:nth-child(4){animation-delay:.36s}
+  .af-bars span:nth-child(5){animation-delay:.48s}
+  @keyframes af-eq { 0%,100%{height:4px;opacity:.3} 50%{height:22px;opacity:1} }
+  .af-ellipsis::after { content:''; animation:af-dots 1.5s steps(4,end) infinite; }
+  @keyframes af-dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%,100%{content:'...'} }
+
+  .af-error {
+    display:flex; align-items:center; gap:.6rem; padding:1rem 1.25rem;
+    background:rgba(248,113,113,.05); border:1px solid rgba(248,113,113,.18);
+    border-radius:4px; color:#F87171; font-family:var(--font-mono); font-size:.72rem;
+  }
+
+  /* SECTION */
+  .af-section { margin-bottom:2.5rem; }
+  .af-sec-head {
+    display:flex; align-items:center; gap:.65rem;
+    padding:.5rem 0 .55rem; margin-bottom:.15rem;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .af-sec-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .af-sec-name { font-family:var(--font-mono); font-size:.63rem; letter-spacing:.14em; text-transform:uppercase; color:var(--color-muted-2); }
+  .af-sec-n { font-family:var(--font-mono); font-size:.58rem; color:rgba(255,255,255,.15); margin-left:.1rem; }
+
+  /* TABLE HEADER */
+  .af-col-heads {
+    display:grid;
+    grid-template-columns: 52px 1fr 80px 100px 110px;
+    gap:0 1rem; padding:.4rem .5rem;
+    font-family:var(--font-mono); font-size:.56rem; letter-spacing:.1em;
+    text-transform:uppercase; color:rgba(255,255,255,.18);
+  }
+  .af-col-heads span:first-child { visibility:hidden; }
+  .af-col-r { text-align:right; }
+
+  /* ROW */
+  .af-row {
+    display:grid;
+    grid-template-columns: 52px 1fr 80px 100px 110px;
+    gap:0 1rem; align-items:center;
+    padding:.45rem .5rem; border-radius:4px;
+    text-decoration:none; color:inherit;
+    transition:background .15s;
+    animation:af-in .28s ease both;
+  }
+  .af-row:hover { background:rgba(168,85,247,.06); }
+  @keyframes af-in { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:translateX(0)} }
+
+  /* THUMB */
+  .af-thumb {
+    width:42px; height:58px; border-radius:3px; overflow:hidden;
+    flex-shrink:0; background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.06);
+  }
+  .af-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+
+  /* TITLE CELL */
+  .af-title-cell { min-width:0; }
+  .af-title {
+    font-family:var(--font-mono); font-size:.76rem; font-weight:500;
+    color:var(--color-ink-soft); line-height:1.35;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    margin-bottom:.2rem;
+  }
+  .af-row:hover .af-title { color:var(--color-ink); }
+  .af-genres { font-family:var(--font-mono); font-size:.57rem; color:rgba(255,255,255,.25); letter-spacing:.04em; }
+
+  /* SCORE */
+  .af-score-cell { text-align:right; font-family:var(--font-mono); font-size:.72rem; }
+  .af-score-val { color:var(--color-accent); font-weight:600; }
+  .af-score-none { color:rgba(255,255,255,.15); }
+
+  /* PROGRESS */
+  .af-prog-cell { text-align:right; }
+  .af-prog-text { font-family:var(--font-mono); font-size:.65rem; color:var(--color-muted-2); margin-bottom:.3rem; }
+  .af-prog-text strong { color:var(--color-ink-soft); }
+  .af-prog-bar { height:2px; background:rgba(255,255,255,.07); border-radius:2px; overflow:hidden; }
+  .af-prog-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--color-accent),#22D3EE); }
+
+  /* YEAR */
+  .af-year-cell {
+    text-align:right; font-family:var(--font-mono); font-size:.63rem;
+    color:rgba(255,255,255,.2); letter-spacing:.04em;
+  }
+
+  /* DIVIDER */
+  .af-divider { height:1px; background:rgba(255,255,255,.04); margin:0 .5rem; }
+
+  @media(max-width:700px) {
+    .af-col-heads { grid-template-columns: 42px 1fr 60px; }
+    .af-col-heads .af-ch-prog,
+    .af-col-heads .af-ch-year { display:none; }
+    .af-row { grid-template-columns: 42px 1fr 60px; }
+    .af-row > .af-prog-cell,
+    .af-row > .af-year-cell { display:none; }
+    .af-thumb { width:36px; height:50px; }
+  }
+</style>
+
+<script>
+document.addEventListener('astro:page-load', () => {
+  const root = document.getElementById('anime-root');
+  if (!root) return;
+
+  const LABELS = { CURRENT:'viendo', COMPLETED:'completado', PAUSED:'pausado', DROPPED:'dropped', PLANNING:'ptw' };
+  const COLORS  = { CURRENT:'#22D3EE', COMPLETED:'#4ADE80', PAUSED:'#FBBF24', DROPPED:'#F87171', PLANNING:'#A78BFA' };
+  const ORDER   = ['CURRENT','COMPLETED','PAUSED','DROPPED','PLANNING'];
+  let allEntries = [], currentFilter = 'ALL';
+
+  function esc(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function renderRow(e, idx) {
+    const delay = Math.min(idx * 12, 600);
+    const genres = (e.genres ?? []).slice(0,3).map(g => g.toLowerCase()).join(' · ');
+    const pct = e.episodes ? Math.min(100, Math.round(e.progress / e.episodes * 100)) : null;
+    const progText = e.episodes
+      ? `<strong>${e.progress}</strong> / ${e.episodes}`
+      : e.progress ? `<strong>${e.progress}</strong> ep` : '—';
+
+    return `<a class="af-row" href="${esc(e.siteUrl)}" target="_blank" rel="noopener noreferrer" style="animation-delay:${delay}ms">
+      <div class="af-thumb">
+        <img src="${esc(e.coverImage)}" alt="" loading="lazy" decoding="async">
+      </div>
+      <div class="af-title-cell">
+        <div class="af-title">${esc(e.title)}</div>
+        ${genres ? `<div class="af-genres">${genres}</div>` : ''}
+      </div>
+      <div class="af-score-cell">
+        ${e.score ? `<span class="af-score-val">★ ${e.score}</span>` : '<span class="af-score-none">—</span>'}
+      </div>
+      <div class="af-prog-cell">
+        <div class="af-prog-text">${progText}</div>
+        ${pct !== null ? `<div class="af-prog-bar"><div class="af-prog-fill" style="width:${pct}%"></div></div>` : ''}
+      </div>
+      <div class="af-year-cell">${e.seasonYear ?? ''}</div>
+    </a>
+    <div class="af-divider"></div>`;
+  }
+
+  function colHeads() {
+    return `<div class="af-col-heads">
+      <span></span>
+      <span>título</span>
+      <span class="af-col-r">score</span>
+      <span class="af-col-r af-ch-prog">progreso</span>
+      <span class="af-col-r af-ch-year">año</span>
+    </div>`;
+  }
+
+  function renderSection(status, entries) {
+    const col = COLORS[status];
+    const sorted = [...entries].sort((a,b) => (b.score||0)-(a.score||0));
+    return `<div class="af-section">
+      <div class="af-sec-head">
+        <span class="af-sec-dot" style="background:${col};box-shadow:0 0 6px ${col}55"></span>
+        <span class="af-sec-name">${LABELS[status]}</span>
+        <span class="af-sec-n">${entries.length}</span>
+      </div>
+      ${colHeads()}
+      ${sorted.map((e,i) => renderRow(e,i)).join('')}
+    </div>`;
+  }
+
+  function updateStats(entries) {
+    const scored = entries.filter(e => e.score > 0);
+    const mean = scored.length ? (scored.reduce((s,e)=>s+e.score,0)/scored.length).toFixed(1) : null;
+    const eps = entries.reduce((s,e)=>s+(e.progress||0),0);
+    document.getElementById('af-count').innerHTML = `<strong>${entries.length}</strong> títulos`;
+    document.getElementById('af-avg').innerHTML = mean ? `score <strong>${mean}</strong>` : '<span style="opacity:.25">sin score</span>';
+    document.getElementById('af-eps').innerHTML = eps ? `<strong>${eps.toLocaleString()}</strong> ep` : '';
+  }
+
+  function renderView(filter) {
+    const filtered = filter === 'ALL' ? allEntries : allEntries.filter(e => e.status === filter);
+    let html = '';
+    if (filter === 'ALL') {
+      const groups = {};
+      ORDER.forEach(s => { groups[s] = []; });
+      allEntries.forEach(e => { if (groups[e.status]) groups[e.status].push(e); });
+      html = ORDER.filter(s => groups[s].length > 0).map(s => renderSection(s, groups[s])).join('');
+    } else {
+      const sorted = [...filtered].sort((a,b) => (b.score||0)-(a.score||0));
+      html = `${colHeads()}${sorted.map((e,i) => renderRow(e,i)).join('')}`;
+    }
+    document.getElementById('af-content').innerHTML = html;
+    updateStats(filtered);
+  }
+
+  root.querySelectorAll('.af-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.af-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.status ?? 'ALL';
+      renderView(currentFilter);
+    });
+  });
+
+  fetch('/api/anime')
+    .then(r => r.json())
+    .then(({ entries }) => {
+      allEntries = entries ?? [];
+      document.getElementById('af-loading').style.display = 'none';
+      document.getElementById('af-content').style.display = 'block';
+      renderView(currentFilter);
+    })
+    .catch(() => {
+      document.getElementById('af-loading').style.display = 'none';
+      document.getElementById('af-error').style.display = 'flex';
+    });
+
+  document.addEventListener('astro:before-swap', () => {}, { once: true });
+});
+</script>

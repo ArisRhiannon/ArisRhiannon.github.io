@@ -1,0 +1,33 @@
+services:
+  web:
+    build: .
+    ports:
+      - "127.0.0.1:4321:4321"
+    volumes:
+      - ./data:/app/data
+      - ./public/uploads:/app/public/uploads
+      - ./public/thumbs:/app/public/thumbs
+    env_file:
+      - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+
+  caddy:
+    image: caddy:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+      - ./public/uploads:/srv/uploads
+      - ./public/thumbs:/srv/thumbs
+    depends_on:
+      - web
+    restart: always
+
+volumes:
+  caddy_data:
+  caddy_config:

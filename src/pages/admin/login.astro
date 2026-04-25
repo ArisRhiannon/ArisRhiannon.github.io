@@ -1,0 +1,122 @@
+---
+// /admin/login — formulario de acceso. No usa Base.astro (layout propio minimal).
+// El middleware redirige aquí cuando la sesión no es válida.
+
+// Si ya tiene sesión válida, redirigir al panel
+const session = Astro.cookies.get('aris_admin');
+if (session?.value) {
+  return Astro.redirect('/admin');
+}
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aris · acceso</title>
+  <link rel="stylesheet" href="/design-tokens.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      min-height: 100dvh;
+      font-family: var(--font-mono);
+      background: var(--color-bg);
+      color: var(--color-ink);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .login-box {
+      width: 100%; max-width: 22rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem 2rem;
+      backdrop-filter: blur(16px);
+    }
+    .login-header { margin-bottom: 2rem; }
+    .login-prompt {
+      font-size: var(--text-xs); color: var(--color-accent);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem;
+    }
+    .login-title { font-size: var(--text-xl); color: var(--color-ink); }
+    label { display: block; font-size: var(--text-xs); color: var(--color-muted); margin-bottom: 0.4rem; letter-spacing: 0.06em; }
+    .field { margin-bottom: 1.25rem; }
+    input[type="password"] {
+      width: 100%; background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-md);
+      padding: 0.65rem 0.875rem;
+      font-family: var(--font-mono); font-size: var(--text-sm);
+      color: var(--color-ink);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input[type="password"]:focus { border-color: var(--color-accent); }
+    button[type="submit"] {
+      width: 100%;
+      background: var(--color-accent); color: var(--color-bg);
+      border: none; border-radius: var(--radius-md);
+      padding: 0.7rem 1rem;
+      font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 500;
+      cursor: pointer; letter-spacing: 0.04em;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    button[type="submit"]:hover { opacity: 0.88; transform: translateY(-1px); }
+    .error-msg {
+      color: #F87171; font-size: var(--text-xs);
+      margin-top: 1rem; text-align: center; display: none;
+    }
+    .error-msg.visible { display: block; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <div class="login-header">
+      <p class="login-prompt">~/admin</p>
+      <h1 class="login-title">acceso restringido</h1>
+    </div>
+    <div class="field">
+      <label for="pwd">contraseña</label>
+      <input type="password" id="pwd" autocomplete="current-password" autofocus />
+    </div>
+    <button type="submit" id="login-btn">entrar →</button>
+    <p class="error-msg" id="err-msg">contraseña incorrecta</p>
+  </div>
+
+  <script>
+    const btn = document.getElementById('login-btn');
+    const pwd = document.getElementById('pwd');
+    const err = document.getElementById('err-msg');
+
+    async function doLogin() {
+      btn.textContent = '…';
+      btn.disabled = true;
+      err.classList.remove('visible');
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pwd.value })
+        });
+
+        if (res.ok) {
+          window.location.href = '/admin';
+        } else {
+          err.classList.add('visible');
+          pwd.value = '';
+          pwd.focus();
+        }
+      } catch {
+        err.textContent = 'error de conexión';
+        err.classList.add('visible');
+      } finally {
+        btn.textContent = 'entrar →';
+        btn.disabled = false;
+      }
+    }
+
+    btn.addEventListener('click', doLogin);
+    pwd.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
+  </script>
+</body>
+</html>

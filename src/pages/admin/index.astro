@@ -1,0 +1,1804 @@
+---
+import { Database } from 'bun:sqlite';
+import { join } from 'path';
+import { readdirSync, existsSync, statSync, readFileSync } from 'fs';
+
+// ── Stats ──────────────────────────────────────────────────────
+let videoCount = 0, charCount = 0, commentCount = 0, totalVideoSize = 0;
+try {
+  const db = new Database(join(process.cwd(), 'data', 'database.sqlite'), { readonly: true });
+  videoCount   = (db.query('SELECT COUNT(*) as n FROM videos').get() as any)?.n ?? 0;
+  charCount    = (db.query('SELECT COUNT(*) as n FROM characters').get() as any)?.n ?? 0;
+  try { commentCount = (db.query('SELECT COUNT(*) as n FROM comments').get() as any)?.n ?? 0; } catch {}
+  db.close();
+} catch {}
+
+const uploadsDir = join(process.cwd(), 'public', 'uploads');
+if (existsSync(uploadsDir)) {
+  readdirSync(uploadsDir).forEach(f => {
+    try { totalVideoSize += statSync(join(uploadsDir, f)).size; } catch {}
+  });
+}
+const sizeMB = (totalVideoSize / 1024 / 1024).toFixed(1);
+
+// ── Auto-detección de módulos ──────────────────────────────────
+const featuresDir = join(process.cwd(), 'src', 'features');
+const pagesDir    = join(process.cwd(), 'src', 'pages');
+const dataDir     = join(process.cwd(), 'data');
+
+const featureModules = existsSync(featuresDir)
+  ? readdirSync(featuresDir, { withFileTypes: true })
+      .filter(d => d.isDirectory())
+      .map(d => d.name)
+  : [];
+
+// Páginas top-level (excluye api/ y admin/)
+const topPages = existsSync(pagesDir)
+  ? readdirSync(pagesDir, { withFileTypes: true })
+      .filter(d => !d.isDirectory() && d.name.endsWith('.astro'))
+      .map(d => d.name.replace('.astro', ''))
+      .filter(n => !['index','login','404'].includes(n))
+  : [];
+
+// Sub-páginas detectadas
+const subPageDirs = existsSync(pagesDir)
+  ? readdirSync(pagesDir, { withFileTypes: true })
+      .filter(d => d.isDirectory() && !['api','admin'].includes(d.name))
+      .map(d => d.name)
+  : [];
+
+const allJsons = existsSync(dataDir)
+  ? readdirSync(dataDir).filter(f => f.endsWith('.json')).sort()
+  : [];
+
+// Leer nav.json si existe
+let navItems: {label:string;href:string}[] = [];
+const navPath = join(dataDir, 'nav.json');
+if (existsSync(navPath)) {
+  try { navItems = JSON.parse(readFileSync(navPath,'utf-8')).items ?? []; } catch {}
+}
+
+const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json','nav.json'];
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin · Stellar Terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" />
+  <link rel="stylesheet" href="/design-tokens.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --adm-bg:       #03030A;
+      --adm-surface:  #080814;
+      --adm-panel:    #0B0B1A;
+      --adm-border:   rgba(168,85,247,0.1);
+      --adm-border2:  rgba(168,85,247,0.2);
+      --adm-acc:      #A855F7;
+      --adm-cyan:     #22D3EE;
+      --adm-green:    #4ADE80;
+      --adm-red:      #F87171;
+      --adm-amber:    #FBBF24;
+      --adm-ink:      #F1F5F9;
+      --adm-muted:    #94A3B8;
+      --adm-dimmed:   #475569;
+      --adm-mono:     'JetBrains Mono', monospace;
+    }
+    html, body {
+      background: var(--adm-bg);
+      color: var(--adm-ink);
+      font-family: var(--adm-mono);
+      min-height: 100dvh;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* ── SHELL ─────────────────────────────────────────────── */
+    .adm-shell {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      grid-template-rows: 36px 1fr;
+      min-height: 100dvh;
+    }
+
+    /* ── TITLEBAR ───────────────────────────────────────────── */
+    .adm-titlebar {
+      grid-column: 1 / -1;
+      background: var(--adm-surface);
+      border-bottom: 1px solid var(--adm-border);
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .adm-tb-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 16px;
+      border-right: 1px solid var(--adm-border);
+      height: 100%;
+      min-width: 240px;
+    }
+    .adm-tb-logo-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--adm-acc);
+      box-shadow: 0 0 8px rgba(168,85,247,.6);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100%{opacity:1;transform:scale(1)}
+      50%{opacity:.5;transform:scale(.8)}
+    }
+    .adm-tb-title { font-size: 11px; font-weight: 500; color: var(--adm-ink); letter-spacing: .08em; }
+    .adm-tb-sub   { font-size: 10px; color: var(--adm-dimmed); margin-left: 2px; }
+    .adm-tb-menu  {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      height: 100%;
+      padding: 0 8px;
+      gap: 2px;
+    }
+    .adm-tb-btn {
+      font-family: var(--adm-mono);
+      font-size: 10px;
+      color: var(--adm-muted);
+      background: none;
+      border: none;
+      padding: 0 10px;
+      height: 100%;
+      cursor: pointer;
+      letter-spacing: .04em;
+      transition: color .15s, background .15s;
+      border-radius: 0;
+    }
+    .adm-tb-btn:hover { color: var(--adm-ink); background: rgba(255,255,255,.04); }
+    .adm-tb-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      border-left: 1px solid var(--adm-border);
+      height: 100%;
+    }
+    .adm-tb-clock { font-size: 10px; color: var(--adm-dimmed); }
+    .adm-tb-logout {
+      font-family: var(--adm-mono);
+      font-size: 10px;
+      background: none;
+      border: 1px solid rgba(248,113,113,.25);
+      border-radius: 3px;
+      padding: 2px 8px;
+      color: rgba(248,113,113,.7);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .adm-tb-logout:hover { border-color: var(--adm-red); color: var(--adm-red); }
+
+    /* ── SIDEBAR ────────────────────────────────────────────── */
+    .adm-sidebar {
+      background: var(--adm-surface);
+      border-right: 1px solid var(--adm-border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .adm-tree-section { padding: 12px 0 4px; }
+    .adm-tree-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--adm-dimmed);
+      padding: 0 12px 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .adm-tree-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--adm-border);
+    }
+    .adm-tree-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 12px 5px 16px;
+      cursor: pointer;
+      color: var(--adm-muted);
+      font-size: 11.5px;
+      transition: color .12s, background .12s;
+      border-left: 2px solid transparent;
+      user-select: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      background: none;
+      border-right: none;
+      border-top: none;
+      border-bottom: none;
+      width: 100%;
+      text-align: left;
+      font-family: var(--adm-mono);
+    }
+    .adm-tree-item:hover { color: var(--adm-ink); background: rgba(255,255,255,.03); }
+    .adm-tree-item.active {
+      color: var(--adm-acc);
+      border-left-color: var(--adm-acc);
+      background: rgba(168,85,247,.07);
+    }
+    .adm-tree-icon {
+      font-size: 11px;
+      flex-shrink: 0;
+      opacity: .7;
+    }
+    .adm-tree-item.active .adm-tree-icon { opacity: 1; }
+    .adm-tree-badge {
+      margin-left: auto;
+      font-size: 9px;
+      background: rgba(168,85,247,.15);
+      border: 1px solid var(--adm-border2);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--adm-acc);
+      flex-shrink: 0;
+    }
+    .adm-tree-badge.green { background: rgba(74,222,128,.12); border-color: rgba(74,222,128,.25); color: var(--adm-green); }
+    .adm-tree-badge.amber { background: rgba(251,191,36,.12); border-color: rgba(251,191,36,.25); color: var(--adm-amber); }
+    .adm-sb-footer {
+      margin-top: auto;
+      padding: 10px 12px;
+      border-top: 1px solid var(--adm-border);
+    }
+    .adm-sb-version { font-size: 9px; color: var(--adm-dimmed); }
+
+    /* ── WORKSPACE ──────────────────────────────────────────── */
+    .adm-workspace {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Tab bar */
+    .adm-tabs {
+      display: flex;
+      align-items: center;
+      background: var(--adm-surface);
+      border-bottom: 1px solid var(--adm-border);
+      overflow-x: auto;
+      scrollbar-width: none;
+      min-height: 34px;
+      flex-shrink: 0;
+    }
+    .adm-tabs::-webkit-scrollbar { display: none; }
+    .adm-tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 14px;
+      height: 34px;
+      font-size: 11px;
+      color: var(--adm-muted);
+      cursor: pointer;
+      border-right: 1px solid var(--adm-border);
+      transition: color .15s, background .15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+      background: none;
+      border-top: none;
+      border-bottom: none;
+      border-left: none;
+      font-family: var(--adm-mono);
+      position: relative;
+    }
+    .adm-tab:hover { color: var(--adm-ink); background: rgba(255,255,255,.03); }
+    .adm-tab.active {
+      color: var(--adm-ink);
+      background: var(--adm-panel);
+      border-bottom: 2px solid var(--adm-acc);
+    }
+    .adm-tab-close {
+      font-size: 10px;
+      opacity: 0;
+      transition: opacity .15s;
+      padding: 1px 2px;
+      border-radius: 2px;
+    }
+    .adm-tab:hover .adm-tab-close,
+    .adm-tab.active .adm-tab-close { opacity: .5; }
+    .adm-tab-close:hover { opacity: 1 !important; background: rgba(255,255,255,.08); }
+    .adm-tab-icon { font-size: 10px; }
+
+    /* Content panels */
+    .adm-panels {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--adm-panel);
+      position: relative;
+    }
+    .adm-panel { display: none; height: 100%; }
+    .adm-panel.active { display: flex; flex-direction: column; }
+    .adm-panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 28px;
+      max-width: 900px;
+    }
+
+    /* ── PANEL HEADER ───────────────────────────────────────── */
+    .adm-ph {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--adm-border);
+    }
+    .adm-ph-icon {
+      width: 40px; height: 40px;
+      border-radius: 8px;
+      background: rgba(168,85,247,.12);
+      border: 1px solid var(--adm-border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .adm-ph-text h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: var(--adm-ink);
+      margin-bottom: 3px;
+    }
+    .adm-ph-text p { font-size: 11px; color: var(--adm-muted); }
+
+    /* ── STATS GRID ─────────────────────────────────────────── */
+    .adm-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .adm-stat {
+      background: rgba(255,255,255,.025);
+      border: 1px solid var(--adm-border);
+      border-radius: 8px;
+      padding: 14px;
+      transition: border-color .15s;
+    }
+    .adm-stat:hover { border-color: var(--adm-border2); }
+    .adm-stat-val {
+      font-size: 26px;
+      font-weight: 500;
+      color: var(--adm-ink);
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+    .adm-stat-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--adm-dimmed);
+    }
+
+    /* ── MODULE EXPLORER ────────────────────────────────────── */
+    .adm-module-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .adm-mod-card {
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--adm-border);
+      border-radius: 8px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all .18s;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .adm-mod-card:hover {
+      border-color: var(--adm-border2);
+      background: rgba(168,85,247,.05);
+      transform: translateY(-1px);
+    }
+    .adm-mod-top { display: flex; align-items: center; gap: 8px; }
+    .adm-mod-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--adm-green); box-shadow: 0 0 6px rgba(74,222,128,.5); flex-shrink: 0; }
+    .adm-mod-dot.new { background: var(--adm-amber); box-shadow: 0 0 6px rgba(251,191,36,.5); }
+    .adm-mod-name { font-size: 12px; font-weight: 500; color: var(--adm-ink); }
+    .adm-mod-path { font-size: 10px; color: var(--adm-dimmed); }
+    .adm-mod-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+    .adm-mod-btn {
+      font-size: 10px;
+      font-family: var(--adm-mono);
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--adm-border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      color: var(--adm-muted);
+      cursor: pointer;
+      transition: all .12s;
+      text-decoration: none;
+    }
+    .adm-mod-btn:hover { border-color: var(--adm-acc); color: var(--adm-acc); }
+
+    /* ── SECTION TITLE ──────────────────────────────────────── */
+    .adm-section {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--adm-dimmed);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .adm-section::after { content:''; flex:1; height:1px; background: var(--adm-border); }
+    .adm-section-accent { color: var(--adm-acc); }
+
+    /* ── UPLOAD ZONE ────────────────────────────────────────── */
+    .adm-drop {
+      border: 1.5px dashed rgba(168,85,247,.25);
+      border-radius: 10px;
+      transition: all .2s;
+      margin-bottom: 16px;
+    }
+    .adm-drop.over { border-color: var(--adm-acc); background: rgba(168,85,247,.05); }
+    .adm-drop-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 32px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .adm-drop-icon { font-size: 28px; color: var(--adm-acc); opacity: .4; }
+    .adm-drop-label { font-size: 13px; color: var(--adm-ink); }
+    .adm-drop-hint { font-size: 10px; color: var(--adm-dimmed); }
+    .adm-upload-form {
+      padding: 20px;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ── FIELD ──────────────────────────────────────────────── */
+    .adm-field { display: flex; flex-direction: column; gap: 4px; }
+    .adm-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--adm-dimmed);
+    }
+    .adm-input {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-family: var(--adm-mono);
+      font-size: 12px;
+      color: var(--adm-ink);
+      outline: none;
+      transition: border-color .15s;
+      width: 100%;
+    }
+    .adm-input:focus { border-color: var(--adm-acc); }
+    .adm-input:disabled { opacity: .4; }
+    .adm-input-sm {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 5px;
+      padding: 5px 8px;
+      font-family: var(--adm-mono);
+      font-size: 11px;
+      color: var(--adm-ink);
+      outline: none;
+      transition: border-color .15s;
+    }
+    .adm-input-sm:focus { border-color: var(--adm-acc); }
+    .adm-input-sm:disabled { opacity: .4; }
+    select.adm-input-sm { cursor: pointer; }
+    .adm-textarea {
+      background: rgba(0,0,0,.3);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: var(--adm-mono);
+      font-size: 11.5px;
+      color: var(--adm-ink);
+      line-height: 1.6;
+      outline: none;
+      resize: vertical;
+      width: 100%;
+      tab-size: 2;
+      min-height: 200px;
+    }
+    .adm-textarea:focus { border-color: rgba(168,85,247,.3); }
+
+    /* ── BUTTONS ────────────────────────────────────────────── */
+    .adm-btn {
+      font-family: var(--adm-mono);
+      font-size: 11px;
+      border-radius: 6px;
+      padding: 7px 14px;
+      cursor: pointer;
+      transition: all .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: none;
+      letter-spacing: .02em;
+    }
+    .adm-btn-primary { background: var(--adm-acc); color: #fff; }
+    .adm-btn-primary:hover { opacity: .85; }
+    .adm-btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+    .adm-btn-ghost { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); color: var(--adm-muted); }
+    .adm-btn-ghost:hover { border-color: var(--adm-border2); color: var(--adm-acc); }
+    .adm-btn-danger { background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.2); color: rgba(248,113,113,.7); }
+    .adm-btn-danger:hover { border-color: var(--adm-red); color: var(--adm-red); }
+    .adm-btn-xs {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .adm-btn-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+    /* ── PROGRESS ───────────────────────────────────────────── */
+    .adm-prog-wrap { display: flex; align-items: center; gap: 10px; display: none; }
+    .adm-prog-track { flex: 1; height: 2px; background: rgba(255,255,255,.06); border-radius: 2px; overflow: hidden; }
+    .adm-prog-bar { height: 100%; background: var(--adm-acc); width: 0%; transition: width .1s; }
+    .adm-prog-pct { font-size: 10px; color: var(--adm-muted); min-width: 30px; text-align: right; }
+
+    /* ── VIDEO LIST ─────────────────────────────────────────── */
+    .adm-vlist { display: flex; flex-direction: column; gap: 8px; }
+    .adm-vcard {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--adm-border);
+      border-radius: 8px;
+      padding: 12px;
+      transition: border-color .15s;
+    }
+    .adm-vcard:hover { border-color: var(--adm-border2); }
+    .adm-vthumb {
+      width: 110px;
+      flex-shrink: 0;
+      aspect-ratio: 16/9;
+      border-radius: 6px;
+      overflow: hidden;
+      background: rgba(168,85,247,.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--adm-acc);
+      font-size: 18px;
+      opacity: .4;
+    }
+    .adm-vthumb img { width:100%; height:100%; object-fit:cover; display:block; opacity:1; }
+    .adm-vbody { flex: 1; display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+    .adm-vrow { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .adm-vlink { font-size: 10px; color: var(--adm-dimmed); word-break: break-all; }
+
+    /* ── JSON ITEM CARDS ────────────────────────────────────── */
+    .adm-items { display: flex; flex-direction: column; gap: 6px; }
+    .adm-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--adm-border);
+      border-radius: 7px;
+      padding: 8px 10px;
+      transition: border-color .15s;
+    }
+    .adm-item:hover { border-color: var(--adm-border2); }
+    .adm-item.dragging { opacity: .35; border-style: dashed; }
+    .adm-drag { color: var(--adm-dimmed); cursor: grab; flex-shrink: 0; font-size: 13px; user-select: none; }
+    .adm-item-fields { display: flex; gap: 5px; flex: 1; align-items: center; flex-wrap: wrap; }
+    .adm-badge {
+      font-size: 10px;
+      background: rgba(168,85,247,.1);
+      border: 1px solid rgba(168,85,247,.2);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--adm-acc);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── FORM GRID ──────────────────────────────────────────── */
+    .adm-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media(max-width:600px){ .adm-grid2 { grid-template-columns: 1fr; } }
+
+    /* ── MODULE CREATOR ─────────────────────────────────────── */
+    .adm-creator {
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--adm-border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .adm-creator-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--adm-ink);
+      margin-bottom: 16px;
+    }
+    .adm-file-tree {
+      background: rgba(0,0,0,.2);
+      border: 1px solid var(--adm-border);
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 11px;
+      color: var(--adm-muted);
+      line-height: 1.8;
+      margin: 12px 0;
+    }
+    .adm-file-tree .dir  { color: var(--adm-cyan); }
+    .adm-file-tree .file { color: var(--adm-green); }
+    .adm-file-tree .new  { color: var(--adm-acc); }
+
+    /* ── UNKNOWN JSON EDITOR ─────────────────────────────────── */
+    .adm-kv-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .adm-kv-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--adm-border);
+      border-radius: 6px;
+      padding: 6px 8px;
+    }
+    .adm-kv-key { flex: 1; min-width: 80px; }
+    .adm-kv-val { flex: 3; }
+    .adm-kv-type {
+      font-size: 9px;
+      color: var(--adm-dimmed);
+      padding: 2px 6px;
+      background: rgba(255,255,255,.04);
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ── TOAST ──────────────────────────────────────────────── */
+    #adm-toasts {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 9999;
+    }
+    .adm-toast {
+      font-family: var(--adm-mono);
+      font-size: 11px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid;
+      animation: toast-in .2s ease;
+      max-width: 300px;
+    }
+    @keyframes toast-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    .adm-toast.ok  { background:#0a1f0e; border-color:rgba(74,222,128,.3); color:#86efac; }
+    .adm-toast.err { background:#1f0a0a; border-color:rgba(248,113,113,.3); color:#fca5a5; }
+    .adm-toast.inf { background:#0d0a1f; border-color:rgba(168,85,247,.3); color:#d8b4fe; }
+
+    /* ── CMD PALETTE ────────────────────────────────────────── */
+    #adm-palette-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      z-index: 999;
+      backdrop-filter: blur(4px);
+    }
+    #adm-palette-bg.open { display: flex; align-items: flex-start; justify-content: center; padding-top: 15vh; }
+    #adm-palette {
+      background: var(--adm-surface);
+      border: 1px solid var(--adm-border2);
+      border-radius: 10px;
+      width: 480px;
+      max-width: 90vw;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,.8);
+    }
+    #adm-palette-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--adm-border);
+      padding: 14px 16px;
+      font-family: var(--adm-mono);
+      font-size: 13px;
+      color: var(--adm-ink);
+      outline: none;
+    }
+    #adm-palette-input::placeholder { color: var(--adm-dimmed); }
+    .adm-pal-items { max-height: 320px; overflow-y: auto; padding: 6px; }
+    .adm-pal-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .1s;
+      font-size: 12px;
+      color: var(--adm-muted);
+    }
+    .adm-pal-item:hover, .adm-pal-item.sel { background: rgba(168,85,247,.1); color: var(--adm-ink); }
+    .adm-pal-icon { font-size: 13px; width: 18px; text-align: center; }
+    .adm-pal-label { flex: 1; }
+    .adm-pal-kbd {
+      font-size: 9px;
+      background: rgba(255,255,255,.06);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--adm-dimmed);
+    }
+    .adm-pal-hint { font-size: 10px; padding: 8px 12px; color: var(--adm-dimmed); border-top: 1px solid var(--adm-border); }
+
+    /* ── LOADING ─────────────────────────────────────────────── */
+    .adm-loading { color: var(--adm-dimmed); font-size: 11px; padding: 20px 0; }
+
+    /* ── GACHA CMDS ─────────────────────────────────────────── */
+    .adm-cmd-list { display: flex; flex-direction: column; gap: 8px; }
+    .adm-cmd {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 12px 14px;
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--adm-border);
+      border-radius: 8px;
+    }
+    .adm-cmd-name { font-size: 12px; font-weight: 500; color: var(--adm-ink); min-width: 120px; }
+    .adm-cmd-code {
+      font-size: 10px;
+      color: var(--adm-muted);
+      background: rgba(0,0,0,.25);
+      padding: 4px 8px;
+      border-radius: 4px;
+      word-break: break-all;
+      flex: 1;
+    }
+
+    /* ── SCROLLBAR ──────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(168,85,247,.2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(168,85,247,.4); }
+
+    /* ── RESPONSIVE ─────────────────────────────────────────── */
+    @media(max-width:700px) {
+      .adm-shell { grid-template-columns: 1fr; }
+      .adm-sidebar { display: none; }
+    }
+
+    /* ── NAV EDITOR ─────────────────────────────────────────── */
+    .adm-nav-preview {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: rgba(0,0,0,.2);
+      border: 1px solid var(--adm-border);
+      border-radius: 6px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .adm-nav-pill {
+      font-size: 10px;
+      padding: 2px 8px;
+      border: 1px solid rgba(168,85,247,.2);
+      border-radius: 100px;
+      color: var(--adm-muted);
+    }
+    .adm-nav-pill.accent { border-color: var(--adm-acc); color: var(--adm-acc); }
+  </style>
+</head>
+<body>
+<div id="adm-toasts"></div>
+
+<!-- ── CMD PALETTE ────────────────────────────────────── -->
+<div id="adm-palette-bg">
+  <div id="adm-palette">
+    <input id="adm-palette-input" placeholder="Buscar comando, módulo, JSON..." autocomplete="off" />
+    <div class="adm-pal-items" id="adm-pal-items"></div>
+    <div class="adm-pal-hint">↑↓ navegar · Enter seleccionar · Esc cerrar · Ctrl+K abrir</div>
+  </div>
+</div>
+
+<div class="adm-shell">
+
+  <!-- ── TITLEBAR ──────────────────────────────────────── -->
+  <header class="adm-titlebar">
+    <div class="adm-tb-logo">
+      <div class="adm-tb-logo-dot"></div>
+      <span class="adm-tb-title">stellar terminal</span>
+      <span class="adm-tb-sub">/ admin</span>
+    </div>
+    <div class="adm-tb-menu">
+      <button class="adm-tb-btn" onclick="openPanel('overview')">Overview</button>
+      <button class="adm-tb-btn" onclick="openPanel('videos')">Videos</button>
+      <button class="adm-tb-btn" onclick="openPanel('json-now')">JSONs</button>
+      <button class="adm-tb-btn" onclick="openPanel('gacha')">Gacha</button>
+      <button class="adm-tb-btn" onclick="openPanel('modules')">Módulos</button>
+      <button class="adm-tb-btn" onclick="openPalette()" style="margin-left:auto;color:var(--adm-dimmed)">⌘K búsqueda</button>
+    </div>
+    <div class="adm-tb-right">
+      <span class="adm-tb-clock" id="adm-clock">--:--</span>
+      <button class="adm-tb-logout" id="adm-logout">salir →</button>
+    </div>
+  </header>
+
+  <!-- ── SIDEBAR ────────────────────────────────────────── -->
+  <aside class="adm-sidebar">
+
+    <div class="adm-tree-section">
+      <div class="adm-tree-label">Sistema</div>
+      <button class="adm-tree-item active" data-panel="overview">
+        <span class="adm-tree-icon">⬡</span> Overview
+        <span class="adm-tree-badge green">live</span>
+      </button>
+    </div>
+
+    <div class="adm-tree-section">
+      <div class="adm-tree-label">Contenido</div>
+      <button class="adm-tree-item" data-panel="videos">
+        <span class="adm-tree-icon">▶</span> Videos
+        <span class="adm-tree-badge">{videoCount}</span>
+      </button>
+      {allJsons.map(f => (
+        <button class="adm-tree-item" data-panel={`json-${f.replace('.json','')}`}>
+          <span class="adm-tree-icon">✦</span> {f.replace('.json','')}
+        </button>
+      ))}
+    </div>
+
+    <div class="adm-tree-section">
+      <div class="adm-tree-label">Módulos detectados</div>
+      {featureModules.map(m => (
+        <button class="adm-tree-item" data-panel={`mod-${m}`}>
+          <span class="adm-tree-icon">◈</span> {m}
+          <span class="adm-tree-badge green">activo</span>
+        </button>
+      ))}
+      {subPageDirs.filter(d => !featureModules.includes(d)).map(d => (
+        <button class="adm-tree-item" data-panel={`mod-${d}`}>
+          <span class="adm-tree-icon">◈</span> {d}
+          <span class="adm-tree-badge amber">page</span>
+        </button>
+      ))}
+      <button class="adm-tree-item" data-panel="new-module">
+        <span class="adm-tree-icon" style="color:var(--adm-acc)">+</span>
+        <span style="color:var(--adm-acc)">nuevo módulo</span>
+      </button>
+    </div>
+
+    <div class="adm-tree-section">
+      <div class="adm-tree-label">Sistema</div>
+      <button class="adm-tree-item" data-panel="gacha">
+        <span class="adm-tree-icon">◈</span> Gacha Sync
+      </button>
+    </div>
+
+    <div class="adm-sb-footer">
+      <div class="adm-sb-version">aris-sama.duckdns.org · SOTA v3</div>
+    </div>
+  </aside>
+
+  <!-- ── WORKSPACE ──────────────────────────────────────── -->
+  <div class="adm-workspace">
+    <div class="adm-tabs" id="adm-tabs">
+      <button class="adm-tab active" data-panel="overview">
+        <span class="adm-tab-icon">⬡</span> Overview
+        <span class="adm-tab-close" data-close="overview">×</span>
+      </button>
+    </div>
+
+    <div class="adm-panels" id="adm-panels">
+
+      <!-- ■ OVERVIEW ─────────────────────────────────── -->
+      <div class="adm-panel active" id="panel-overview">
+        <div class="adm-panel-body">
+          <div class="adm-ph">
+            <div class="adm-ph-icon">⬡</div>
+            <div class="adm-ph-text">
+              <h1>Panel de control</h1>
+              <p>aris-sama.duckdns.org · Oracle Cloud ARM · Astro 6 + Bun + Tailwind v4</p>
+            </div>
+          </div>
+
+          <div class="adm-stats">
+            <div class="adm-stat"><div class="adm-stat-val">{videoCount}</div><div class="adm-stat-label">videos</div></div>
+            <div class="adm-stat"><div class="adm-stat-val">{commentCount}</div><div class="adm-stat-label">comentarios</div></div>
+            <div class="adm-stat"><div class="adm-stat-val">{charCount}</div><div class="adm-stat-label">chars gacha</div></div>
+            <div class="adm-stat"><div class="adm-stat-val">{sizeMB}</div><div class="adm-stat-label">MB uploads</div></div>
+            <div class="adm-stat"><div class="adm-stat-val">{featureModules.length}</div><div class="adm-stat-label">módulos</div></div>
+            <div class="adm-stat"><div class="adm-stat-val">{allJsons.length}</div><div class="adm-stat-label">JSONs</div></div>
+          </div>
+
+          <div class="adm-section">Módulos activos <span class="adm-section-accent">· {featureModules.length + subPageDirs.filter(d=>!featureModules.includes(d)).length} detectados</span></div>
+          <div class="adm-module-grid" id="overview-modules">
+            {featureModules.map(m => (
+              <div class="adm-mod-card" onclick={`openPanel('mod-${m}')`}>
+                <div class="adm-mod-top">
+                  <div class="adm-mod-dot"></div>
+                  <span class="adm-mod-name">{m}</span>
+                </div>
+                <div class="adm-mod-path">src/features/{m}/</div>
+                <div class="adm-mod-actions">
+                  <a class="adm-mod-btn" href={`/${m}`} target="_blank">↗ ver</a>
+                  <button class="adm-mod-btn" onclick={`event.stopPropagation();openPanel('mod-${m}')`}>editar</button>
+                </div>
+              </div>
+            ))}
+            {subPageDirs.filter(d=>!featureModules.includes(d)).map(d => (
+              <div class="adm-mod-card" onclick={`openPanel('mod-${d}')`}>
+                <div class="adm-mod-top">
+                  <div class="adm-mod-dot new"></div>
+                  <span class="adm-mod-name">{d}</span>
+                </div>
+                <div class="adm-mod-path">src/pages/{d}/</div>
+                <div class="adm-mod-actions">
+                  <a class="adm-mod-btn" href={`/${d}`} target="_blank">↗ ver</a>
+                  <button class="adm-mod-btn" onclick={`event.stopPropagation();openPanel('mod-${d}')`}>info</button>
+                </div>
+              </div>
+            ))}
+            <div class="adm-mod-card" style="border-style:dashed;cursor:pointer" onclick="openPanel('new-module')">
+              <div class="adm-mod-top">
+                <span style="color:var(--adm-acc);font-size:18px">+</span>
+                <span class="adm-mod-name" style="color:var(--adm-acc)">nuevo módulo</span>
+              </div>
+              <div class="adm-mod-path">crear estructura desde aquí</div>
+            </div>
+          </div>
+
+          <div class="adm-section" style="margin-top:20px">Accesos rápidos</div>
+          <div class="adm-btn-row">
+            <button class="adm-btn adm-btn-ghost" onclick="openPanel('videos')">▶ subir video</button>
+            <button class="adm-btn adm-btn-ghost" onclick="openPanel('json-now')">✦ editar now</button>
+            <button class="adm-btn adm-btn-ghost" onclick="openPanel('json-nav')">✦ editar nav</button>
+            <button class="adm-btn adm-btn-ghost" onclick="openPanel('gacha')">◈ gacha sync</button>
+            <button class="adm-btn adm-btn-ghost" onclick="openPalette()">⌘ buscar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ■ VIDEOS ──────────────────────────────────────── -->
+      <div class="adm-panel" id="panel-videos">
+        <div class="adm-panel-body">
+          <div class="adm-ph">
+            <div class="adm-ph-icon">▶</div>
+            <div class="adm-ph-text"><h1>Videos</h1><p>sube, edita y gestiona clips · compartir en Discord → usar /v/[id]</p></div>
+          </div>
+
+          <div class="adm-section">subir video</div>
+          <div class="adm-drop" id="adm-drop">
+            <div class="adm-drop-inner" id="adm-drop-inner">
+              <div class="adm-drop-icon">▶</div>
+              <p class="adm-drop-label">arrastra tu video aquí</p>
+              <p class="adm-drop-hint">o haz click · mp4 webm mov · máx 500MB</p>
+              <input type="file" id="adm-file-input" accept="video/mp4,video/webm,video/quicktime" style="display:none" />
+            </div>
+            <div class="adm-upload-form" id="adm-upload-form">
+              <div class="adm-grid2">
+                <div class="adm-field"><label class="adm-label">título</label><input class="adm-input" id="uf-title" placeholder="Miyabi SS · Daily Challenge" /></div>
+                <div class="adm-field"><label class="adm-label">categoría</label><input class="adm-input" id="uf-category" placeholder="gameplay · clip · momento" /></div>
+              </div>
+              <div class="adm-field">
+                <label class="adm-label">descriptores <span style="color:var(--adm-dimmed);text-transform:none;letter-spacing:0">clave=valor para Discord embed</span></label>
+                <div id="adm-desc-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:6px"></div>
+                <button class="adm-btn adm-btn-ghost adm-btn-xs" id="adm-add-desc">+ descriptor</button>
+              </div>
+              <div class="adm-prog-wrap" id="adm-prog-wrap">
+                <div class="adm-prog-track"><div class="adm-prog-bar" id="adm-prog-bar"></div></div>
+                <span class="adm-prog-pct" id="adm-prog-pct">0%</span>
+              </div>
+              <div class="adm-btn-row">
+                <button class="adm-btn adm-btn-ghost" id="adm-upload-cancel">cancelar</button>
+                <button class="adm-btn adm-btn-primary" id="adm-upload-submit">subir video →</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-section">videos subidos <span class="adm-section-accent" id="adm-vcount"></span></div>
+          <div class="adm-vlist" id="adm-vlist"><p class="adm-loading">cargando...</p></div>
+        </div>
+      </div>
+
+      <!-- ■ JSON PANELS — generados dinámicamente en JS -->
+
+      <!-- ■ MÓDULOS — generados dinámicamente en JS -->
+
+      <!-- ■ NUEVO MÓDULO ──────────────────────────────── -->
+      <div class="adm-panel" id="panel-new-module">
+        <div class="adm-panel-body">
+          <div class="adm-ph">
+            <div class="adm-ph-icon">+</div>
+            <div class="adm-ph-text"><h1>Nuevo módulo</h1><p>genera la estructura base · luego personaliza el código</p></div>
+          </div>
+          <div class="adm-creator">
+            <div class="adm-creator-title">Configurar módulo</div>
+            <div class="adm-grid2" style="margin-bottom:12px">
+              <div class="adm-field">
+                <label class="adm-label">Nombre del módulo</label>
+                <input class="adm-input" id="nm-name" placeholder="biblioteca · galería · portfolio..." />
+              </div>
+              <div class="adm-field">
+                <label class="adm-label">Tipo</label>
+                <select class="adm-input" id="nm-type">
+                  <option value="json">JSON-driven (data/*.json)</option>
+                  <option value="sqlite">SQLite (tabla propia)</option>
+                  <option value="static">Estático (solo página)</option>
+                  <option value="api">Con API endpoint</option>
+                </select>
+              </div>
+            </div>
+            <div class="adm-field" style="margin-bottom:12px">
+              <label class="adm-label">Descripción breve (para AGENTS.md)</label>
+              <input class="adm-input" id="nm-desc" placeholder="muestra X, lee desde Y, permite Z..." />
+            </div>
+            <div id="nm-preview" class="adm-file-tree" style="display:none"></div>
+            <div class="adm-btn-row">
+              <button class="adm-btn adm-btn-ghost" id="nm-preview-btn">👁 previsualizar estructura</button>
+              <button class="adm-btn adm-btn-primary" id="nm-gen-btn" disabled>⬇ generar apply script</button>
+            </div>
+            <div id="nm-output" style="margin-top:16px;display:none">
+              <div class="adm-section">heredoc generado · pegar en la VM</div>
+              <textarea class="adm-textarea" id="nm-script" readonly style="min-height:280px;font-size:10.5px"></textarea>
+              <div class="adm-btn-row" style="margin-top:8px">
+                <button class="adm-btn adm-btn-ghost" onclick="document.getElementById('nm-script').select();document.execCommand('copy');toast('Copiado al portapapeles','ok')">copiar script</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ■ GACHA ───────────────────────────────────────── -->
+      <div class="adm-panel" id="panel-gacha">
+        <div class="adm-panel-body">
+          <div class="adm-ph">
+            <div class="adm-ph-icon">◈</div>
+            <div class="adm-ph-text"><h1>Gacha Sync</h1><p>sincronizar personajes desde Enka Network · requiere acceso SSH</p></div>
+          </div>
+          <div class="adm-section">comandos de sync</div>
+          <div class="adm-cmd-list" id="adm-cmd-list"><p class="adm-loading">cargando gacha-config.json...</p></div>
+        </div>
+      </div>
+
+    </div><!-- /panels -->
+  </div><!-- /workspace -->
+</div><!-- /shell -->
+
+<script define:vars={{ allJsons, featureModules, subPageDirs, topPages, navItems, ALLOWED_SAVE }}>
+// ══════════════════════════════════════════════════════════════
+// STELLAR TERMINAL ADMIN v2
+// ══════════════════════════════════════════════════════════════
+
+// ── Toasts ────────────────────────────────────────────────────
+function toast(msg, type='inf', ms=3000) {
+  const el = document.createElement('div');
+  el.className = `adm-toast ${type}`;
+  el.textContent = msg;
+  document.getElementById('adm-toasts').appendChild(el);
+  setTimeout(() => el.remove(), ms);
+}
+
+// ── Clock ─────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('adm-clock').textContent =
+    now.toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'});
+}
+updateClock(); setInterval(updateClock, 10000);
+
+// ── Logout ────────────────────────────────────────────────────
+document.getElementById('adm-logout').addEventListener('click', async () => {
+  await fetch('/api/auth/logout', { method:'POST' });
+  location.href = '/admin/login';
+});
+
+// ── Tab / Panel system ────────────────────────────────────────
+const openTabs = new Map(); // panelId → tab el
+
+function openPanel(id, label=null, icon='✦') {
+  ensurePanelExists(id, label, icon);
+  // Activate tab
+  document.querySelectorAll('.adm-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.adm-tree-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.adm-panel').forEach(p => p.classList.remove('active'));
+
+  const tab = openTabs.get(id);
+  if (tab) tab.classList.add('active');
+  const treeItem = document.querySelector(`.adm-tree-item[data-panel="${id}"]`);
+  if (treeItem) treeItem.classList.add('active');
+  const panel = document.getElementById(`panel-${id}`);
+  if (panel) panel.classList.add('active');
+
+  // Side effects
+  if (id === 'videos') loadVideos();
+  if (id === 'gacha')  loadGachaSync();
+  if (id.startsWith('json-')) loadJsonPanel(id.replace('json-','') + '.json');
+  if (id.startsWith('mod-'))  renderModulePanel(id.replace('mod-',''));
+}
+
+function ensurePanelExists(id, label, icon) {
+  if (openTabs.has(id)) return;
+  // Create tab
+  const tab = document.createElement('button');
+  tab.className = 'adm-tab';
+  tab.dataset.panel = id;
+  tab.innerHTML = `<span class="adm-tab-icon">${icon}</span> ${label ?? humanize(id)} <span class="adm-tab-close" data-close="${id}">×</span>`;
+  tab.addEventListener('click', (e) => {
+    if (e.target.dataset.close) { closeTab(e.target.dataset.close); return; }
+    openPanel(id, label, icon);
+  });
+  document.getElementById('adm-tabs').appendChild(tab);
+  openTabs.set(id, tab);
+
+  // Create panel if not in DOM
+  if (!document.getElementById(`panel-${id}`)) {
+    const panel = document.createElement('div');
+    panel.className = 'adm-panel';
+    panel.id = `panel-${id}`;
+    document.getElementById('adm-panels').appendChild(panel);
+  }
+}
+
+function closeTab(id) {
+  if (id === 'overview') return; // can't close overview
+  const tab = openTabs.get(id);
+  if (tab) tab.remove();
+  openTabs.delete(id);
+  const panel = document.getElementById(`panel-${id}`);
+  if (panel && !['overview','videos','gacha','new-module'].includes(id)) panel.remove();
+  openPanel('overview');
+}
+
+function humanize(id) {
+  return id.replace('json-','').replace('mod-','').replace(/-/g,' ');
+}
+
+// Wire sidebar tree items
+document.querySelectorAll('.adm-tree-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.panel;
+    const label = btn.querySelector(':not(.adm-tree-icon):not(.adm-tree-badge)')?.textContent?.trim();
+    openPanel(id, label);
+  });
+});
+
+// Initialize overview tab
+openTabs.set('overview', document.querySelector('.adm-tab[data-panel="overview"]'));
+document.querySelector('.adm-tab[data-panel="overview"]').addEventListener('click', (e) => {
+  if (e.target.dataset.close) return;
+  openPanel('overview');
+});
+
+// ── Module Panel Renderer ──────────────────────────────────────
+const moduleDataCache = {};
+
+function renderModulePanel(name) {
+  const panel = document.getElementById(`panel-mod-${name}`);
+  if (!panel || panel.dataset.rendered) return;
+  panel.dataset.rendered = '1';
+
+  const hasFeature = featureModules.includes(name);
+  const hasSubPage = subPageDirs.includes(name);
+  const jsonFile   = allJsons.find(j => j.startsWith(name));
+
+  panel.innerHTML = `
+    <div class="adm-panel-body">
+      <div class="adm-ph">
+        <div class="adm-ph-icon">◈</div>
+        <div class="adm-ph-text">
+          <h1>${name}</h1>
+          <p>${hasFeature ? `src/features/${name}/` : ''} ${hasSubPage ? `· src/pages/${name}/` : ''}</p>
+        </div>
+      </div>
+
+      <div class="adm-section">Estado del módulo</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+        ${hasFeature ? `<span class="adm-badge" style="background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.25);color:var(--adm-green)">● feature activa</span>` : ''}
+        ${hasSubPage ? `<span class="adm-badge" style="background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.25);color:var(--adm-amber)">● sub-página</span>` : ''}
+        ${jsonFile   ? `<span class="adm-badge">✦ ${jsonFile}</span>` : '<span class="adm-badge" style="opacity:.5">sin JSON propio</span>'}
+        <a href="/${name}" target="_blank" class="adm-badge" style="cursor:pointer;text-decoration:none">↗ ver /${name}</a>
+      </div>
+
+      ${jsonFile && ALLOWED_SAVE.includes(jsonFile) ? `
+        <div class="adm-section">Datos · <span style="color:var(--adm-acc)">${jsonFile}</span></div>
+        <div id="mod-json-${name}" class="adm-loading">cargando ${jsonFile}...</div>
+      ` : jsonFile ? `
+        <div class="adm-section">Datos · <span style="color:var(--adm-acc)">${jsonFile}</span> <span style="color:var(--adm-dimmed)">(solo lectura)</span></div>
+        <div id="mod-json-${name}" class="adm-loading">cargando ${jsonFile}...</div>
+      ` : ''}
+
+      <div class="adm-section" style="margin-top:20px">Acciones rápidas</div>
+      <div class="adm-btn-row">
+        <a href="/${name}" target="_blank" class="adm-btn adm-btn-ghost">↗ abrir página</a>
+        ${jsonFile ? `<button class="adm-btn adm-btn-ghost" onclick="openPanel('json-${jsonFile.replace('.json','')}','${jsonFile}','✦')">✦ editar JSON completo</button>` : ''}
+      </div>
+    </div>
+  `;
+
+  if (jsonFile) {
+    loadJsonInto(`mod-json-${name}`, jsonFile, ALLOWED_SAVE.includes(jsonFile));
+  }
+}
+
+// ── JSON Panel Loader ──────────────────────────────────────────
+const jsonCache = {};
+
+async function loadJsonPanel(file) {
+  const panelId = `json-${file.replace('.json','')}`;
+  const panel = document.getElementById(`panel-${panelId}`);
+  if (!panel) return;
+  if (panel.dataset.rendered) return;
+  panel.dataset.rendered = '1';
+
+  const canSave = ALLOWED_SAVE.includes(file);
+  panel.innerHTML = `
+    <div class="adm-panel-body">
+      <div class="adm-ph">
+        <div class="adm-ph-icon">✦</div>
+        <div class="adm-ph-text">
+          <h1>${file}</h1>
+          <p>${canSave ? 'editable · cambios aplicados al instante sin rebuild' : 'solo lectura en este panel — usa el editor genérico'}</p>
+        </div>
+      </div>
+      <div id="jpanel-body-${panelId}"><p class="adm-loading">cargando...</p></div>
+    </div>
+  `;
+
+  await loadJsonInto(`jpanel-body-${panelId}`, file, canSave);
+}
+
+async function loadJsonInto(containerId, file, canSave) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  if (!jsonCache[file]) {
+    const res = await fetch(`/api/admin/data?file=${file}`);
+    jsonCache[file] = res.ok ? await res.json() : null;
+  }
+  const data = jsonCache[file];
+  if (data === null) { container.innerHTML = `<p class="adm-loading" style="color:var(--adm-red)">Error cargando ${file}</p>`; return; }
+
+  container.innerHTML = '';
+  const form = buildJsonForm(file, data, canSave);
+  container.appendChild(form);
+
+  if (canSave) {
+    const btnRow = document.createElement('div');
+    btnRow.className = 'adm-btn-row';
+    btnRow.style.marginTop = '16px';
+    const btn = document.createElement('button');
+    btn.className = 'adm-btn adm-btn-primary';
+    btn.textContent = 'guardar cambios ↑';
+    btn.addEventListener('click', () => saveJson(file, container, btn));
+    btnRow.appendChild(btn);
+    container.appendChild(btnRow);
+  }
+}
+
+// ── JSON Form Builders ────────────────────────────────────────
+function buildJsonForm(file, data, canSave) {
+  if (file === 'now.json')          return buildNowForm(data, canSave);
+  if (file === 'books.json')        return buildBooksForm(data, canSave);
+  if (file === 'homepage.json')     return buildHomepageForm(data, canSave);
+  if (file === 'gacha-config.json') return buildGachaForm(data, canSave);
+  if (file === 'nav.json')          return buildNavForm(data, canSave);
+  return buildGenericEditor(file, data, canSave);
+}
+
+function el(tag, cls='') {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  return e;
+}
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function setupDrag(card, container) {
+  card.draggable = true;
+  card.addEventListener('dragstart', () => card.classList.add('dragging'));
+  card.addEventListener('dragend',   () => card.classList.remove('dragging'));
+  card.addEventListener('dragover', e => {
+    e.preventDefault();
+    const d = container.querySelector('.dragging');
+    if (!d || d === card) return;
+    const mid = card.getBoundingClientRect().top + card.offsetHeight/2;
+    container.insertBefore(d, e.clientY < mid ? card : card.nextSibling);
+  });
+}
+
+// now.json
+function buildNowForm(data, canSave) {
+  const wrap = el('div',''); wrap.dataset.collector='now';
+  const grid = el('div','adm-grid2'); grid.style.marginBottom='16px';
+  grid.innerHTML=`
+    <div class="adm-field"><label class="adm-label">ubicación</label><input class="adm-input" id="now-location" value="${esc(data.location)}" ${canSave?'':'disabled'}/></div>
+    <div class="adm-field"><label class="adm-label">estado</label><input class="adm-input" id="now-status" value="${esc(data.status)}" ${canSave?'':'disabled'}/></div>
+  `;
+  wrap.appendChild(grid);
+  const lbl=el('div','adm-section'); lbl.innerHTML='items'; wrap.appendChild(lbl);
+  const list=el('div','adm-items'); list.id='now-items';
+  (data.items??[]).forEach(item=>appendNowItem(list,item,canSave));
+  wrap.appendChild(list);
+  if(canSave){
+    const add=el('button','adm-btn adm-btn-ghost adm-btn-xs'); add.style.marginTop='8px'; add.textContent='+ añadir item';
+    add.onclick=()=>appendNowItem(list,{icon:'✨',category:'',text:''},true);
+    wrap.appendChild(add);
+  }
+  return wrap;
+}
+function appendNowItem(container, item, canSave) {
+  const card=el('div','adm-item'); card.draggable=canSave;
+  card.innerHTML=`<span class="adm-drag">⠿</span>
+    <div class="adm-item-fields">
+      <input class="adm-input-sm now-icon" value="${esc(item.icon)}" placeholder="🎮" style="width:46px" ${canSave?'':'disabled'}/>
+      <input class="adm-input-sm now-category" value="${esc(item.category)}" placeholder="categoría" style="flex:1" ${canSave?'':'disabled'}/>
+      <input class="adm-input-sm now-text" value="${esc(item.text)}" placeholder="texto..." style="flex:3" ${canSave?'':'disabled'}/>
+    </div>
+    ${canSave?'<button class="adm-btn adm-btn-danger adm-btn-xs" onclick="this.closest(\'.adm-item\').remove()">✕</button>':''}`;
+  if(canSave) setupDrag(card, container);
+  container.appendChild(card);
+}
+
+// books.json
+function buildBooksForm(data, canSave) {
+  const wrap=el('div',''); wrap.dataset.collector='books';
+  const list=el('div','adm-items'); list.id='books-list';
+  const books=Array.isArray(data)?data:(data?.books??[]);
+  books.forEach(b=>appendBookItem(list,b,canSave));
+  wrap.appendChild(list);
+  if(canSave){
+    const add=el('button','adm-btn adm-btn-ghost adm-btn-xs'); add.style.marginTop='8px'; add.textContent='+ añadir libro';
+    add.onclick=()=>appendBookItem(list,{title:'',author:'',status:'want',cover:''},true);
+    wrap.appendChild(add);
+  }
+  return wrap;
+}
+function appendBookItem(container, book, canSave) {
+  const opts=['reading','read','want','dropped'].map(s=>`<option value="${s}"${book.status===s?' selected':''}>${s}</option>`).join('');
+  const card=el('div','adm-item');
+  card.innerHTML=`<span class="adm-drag">⠿</span>
+    <div class="adm-item-fields" style="flex-wrap:wrap">
+      <input class="adm-input-sm book-title" value="${esc(book.title)}" placeholder="título" style="flex:2;min-width:100px" ${canSave?'':'disabled'}/>
+      <input class="adm-input-sm book-author" value="${esc(book.author)}" placeholder="autor" style="flex:2;min-width:80px" ${canSave?'':'disabled'}/>
+      <select class="adm-input-sm book-status" style="flex:1;min-width:70px" ${canSave?'':'disabled'}>${opts}</select>
+      <input class="adm-input-sm book-cover" value="${esc(book.cover??'')}" placeholder="url portada" style="flex:3;min-width:130px" ${canSave?'':'disabled'}/>
+    </div>
+    ${canSave?'<button class="adm-btn adm-btn-danger adm-btn-xs" onclick="this.closest(\'.adm-item\').remove()">✕</button>':''}`;
+  container.appendChild(card);
+}
+
+// homepage.json
+function buildHomepageForm(data, canSave) {
+  const wrap=el('div',''); wrap.dataset.collector='homepage';
+  const tf=el('div','adm-field'); tf.style.marginBottom='16px';
+  tf.innerHTML=`<label class="adm-label">título de página</label><input class="adm-input" id="hp-title" value="${esc(data.title)}" ${canSave?'':'disabled'}/>`;
+  wrap.appendChild(tf);
+  const lbl=el('div','adm-section'); lbl.textContent='bloques (arrastra para reordenar)'; wrap.appendChild(lbl);
+  const list=el('div','adm-items'); list.id='hp-blocks';
+  (data.blocks??[]).forEach(b=>appendBlockItem(list,b,canSave));
+  wrap.appendChild(list);
+  if(canSave){
+    const addRow=el('div','adm-btn-row'); addRow.style.marginTop='8px';
+    const sel=document.createElement('select'); sel.className='adm-input-sm';
+    ['hero','now_preview','radio_banner','bookshelf_preview','videos_preview','gacha_preview','anime_preview','custom'].forEach(t=>{
+      const o=document.createElement('option'); o.value=t; o.textContent=t; sel.appendChild(o);
+    });
+    const add=el('button','adm-btn adm-btn-ghost adm-btn-xs'); add.textContent='+ bloque';
+    add.onclick=()=>appendBlockItem(list,{type:sel.value},true);
+    addRow.appendChild(sel); addRow.appendChild(add); wrap.appendChild(addRow);
+  }
+  return wrap;
+}
+function appendBlockItem(container, block, canSave) {
+  const card=el('div','adm-item'); card.dataset.type=block.type;
+  let extra='';
+  if(block.type==='hero') extra=`<input class="adm-input-sm block-field" data-key="title" placeholder="título" value="${esc(block.title??'')}" style="flex:2" ${canSave?'':'disabled'}/><input class="adm-input-sm block-field" data-key="subtitle" placeholder="subtítulo" value="${esc(block.subtitle??'')}" style="flex:3" ${canSave?'':'disabled'}/>`;
+  else if(['now_preview','bookshelf_preview','videos_preview'].includes(block.type)) extra=`<input class="adm-input-sm block-field" data-key="limit" placeholder="limit" value="${esc(String(block.limit??''))}" style="width:64px" ${canSave?'':'disabled'}/>`;
+  card.innerHTML=`<span class="adm-drag">⠿</span><span class="adm-badge">${block.type}</span><div class="adm-item-fields" style="flex:1">${extra}</div>${canSave?'<button class="adm-btn adm-btn-danger adm-btn-xs" onclick="this.closest(\'.adm-item\').remove()">✕</button>':''}`;
+  if(canSave) setupDrag(card,container);
+  container.appendChild(card);
+}
+
+// nav.json — editor visual con preview en tiempo real
+function buildNavForm(data, canSave) {
+  const wrap=el('div',''); wrap.dataset.collector='nav';
+  const preview=el('div','adm-nav-preview'); preview.id='nav-preview';
+  wrap.appendChild(preview);
+  const lbl=el('div','adm-section'); lbl.textContent='tabs del nav (arrastra para reordenar)'; wrap.appendChild(lbl);
+  const list=el('div','adm-items'); list.id='nav-items';
+  (data.items??[]).forEach(item=>appendNavItem(list,item,canSave,preview));
+  wrap.appendChild(list);
+  if(canSave){
+    const add=el('button','adm-btn adm-btn-ghost adm-btn-xs'); add.style.marginTop='8px'; add.textContent='+ añadir tab';
+    add.onclick=()=>appendNavItem(list,{label:'',href:'/'},true,preview);
+    wrap.appendChild(add);
+  }
+  updateNavPreview(preview);
+  return wrap;
+}
+function appendNavItem(container, item, canSave, preview) {
+  const card=el('div','adm-item'); card.draggable=canSave;
+  card.innerHTML=`<span class="adm-drag">⠿</span>
+    <div class="adm-item-fields">
+      <input class="adm-input-sm nav-label" value="${esc(item.label)}" placeholder="label" style="flex:1" ${canSave?'':'disabled'}/>
+      <input class="adm-input-sm nav-href"  value="${esc(item.href)}"  placeholder="/ruta" style="flex:2" ${canSave?'':'disabled'}/>
+    </div>
+    ${canSave?'<button class="adm-btn adm-btn-danger adm-btn-xs" onclick="this.closest(\'.adm-item\').remove();updateNavPreview(document.getElementById(\'nav-preview\'))">✕</button>':''}`;
+  if(canSave){
+    setupDrag(card,container);
+    card.querySelectorAll('input').forEach(i=>i.addEventListener('input',()=>updateNavPreview(preview)));
+  }
+  container.appendChild(card);
+}
+function updateNavPreview(preview) {
+  if(!preview) return;
+  const items=[...document.querySelectorAll('#nav-items .adm-item')].map(c=>({
+    label:c.querySelector('.nav-label')?.value?.trim()||'',
+    href:c.querySelector('.nav-href')?.value?.trim()||'/'
+  })).filter(i=>i.label);
+  preview.innerHTML = `<span style="font-size:10px;color:var(--adm-dimmed);margin-right:4px">~/aris</span>`
+    + items.map(i=>`<span class="adm-nav-pill">[${i.label}]</span>`).join('')
+    || '<span style="font-size:10px;color:var(--adm-dimmed)">vacío</span>';
+}
+
+// gacha-config.json
+function buildGachaForm(data, canSave) {
+  const wrap=el('div',''); wrap.dataset.collector='gacha-cfg';
+  const list=el('div','adm-items'); list.id='gacha-list';
+  (data.games??[]).forEach(g=>appendGachaItem(list,g,canSave));
+  wrap.appendChild(list);
+  if(canSave){
+    const add=el('button','adm-btn adm-btn-ghost adm-btn-xs'); add.style.marginTop='8px'; add.textContent='+ juego';
+    add.onclick=()=>appendGachaItem(list,{icon:'🎮',name:'',id:'',uid:''},true);
+    wrap.appendChild(add);
+  }
+  return wrap;
+}
+function appendGachaItem(container, game, canSave) {
+  const card=el('div','adm-item');
+  card.innerHTML=`<span class="adm-drag">⠿</span>
+    <div class="adm-item-fields" style="flex-wrap:wrap">
+      <input class="adm-input-sm gacha-icon" value="${esc(game.icon??'')}" placeholder="🎮" style="width:44px" ${canSave?'':'disabled'}/>
+      <input class="adm-input-sm gacha-name" value="${esc(game.name??'')}" placeholder="nombre" style="flex:2" ${canSave?'':'disabled'}/>
+      <input class="adm-input-sm gacha-id"   value="${esc(game.id??'')}"   placeholder="id" style="width:64px" ${canSave?'':'disabled'}/>
+      <input class="adm-input-sm gacha-uid"  value="${esc(game.uid??'')}"  placeholder="UID" style="flex:2" ${canSave?'':'disabled'}/>
+    </div>
+    ${canSave?'<button class="adm-btn adm-btn-danger adm-btn-xs" onclick="this.closest(\'.adm-item\').remove()">✕</button>':''}`;
+  container.appendChild(card);
+}
+
+// generic — editor de árbol key/value para JSONs desconocidos
+function buildGenericEditor(file, data, canSave) {
+  const wrap=el('div',''); wrap.dataset.collector='generic'; wrap.dataset.file=file;
+  const ta=document.createElement('textarea');
+  ta.className='adm-textarea'; ta.id='generic-ta';
+  ta.value=JSON.stringify(data,null,2); ta.disabled=!canSave;
+  wrap.appendChild(ta);
+  return wrap;
+}
+
+// ── Save JSON ─────────────────────────────────────────────────
+async function saveJson(file, container, btn) {
+  const wrap = container.querySelector('[data-collector]') ?? container;
+  const collector = wrap?.dataset?.collector;
+  let payload;
+  try {
+    if(collector==='now'){
+      payload={
+        updated:new Date().toISOString().split('T')[0],
+        location:document.getElementById('now-location')?.value?.trim()??'',
+        status:document.getElementById('now-status')?.value?.trim()??'',
+        items:[...document.querySelectorAll('#now-items .adm-item')].map(c=>({
+          icon:c.querySelector('.now-icon').value.trim(),
+          category:c.querySelector('.now-category').value.trim(),
+          text:c.querySelector('.now-text').value.trim(),
+        }))
+      };
+    } else if(collector==='books'){
+      payload=[...document.querySelectorAll('#books-list .adm-item')].map(c=>({
+        title:c.querySelector('.book-title').value.trim(),
+        author:c.querySelector('.book-author').value.trim(),
+        status:c.querySelector('.book-status').value,
+        cover:c.querySelector('.book-cover').value.trim()||undefined,
+      }));
+    } else if(collector==='homepage'){
+      payload={
+        title:document.getElementById('hp-title')?.value?.trim()??'',
+        blocks:[...document.querySelectorAll('#hp-blocks .adm-item')].map(c=>{
+          const obj={type:c.dataset.type??'custom'};
+          c.querySelectorAll('.block-field').forEach(f=>{const v=f.value.trim();if(v)obj[f.dataset.key]=f.dataset.key==='limit'?Number(v):v;});
+          return obj;
+        })
+      };
+    } else if(collector==='gacha-cfg'){
+      payload={games:[...document.querySelectorAll('#gacha-list .adm-item')].map(c=>({
+        icon:c.querySelector('.gacha-icon').value.trim(),
+        name:c.querySelector('.gacha-name').value.trim(),
+        id:c.querySelector('.gacha-id').value.trim(),
+        uid:c.querySelector('.gacha-uid').value.trim(),
+      }))};
+    } else if(collector==='nav'){
+      payload={items:[...document.querySelectorAll('#nav-items .adm-item')].map(c=>({
+        label:c.querySelector('.nav-label').value.trim(),
+        href:c.querySelector('.nav-href').value.trim(),
+      })).filter(i=>i.label)};
+    } else {
+      payload=JSON.parse(document.getElementById('generic-ta')?.value??'null');
+    }
+  } catch(e) { toast(`JSON inválido: ${e}`,'err'); return; }
+
+  if(btn){ btn.disabled=true; btn.textContent='guardando...'; }
+  const res=await fetch(`/api/admin/data?file=${file}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  if(btn){ btn.disabled=false; btn.textContent='guardar cambios ↑'; }
+  if(res.ok){ jsonCache[file]=payload; toast(`✓ ${file} guardado — aplicado al instante`,'ok'); }
+  else toast(`Error guardando ${file}: ${await res.text()}`,'err');
+}
+
+// ── Videos ───────────────────────────────────────────────────
+let videosLoaded=false;
+async function loadVideos() {
+  const list=document.getElementById('adm-vlist');
+  const countEl=document.getElementById('adm-vcount');
+  if(videosLoaded) return;
+  videosLoaded=true;
+  list.innerHTML='<p class="adm-loading">cargando...</p>';
+  try {
+    const {videos}=await fetch('/api/videos').then(r=>r.json());
+    if(countEl) countEl.textContent=videos.length;
+    if(!videos.length){list.innerHTML='<p class="adm-loading">sin videos todavía.</p>';return;}
+    list.innerHTML='';
+    videos.forEach(v=>{
+      let desc={}; try{desc=JSON.parse(v.descriptors??'{}')}catch{}
+      const descStr=Object.entries(desc).map(([k,val])=>`${k}:${val}`).join(' · ');
+      const card=el('div','adm-vcard'); card.dataset.id=v.id;
+      card.innerHTML=`
+        <div class="adm-vthumb">${v.thumbnail?`<img src="${v.thumbnail}" alt=""/>`:'▶'}</div>
+        <div class="adm-vbody">
+          <input class="adm-input" style="margin-bottom:4px" value="${esc(v.title)}" data-field="title"/>
+          <div class="adm-vrow">
+            <input class="adm-input-sm" value="${esc(v.category??'general')}" placeholder="categoría" data-field="category" style="flex:1"/>
+            <input class="adm-input-sm" value="${esc(descStr)}" placeholder="key:val, ..." data-field="descriptors_raw" style="flex:3"/>
+          </div>
+          <div class="adm-vrow" style="margin-top:4px">
+            <a href="/v/${v.id}" target="_blank" class="adm-btn adm-btn-ghost adm-btn-xs">↗ ver</a>
+            <button class="adm-btn adm-btn-ghost adm-btn-xs va-save" data-id="${v.id}">guardar</button>
+            <button class="adm-btn adm-btn-danger adm-btn-xs va-del" data-id="${v.id}">eliminar</button>
+          </div>
+          <div class="adm-vlink">/uploads/${esc(v.filename??'')}</div>
+        </div>`;
+      card.querySelector('.va-save').addEventListener('click', async()=>{
+        const title=card.querySelector('[data-field="title"]').value;
+        const category=card.querySelector('[data-field="category"]').value;
+        const rawDesc=card.querySelector('[data-field="descriptors_raw"]').value;
+        const descriptors={};
+        rawDesc.split(',').forEach(part=>{const[k,...rest]=part.split(':');if(k?.trim())descriptors[k.trim()]=rest.join(':').trim();});
+        const res=await fetch('/api/videos/update',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:v.id,title,category,descriptors})});
+        const sb=card.querySelector('.va-save');
+        if(res.ok){sb.textContent='✓';toast('Video actualizado','ok');}else{sb.textContent='❌';}
+        setTimeout(()=>{sb.textContent='guardar';},2000);
+      });
+      card.querySelector('.va-del').addEventListener('click', async()=>{
+        if(!confirm('¿Eliminar este video?'))return;
+        await fetch(`/api/videos?id=${v.id}`,{method:'DELETE'});
+        card.remove(); videosLoaded=false; loadVideos();
+        toast('Video eliminado','inf');
+      });
+      list.appendChild(card);
+    });
+  } catch(e){list.innerHTML=`<p class="adm-loading" style="color:var(--adm-red)">${e}</p>`;}
+}
+
+// Upload
+const dropEl=document.getElementById('adm-drop');
+const dropInner=document.getElementById('adm-drop-inner');
+const uploadForm=document.getElementById('adm-upload-form');
+const fileInput=document.getElementById('adm-file-input');
+let selFile=null;
+
+function showUploadForm(file) {
+  selFile=file;
+  document.getElementById('uf-title').value=file.name.replace(/\.[^.]+$/,'');
+  dropInner.style.display='none';
+  uploadForm.style.display='flex';
+}
+dropEl?.addEventListener('dragover',e=>{e.preventDefault();dropEl.classList.add('over');});
+dropEl?.addEventListener('dragleave',()=>dropEl.classList.remove('over'));
+dropEl?.addEventListener('drop',e=>{e.preventDefault();dropEl.classList.remove('over');const f=e.dataTransfer?.files[0];if(f)showUploadForm(f);});
+dropInner?.addEventListener('click',()=>fileInput.click());
+fileInput?.addEventListener('change',()=>{if(fileInput.files?.[0])showUploadForm(fileInput.files[0]);});
+document.getElementById('adm-upload-cancel')?.addEventListener('click',()=>{
+  selFile=null;dropInner.style.display='flex';uploadForm.style.display='none';fileInput.value='';
+});
+document.getElementById('adm-add-desc')?.addEventListener('click',()=>{
+  const list=document.getElementById('adm-desc-list');
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;gap:5px;align-items:center';
+  row.innerHTML=`<input class="adm-input-sm desc-key" placeholder="clave" style="flex:1"/><input class="adm-input-sm desc-val" placeholder="valor" style="flex:2"/><button class="adm-btn adm-btn-danger adm-btn-xs" onclick="this.parentElement.remove()">✕</button>`;
+  list.appendChild(row);
+});
+document.getElementById('adm-upload-submit')?.addEventListener('click',async()=>{
+  if(!selFile)return;
+  const title=document.getElementById('uf-title').value||selFile.name;
+  const category=document.getElementById('uf-category').value||'general';
+  const descriptors={};
+  document.querySelectorAll('.desc-key').forEach((k,i)=>{
+    const v=document.querySelectorAll('.desc-val')[i]?.value?.trim();
+    if(k.value.trim()&&v)descriptors[k.value.trim()]=v;
+  });
+  const fd=new FormData();
+  fd.append('video',selFile);fd.append('title',title);fd.append('category',category);fd.append('descriptors',JSON.stringify(descriptors));
+  const prog=document.getElementById('adm-prog-wrap');
+  const bar=document.getElementById('adm-prog-bar');
+  const pct=document.getElementById('adm-prog-pct');
+  prog.style.display='flex';
+  const btn=document.getElementById('adm-upload-submit'); btn.disabled=true;
+  const xhr=new XMLHttpRequest();
+  xhr.upload.addEventListener('progress',e=>{
+    if(e.lengthComputable){const p=Math.round(e.loaded/e.total*100);bar.style.width=p+'%';pct.textContent=p+'%';}
+  });
+  xhr.addEventListener('load',()=>{
+    prog.style.display='none';btn.disabled=false;
+    try{
+      const res=JSON.parse(xhr.responseText);
+      if(res.ok){
+        toast(`✓ Video subido · /v/${res.id}`+(res.thumbnail?' · thumb generado':''),'ok',5000);
+        dropInner.style.display='flex';uploadForm.style.display='none';selFile=null;fileInput.value='';
+        videosLoaded=false; loadVideos();
+      } else toast(`Error: ${res.error}`,'err');
+    }catch{toast('Error inesperado','err');}
+  });
+  xhr.open('POST','/api/videos/upload');xhr.send(fd);
+});
+
+// ── Gacha Sync ────────────────────────────────────────────────
+async function loadGachaSync() {
+  const list=document.getElementById('adm-cmd-list');
+  if(!jsonCache['gacha-config.json']){
+    const res=await fetch('/api/admin/data?file=gacha-config.json');
+    jsonCache['gacha-config.json']=res.ok?await res.json():null;
+  }
+  const data=jsonCache['gacha-config.json'];
+  if(!data?.games?.length){list.innerHTML='<p class="adm-loading">Sin juegos en gacha-config.json</p>';return;}
+  list.innerHTML=data.games.map(g=>`
+    <div class="adm-cmd">
+      <span class="adm-cmd-name">${g.icon??'◈'} ${g.name}</span>
+      <code class="adm-cmd-code">docker exec web bun run scripts/sync-enka-${g.id}.ts</code>
+      <button class="adm-btn adm-btn-ghost adm-btn-xs" onclick="navigator.clipboard?.writeText('docker exec web bun run scripts/sync-enka-${g.id}.ts');toast('Copiado','inf')">copiar</button>
+    </div>`).join('');
+}
+
+// ── Nuevo módulo generator ────────────────────────────────────
+document.getElementById('nm-preview-btn')?.addEventListener('click',()=>{
+  const name=document.getElementById('nm-name').value.trim().toLowerCase().replace(/\s+/g,'-');
+  const type=document.getElementById('nm-type').value;
+  if(!name){toast('Escribe un nombre primero','err');return;}
+  const preview=document.getElementById('nm-preview');
+  preview.style.display='block';
+  const files=[];
+  if(type==='json'||type==='api'){
+    files.push(`<span class="dir">data/</span>  <span class="new">${name}.json</span>  ← datos del módulo`);
+  }
+  files.push(`<span class="dir">src/features/${name}/</span>`);
+  files.push(`  <span class="new">${capitalize(name)}Grid.astro</span>  ← componente principal`);
+  files.push(`<span class="dir">src/pages/</span>  <span class="new">${name}.astro</span>  ← página /'+name`);
+  if(type==='api'||type==='sqlite'){
+    files.push(`<span class="dir">src/pages/api/</span>  <span class="new">${name}.ts</span>  ← endpoint GET`);
+  }
+  preview.innerHTML=files.join('\n');
+  document.getElementById('nm-gen-btn').disabled=false;
+});
+
+document.getElementById('nm-gen-btn')?.addEventListener('click',()=>{
+  const name=document.getElementById('nm-name').value.trim().toLowerCase().replace(/\s+/g,'-');
+  const type=document.getElementById('nm-type').value;
+  const desc=document.getElementById('nm-desc').value.trim();
+  if(!name)return;
+  const cap=capitalize(name);
+  let script=`cat > ~/apply_${name}.py << 'HEREDOC_END'\nimport os\nBASE=os.path.expanduser('~/misitio')\ndef w(path,txt):\n    full=os.path.join(BASE,path)\n    os.makedirs(os.path.dirname(full),exist_ok=True)\n    open(full,'w',encoding='utf-8').write(txt)\n    print(f'# {full}')\n\n`;
+  if(type==='json'||type==='api'){
+    script+=`w('data/${name}.json', '[]')\n\n`;
+  }
+  script+=`w('src/features/${name}/${cap}Grid.astro', """---\n---\n<div id="${name}-root">\n  <p style="color:var(--color-muted-2);font-family:var(--font-mono);font-size:.8rem"><!-- ${cap} component here --></p>\n</div>\n<script>\ndocument.addEventListener('astro:page-load',()=>{\n  const root=document.getElementById('${name}-root');\n  if(!root)return;\n  // init logic here\n});\n<\/script>\n""")\n\n`;
+  script+=`w('src/pages/${name}.astro', """---\nimport Base from '../layouts/Base.astro';\nimport ${cap}Grid from '../features/${name}/${cap}Grid.astro';\n---\n<Base title="${name} — aris">\n  <main style="max-width:1200px;margin:0 auto;padding:3rem 1.5rem 5rem">\n    <header style="margin-bottom:2.5rem">\n      <h1 style="font-family:var(--font-display);font-size:clamp(2rem,5vw,4rem);color:var(--color-ink)">\n        <span style="color:var(--color-accent);opacity:.6">[</span>${name}<span style="color:var(--color-accent);opacity:.6">]</span>\n      </h1>\n      <p style="font-family:var(--font-body);font-size:.9rem;color:var(--color-muted-2);font-style:italic">${desc||'descripción del módulo'}</p>\n    </header>\n    <${cap}Grid />\n  </main>\n</Base>\n""")\n\n`;
+  if(type==='api'){
+    script+=`w('src/pages/api/${name}.ts', """import type { APIRoute } from 'astro';\nimport { readFileSync } from 'fs';\nimport { join } from 'path';\nexport const GET: APIRoute = () => {\n  const data = JSON.parse(readFileSync(join(process.cwd(),'data/${name}.json'),'utf-8'));\n  return new Response(JSON.stringify({items:data}),{\n    headers:{'Content-Type':'application/json'},\n  });\n};\n""")\n\n`;
+  }
+  script+=`print('# Listo. Editar nav.json para añadir /${name} al nav.')\nprint('cd ~/misitio && sudo docker compose up -d --build')\nHEREDOC_END\npython3 ~/apply_${name}.py`;
+  document.getElementById('nm-output').style.display='block';
+  document.getElementById('nm-script').value=script;
+  toast(`Script para "${name}" generado — cópialo y pégalo en la VM`,'ok',5000);
+});
+
+function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+
+// ── JSON panels para todos los JSONs ──────────────────────────
+allJsons.forEach(file=>{
+  const id=`json-${file.replace('.json','')}`;
+  const panel=el('div','adm-panel'); panel.id=`panel-${id}`;
+  document.getElementById('adm-panels').appendChild(panel);
+});
+
+// ── Module panels para módulos detectados ─────────────────────
+[...featureModules,...subPageDirs.filter(d=>!featureModules.includes(d))].forEach(name=>{
+  const id=`mod-${name}`;
+  const panel=el('div','adm-panel'); panel.id=`panel-${id}`;
+  document.getElementById('adm-panels').appendChild(panel);
+});
+
+// ── Command Palette ───────────────────────────────────────────
+const paletteItems=[
+  {icon:'⬡',label:'Overview',action:()=>openPanel('overview')},
+  {icon:'▶',label:'Videos · subir y gestionar',action:()=>openPanel('videos','Videos','▶')},
+  {icon:'+',label:'Nuevo módulo · generar estructura',action:()=>openPanel('new-module','Nuevo módulo','+')},
+  {icon:'◈',label:'Gacha Sync · comandos',action:()=>openPanel('gacha','Gacha Sync','◈')},
+  ...allJsons.map(f=>({icon:'✦',label:`JSON · ${f}`,action:()=>openPanel(`json-${f.replace('.json','')}`,f,'✦')})),
+  ...[...featureModules,...subPageDirs.filter(d=>!featureModules.includes(d))].map(m=>({icon:'◈',label:`Módulo · ${m}`,action:()=>openPanel(`mod-${m}`,m,'◈')})),
+];
+let palSel=0;
+
+function openPalette(){
+  document.getElementById('adm-palette-bg').classList.add('open');
+  document.getElementById('adm-palette-input').value='';
+  renderPalette('');
+  setTimeout(()=>document.getElementById('adm-palette-input').focus(),50);
+}
+function closePalette(){document.getElementById('adm-palette-bg').classList.remove('open');}
+function renderPalette(q){
+  palSel=0;
+  const items=q?paletteItems.filter(i=>i.label.toLowerCase().includes(q.toLowerCase())):paletteItems;
+  const container=document.getElementById('adm-pal-items');
+  container.innerHTML=items.slice(0,10).map((i,idx)=>`
+    <div class="adm-pal-item${idx===0?' sel':''}" data-idx="${idx}">
+      <span class="adm-pal-icon">${i.icon}</span>
+      <span class="adm-pal-label">${i.label}</span>
+    </div>`).join('');
+  container.querySelectorAll('.adm-pal-item').forEach((el,idx)=>{
+    el.addEventListener('click',()=>{paletteItems.find(i=>i.label===el.querySelector('.adm-pal-label').textContent)?.action();closePalette();});
+    el.addEventListener('mouseover',()=>{
+      container.querySelectorAll('.adm-pal-item').forEach(e=>e.classList.remove('sel'));
+      el.classList.add('sel'); palSel=idx;
+    });
+  });
+}
+document.getElementById('adm-palette-input').addEventListener('input',e=>renderPalette(e.target.value));
+document.getElementById('adm-palette-input').addEventListener('keydown',e=>{
+  const items=document.querySelectorAll('.adm-pal-item');
+  if(e.key==='ArrowDown'){e.preventDefault();palSel=Math.min(palSel+1,items.length-1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();palSel=Math.max(palSel-1,0);}
+  else if(e.key==='Enter'){items[palSel]?.click();closePalette();return;}
+  else if(e.key==='Escape'){closePalette();return;}
+  items.forEach((el,i)=>el.classList.toggle('sel',i===palSel));
+  items[palSel]?.scrollIntoView({block:'nearest'});
+});
+document.getElementById('adm-palette-bg').addEventListener('click',e=>{if(e.target===e.currentTarget)closePalette();});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openPalette();}});
+</script>
+</html>

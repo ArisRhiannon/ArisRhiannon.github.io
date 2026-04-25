@@ -1,0 +1,7 @@
+services:
+  web:
+    environment:
+      - HOST=0.0.0.0
+      - PORT=4321
+      - NODE_ENV=production
+    command: bun ./dist/server/entry.mjs

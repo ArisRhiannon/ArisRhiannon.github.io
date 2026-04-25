@@ -1,0 +1,32 @@
+{
+  "version": "2.1.0",
+  "fase": 2,
+  "modulos": {
+    "now": {
+      "ruta": "/src/features/now/",
+      "estado": "activo",
+      "datos": "/data/now.json"
+    },
+    "radio": {
+      "ruta": "/src/features/radio/",
+      "estado": "activo",
+      "datos": "local mp3 o stream"
+    },
+    "gacha": {
+      "ruta": "/src/features/gacha/",
+      "estado": "activo",
+      "datos": "SQLite characters"
+    },
+    "videos": {
+      "ruta": "/src/features/video/",
+      "estado": "activo",
+      "datos": "SQLite videos + /public/uploads/",
+      "discord": "OG embed via /v/[id]"
+    },
+    "admin": {
+      "ruta": "/src/pages/admin/",
+      "estado": "activo",
+      "datos": "upload drag-drop + json editors"
+    }
+  }
+}

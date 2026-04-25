@@ -1,0 +1,213 @@
+---
+import GachaCard from "./GachaCard.astro";
+
+interface GameConfig {
+  id: string;
+  name: string;
+  color: string;
+  icon: string;
+  apiEndpoint: string;
+}
+
+interface Props {
+  games: GameConfig[];
+}
+
+const { games } = Astro.props;
+---
+
+<div class="gacha-module">
+  <!-- Tabs -->
+  <div class="gacha-tabs" role="tablist">
+    {games.map((game, i) => (
+      <button
+        role="tab"
+        aria-selected={i === 0}
+        aria-controls={`tab-${game.id}`}
+        data-game={game.id}
+        class="gacha-tab"
+        style={`--c: ${game.color}`}
+      >
+        <span>{game.icon}</span>
+        <span class="tab-name">{game.name}</span>
+      </button>
+    ))}
+  </div>
+
+  <!-- Panels (cargados client-side) -->
+  {games.map((game, i) => (
+    <div
+      id={`tab-${game.id}`}
+      role="tabpanel"
+      class={`gacha-panel ${i === 0 ? "active" : "hidden"}`}
+      data-endpoint={game.apiEndpoint}
+      data-color={game.color}
+      data-loaded="false"
+    >
+      <div class="gacha-loading font-mono text-sm">
+        Cargando personajes…
+      </div>
+    </div>
+  ))}
+</div>
+
+<style>
+  .gacha-module { space-y: 2rem; }
+  .gacha-tabs {
+    display: inline-flex;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 4px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    gap: 4px;
+  }
+  .gacha-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #94A3B8;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .gacha-tab[aria-selected="true"] {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--c);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: scale(1.02);
+  }
+  .gacha-tab:hover:not([aria-selected="true"]) { 
+    color: #F8FAFC;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .tab-name { font-size: 0.75rem; font-weight: 600; }
+  .gacha-panel.hidden { display: none; }
+  .gacha-panel.active { display: block; }
+  .gacha-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1.25rem;
+    padding-top: 1.5rem;
+  }
+  .skeleton-card {
+    aspect-ratio: 0.85 / 1.1;
+    background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  @keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  .gacha-error {
+    color: #F87171;
+    padding: 2rem;
+    text-align: center;
+    font-family: monospace;
+    font-size: 0.8rem;
+    background: rgba(248, 113, 113, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(248, 113, 113, 0.2);
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const tabs = document.querySelectorAll<HTMLButtonElement>(".gacha-tab");
+    const panels = document.querySelectorAll<HTMLDivElement>(".gacha-panel");
+
+    // Carga el primer panel
+    loadPanel(panels[0]);
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const gameId = tab.dataset.game!;
+        tabs.forEach((t) => t.setAttribute("aria-selected", "false"));
+        tab.setAttribute("aria-selected", "true");
+
+        panels.forEach((p) => {
+          if (p.id === `tab-${gameId}`) {
+            p.classList.remove("hidden");
+            p.classList.add("active");
+            loadPanel(p);
+          } else {
+            p.classList.add("hidden");
+            p.classList.remove("active");
+          }
+        });
+      });
+    });
+  });
+
+  async function loadPanel(panel: HTMLDivElement | null) {
+    if (!panel || panel.dataset.loaded === "true") return;
+    const endpoint = panel.dataset.endpoint!;
+    const color = panel.dataset.color!;
+
+    // Skeleton loader
+    panel.innerHTML = `<div class="gacha-grid">
+      ${Array(8).fill(0).map(() => `<div class="skeleton-card"></div>`).join('')}
+    </div>`;
+
+    try {
+      const res = await fetch(endpoint);
+      const data = await res.json();
+      const characters = data.characters ?? [];
+
+      if (!characters.length) {
+        panel.innerHTML = `<div class="gacha-error">Sin personajes en showcase. Ejecuta el script sync.</div>`;
+        return;
+      }
+
+      // Render cards
+      const grid = document.createElement("div");
+      grid.className = "gacha-grid";
+
+      characters.forEach((c: any) => {
+        const rarityColor = c.rarity >= 5 ? "#FFD700" : "#CE93D8";
+        const stars = "★".repeat(c.rarity ?? 4);
+        grid.innerHTML += `
+          <article class="gacha-card" style="--game-color: ${color}; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative;">
+            <div class="card-constellation" style="position: absolute; top: 0.5rem; right: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; padding: 2px 6px; border-radius: 6px; background: rgba(0,0,0,0.4); color: ${color}; border: 1px solid color-mix(in srgb, ${color} 40%, transparent); z-index: 10;">${c.constellation > 0 ? 'C' + c.constellation : ''}</div>
+            <div style="aspect-ratio:1; background: linear-gradient(135deg, color-mix(in srgb, ${color} 15%, transparent), transparent); display:flex; align-items:center; justify-content:center; overflow:hidden;">
+              ${c.imageUrl ? `<img src="${c.imageUrl}" alt="${c.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover; transition: transform 0.5s ease;" onerror="this.style.display='none'" />` : `<span style="opacity:0.2;font-size:2rem">✦</span>`}
+            </div>
+            <div style="padding:0.85rem; background: linear-gradient(to top, rgba(0,0,0,0.2), transparent);">
+              <div style="font-size:0.85rem;color:#F8FAFC;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-0.01em;">${c.name}</div>
+              <div style="display:flex;gap:0.6rem;margin-top:0.3rem;align-items:center;">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#94A3B8;opacity:0.8;">Lv.${c.level}</span>
+                ${c.element ? `<span style="font-size:0.65rem;color:#94A3B8;text-transform:uppercase;font-weight:700;letter-spacing:0.05em;">${c.element}</span>` : ""}
+              </div>
+              <div style="font-size:0.7rem;color:${rarityColor};letter-spacing:2px;margin-top:0.5rem;text-shadow: 0 0 8px currentColor;">${stars}</div>
+            </div>
+          </article>
+        `;
+      });
+
+      panel.innerHTML = "";
+      panel.appendChild(grid);
+      panel.dataset.loaded = "true";
+
+      if (data.cached) {
+        const note = document.createElement("p");
+        note.className = "gacha-loading";
+        note.style.fontSize = "0.7rem";
+        note.style.paddingTop = "0";
+        note.style.textAlign = "center";
+        note.style.opacity = "0.5";
+        note.textContent = data.note ?? "Mostrando datos locales (Enka sin respuesta)";
+        panel.appendChild(note);
+      }
+    } catch (e) {
+      panel.innerHTML = `<div class="gacha-error">Error cargando datos: ${e}</div>`;
+    }
+  }
+</script>

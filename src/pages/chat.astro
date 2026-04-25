@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import ChatBox from '../features/chat/ChatBox.astro';
+---
+<Base title="chat · aris">
+  <main style="padding: 2rem 1.5rem 0;">
+    <header style="margin-bottom: 1.5rem;">
+      <h1 style="font-family: var(--font-mono, monospace); font-size: 1.1rem; color: var(--color-muted, #A78BFA); font-weight: 400; letter-spacing: 0.06em; margin: 0;">
+        <span style="color: var(--color-accent, #A855F7);">[</span>chat<span style="color: var(--color-accent, #A855F7);">]</span>
+        <span style="font-size: 0.75rem; color: var(--color-muted-2, #94A3B8); margin-left: 12px;">gemma 4 · local · arm64</span>
+      </h1>
+    </header>
+    <ChatBox />
+  </main>
+</Base>
