@@ -1665,6 +1665,7 @@ const authenticated = await isAdmin(Astro.request, ADMIN_JWT_SECRET());
       radialSpeed: number;
       size: number;
       baseHue: number;
+      saturation: number;
       hue: number;
       alpha: number;
       type: number;
@@ -1684,39 +1685,48 @@ const authenticated = await isAdmin(Astro.request, ADMIN_JWT_SECRET());
       let size, alpha, speedMult;
       if (pClass < 0.22) {
         // Class 1: Ethereal Dust (Large, very faint, slow)
-        size = Math.random() * 2.2 + 1.6;
-        alpha = Math.random() * 0.15 + 0.08;
-        speedMult = 0.45;
+        size = Math.random() * 2.4 + 1.8;
+        alpha = Math.random() * 0.14 + 0.06;
+        speedMult = 0.4;
       } else if (pClass < 0.65) {
         // Class 2: Standard Stars (Medium, glowing)
-        size = Math.random() * 1.1 + 0.7;
-        alpha = Math.random() * 0.4 + 0.3;
-        speedMult = 1.0;
+        size = Math.random() * 1.2 + 0.7;
+        alpha = Math.random() * 0.38 + 0.28;
+        speedMult = 0.95;
       } else {
         // Class 3: Quantum Sparks (Tiny, bright, fast)
-        size = Math.random() * 0.6 + 0.3;
-        alpha = Math.random() * 0.45 + 0.55;
-        speedMult = 1.7;
+        size = Math.random() * 0.55 + 0.25;
+        alpha = Math.random() * 0.4 + 0.55;
+        speedMult = 1.6;
       }
 
-      // Iridescent base color themes: Gold, Cyan/Turquoise, Magenta/Pink, and rare deep Violet
-      const hueOptions = [45, 195, 310, 260];
+      // Elegant, low-contrast pastel palettes: Cyan Mist, Dusty Rose, Champagne Gold, Soft Lavender
       const weight = Math.random();
-      let baseHue;
-      if (weight < 0.35) baseHue = 195; // Cyan dominant
-      else if (weight < 0.70) baseHue = 310; // Magenta dominant
-      else if (weight < 0.90) baseHue = 45; // Gold
-      else baseHue = 260; // Deep Violet/Purple
+      let baseHue, saturation;
+      if (weight < 0.35) {
+        baseHue = 185; // Teal/Cyan Mist
+        saturation = 45;
+      } else if (weight < 0.70) {
+        baseHue = 325; // Dusty Rose
+        saturation = 50;
+      } else if (weight < 0.90) {
+        baseHue = 38;  // Champagne Gold
+        saturation = 55;
+      } else {
+        baseHue = 265; // Soft Lavender
+        saturation = 40;
+      }
 
       return {
         x: width / 2,
         y: height / 2,
         angle: angle,
         radius: radius,
-        speed: (Math.random() * 0.009 + 0.003) * (Math.random() > 0.5 ? 1 : -1) * speedMult,
-        radialSpeed: (Math.random() * 0.45 + 0.2) * speedMult,
+        speed: (Math.random() * 0.008 + 0.0025) * (Math.random() > 0.5 ? 1 : -1) * speedMult,
+        radialSpeed: (Math.random() * 0.4 + 0.18) * speedMult,
         size: size,
         baseHue: baseHue,
+        saturation: saturation,
         hue: baseHue,
         alpha: alpha,
         type: type,
@@ -1746,34 +1756,37 @@ const authenticated = await isAdmin(Astro.request, ADMIN_JWT_SECRET());
     let time = 0;
 
     function draw() {
-      time += 0.008; // slightly slower time step for smoother movements
+      time += 0.007; // slow, smooth time steps
       
       // Draw trails with a very dark background that lets the glowing colors blend
-      ctx.fillStyle = 'rgba(26, 21, 32, 0.09)';
+      ctx.fillStyle = 'rgba(26, 21, 32, 0.085)';
       ctx.fillRect(0, 0, width, height);
 
       const centerX = width / 2;
       const centerY = height / 2;
 
-      // Draw a soft, glowing, iridescent galactic center
-      const coreGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.min(width, height) * 0.45);
-      const coreHue = (time * 8) % 360;
-      coreGrad.addColorStop(0, `hsla(${coreHue}, 95%, 70%, 0.12)`);
-      coreGrad.addColorStop(0.35, `hsla(${(coreHue + 80) % 360}, 90%, 65%, 0.05)`);
-      coreGrad.addColorStop(0.7, `hsla(${(coreHue + 160) % 360}, 85%, 60%, 0.015)`);
+      // Ultra-dreamy central nebula glow (soft color shifts, low opacity)
+      const coreGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(width, height) * 0.65);
+      const coreShift = Math.sin(time * 0.25) * 25;
+      // Soft Lavender (250) shifting towards Slate Blue/Purple
+      coreGrad.addColorStop(0, `hsla(${250 + coreShift}, 35%, 65%, 0.08)`);
+      // Soft Dusty Rose (325) shifting towards Peach/Orchid
+      coreGrad.addColorStop(0.4, `hsla(${325 - coreShift}, 35%, 68%, 0.035)`);
+      // Soft Teal/Mint (185) for a cold cosmic touch
+      coreGrad.addColorStop(0.75, `hsla(${185 + coreShift}, 30%, 62%, 0.01)`);
       coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       
       ctx.save();
       ctx.fillStyle = coreGrad;
       ctx.beginPath();
-      ctx.arc(centerX, centerY, Math.min(width, height) * 0.5, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, Math.max(width, height) * 0.65, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
 
-      // Start rotated canvas for stars
+      // Start rotated canvas for stars (adding general spin)
       ctx.save();
       ctx.translate(centerX, centerY);
-      ctx.rotate(time * 0.025); // slow rotate
+      ctx.rotate(time * 0.02); // slow spin
       ctx.translate(-centerX, -centerY);
 
       // Set blend mode to lighter for vivid neon blending
@@ -1782,39 +1795,73 @@ const authenticated = await isAdmin(Astro.request, ADMIN_JWT_SECRET());
       particles.forEach((p) => {
         // Iridescent color shift: oscillating hue around the particle's base hue
         // We use a combination of time, radius, and angle to create iridescent ripples
-        const colorWave = Math.sin(time * 1.5 + p.radius * 0.05 + p.angle) * 45;
+        const colorWave = Math.sin(time * 1.3 + p.radius * 0.04 + p.orbitOffset) * 20;
         p.hue = (p.baseHue + colorWave + 360) % 360;
+
+        // 3D Orbital plane calculations with vertical height and precession
+        let xPlane = 0;
+        let yPlane = 0;
+        let zPlane = 0;
 
         if (p.type === 0) {
           // Density wave spiral arm
           p.angle += p.speed;
-          const armRadius = p.radius + Math.sin(p.angle * 3.5 + time * 1.5) * 14;
-          p.x = centerX + Math.cos(p.angle) * armRadius;
-          p.y = centerY + Math.sin(p.angle) * armRadius;
+          // Breathing radius
+          const r = p.radius + Math.sin(p.angle * 3.0 + time * 1.2) * (p.radius * 0.12);
+          xPlane = Math.cos(p.angle) * r;
+          yPlane = Math.sin(p.angle) * r;
+          zPlane = Math.sin(p.angle * 2.0 + time * 1.5) * (p.radius * 0.15); // vertical ripple
         } else if (p.type === 1) {
-          // Swirling expanding starfield
-          p.radius += p.radialSpeed;
-          p.angle += 0.008 + (p.radius * 0.00003); // spiral curl
-          p.x = centerX + Math.cos(p.angle) * p.radius;
-          p.y = centerY + Math.sin(p.angle) * p.radius;
-
-          if (p.radius > Math.max(width, height) * 0.7) {
-            Object.assign(p, createParticle(false));
-          }
+          // Breathing Hypocycloid (Spirograph dance)
+          p.angle += p.speed * 0.7;
+          const k = 3.5; // spirograph petal factor
+          const r = p.radius * (0.65 + 0.35 * Math.sin(p.angle * k + time * 0.5));
+          xPlane = Math.cos(p.angle) * r;
+          yPlane = Math.sin(p.angle) * r;
+          zPlane = Math.cos(p.angle * 3.0 + time * 1.2) * (p.radius * 0.18);
         } else {
-          // Double elliptical tilted orbit (quantum dance)
-          p.angle += p.speed * 1.3;
-          const orbitRadius = p.radius * (0.8 + 0.2 * Math.sin(time * 2.0 + p.orbitOffset));
-          p.x = centerX + Math.cos(p.angle) * orbitRadius;
-          p.y = centerY + Math.sin(p.angle + p.orbitOffset) * orbitRadius * 0.5;
+          // Chaotic Lissajous flutter (Cosmic swarm)
+          p.angle += p.speed * 1.25;
+          const r = p.radius * (0.8 + 0.2 * Math.sin(time * 1.8 + p.orbitOffset));
+          xPlane = Math.cos(p.angle) * r;
+          yPlane = Math.sin(p.angle * 1.5) * r; // Lissajous figure
+          zPlane = Math.cos(p.angle * 2.5 + time) * r * 0.25;
         }
+
+        // Apply 3D Precession (plane tilt axes rotate over time)
+        const tiltX = p.orbitOffset * 0.3 + time * 0.04;
+        const tiltY = p.orbitOffset * 0.2 + time * 0.02;
+
+        // Rotation around X axis
+        const cosX = Math.cos(tiltX);
+        const sinX = Math.sin(tiltX);
+        const y1 = yPlane * cosX - zPlane * sinX;
+        const z1 = yPlane * sinX + zPlane * cosX;
+
+        // Rotation around Y axis
+        const cosY = Math.cos(tiltY);
+        const sinY = Math.sin(tiltY);
+        const xFinal = xPlane * cosY + z1 * sinY;
+        const zFinal = -xPlane * sinY + z1 * cosY;
+
+        // Perspective Projection: camera distance is 320
+        const cameraDist = 320;
+        const perspective = cameraDist / (cameraDist + zFinal);
+
+        // Project coordinate positions to 2D
+        p.x = centerX + xFinal * perspective;
+        p.y = centerY + y1 * perspective;
+
+        // Scale size and alpha based on perspective depth
+        const currentSize = p.size * perspective;
+        const currentAlpha = p.alpha * perspective;
 
         // Mouse interaction (un-rotate mouse coordinates back to matching space)
         let rotMouseX = -9999;
         let rotMouseY = -9999;
         if (mouseX !== -9999 && mouseY !== -9999) {
-          const cos = Math.cos(-time * 0.025);
-          const sin = Math.sin(-time * 0.025);
+          const cos = Math.cos(-time * 0.02);
+          const sin = Math.sin(-time * 0.02);
           const dx = mouseX - centerX;
           const dy = mouseY - centerY;
           rotMouseX = centerX + (dx * cos - dy * sin);
@@ -1832,23 +1879,19 @@ const authenticated = await isAdmin(Astro.request, ADMIN_JWT_SECRET());
           }
         }
 
-        // Draw particle layers
-        // 1. Soft ethereal halo (larger, very low opacity)
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * 6.5, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue}, 100%, 65%, ${p.alpha * 0.06})`;
-        ctx.fill();
+        // Faded Ethereal Radial Glow (exponential falloff, no hard edges)
+        const glowRadius = currentSize * 8.5;
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowRadius);
+        
+        // Color stops for dreamy, soft, elegant transition
+        grad.addColorStop(0, `hsla(${p.hue}, ${p.saturation}%, 92%, ${currentAlpha})`);
+        grad.addColorStop(0.12, `hsla(${p.hue}, ${p.saturation}%, 82%, ${currentAlpha * 0.45})`);
+        grad.addColorStop(0.38, `hsla(${p.hue}, ${p.saturation}%, 72%, ${currentAlpha * 0.12})`);
+        grad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
 
-        // 2. Inner glow (medium, low opacity)
+        ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * 3.0, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue}, 100%, 75%, ${p.alpha * 0.18})`;
-        ctx.fill();
-
-        // 3. Bright Core (white-ish / light neon center)
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue}, 100%, 88%, ${p.alpha})`;
+        ctx.arc(p.x, p.y, glowRadius, 0, Math.PI * 2);
         ctx.fill();
       });
 
