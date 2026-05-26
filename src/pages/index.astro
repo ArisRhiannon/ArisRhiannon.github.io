@@ -1679,24 +1679,25 @@ const authenticated = await isAdmin(Astro.request, ADMIN_JWT_SECRET());
     function createParticle(randomize = false) {
       const type = Math.floor(Math.random() * 3);
       const angle = Math.random() * Math.PI * 2;
-      const radius = randomize ? Math.random() * 130 + 5 : 5;
+      // Minimum radius of 15px to prevent particles from crowding/burning out the absolute center
+      const radius = randomize ? Math.random() * 130 + 15 : 15;
       
       const pClass = Math.random();
       let size, alpha, speedMult;
       if (pClass < 0.22) {
         // Class 1: Ethereal Dust (Large, very faint, slow)
-        size = Math.random() * 2.4 + 1.8;
-        alpha = Math.random() * 0.14 + 0.06;
-        speedMult = 0.4;
+        size = Math.random() * 2.0 + 1.5;
+        alpha = Math.random() * 0.08 + 0.03; // extremely soft, faint glow
+        speedMult = 0.45;
       } else if (pClass < 0.65) {
         // Class 2: Standard Stars (Medium, glowing)
-        size = Math.random() * 1.2 + 0.7;
-        alpha = Math.random() * 0.38 + 0.28;
+        size = Math.random() * 1.1 + 0.6;
+        alpha = Math.random() * 0.18 + 0.12; // moderate glow
         speedMult = 0.95;
       } else {
         // Class 3: Quantum Sparks (Tiny, bright, fast)
-        size = Math.random() * 0.55 + 0.25;
-        alpha = Math.random() * 0.4 + 0.55;
+        size = Math.random() * 0.5 + 0.2;
+        alpha = Math.random() * 0.25 + 0.25; // visible but not blinding
         speedMult = 1.6;
       }
 
@@ -1758,22 +1759,22 @@ const authenticated = await isAdmin(Astro.request, ADMIN_JWT_SECRET());
     function draw() {
       time += 0.007; // slow, smooth time steps
       
-      // Draw trails with a very dark background that lets the glowing colors blend
-      ctx.fillStyle = 'rgba(26, 21, 32, 0.085)';
+      // Clear background with slightly higher opacity to shorten trails and prevent bloom mud
+      ctx.fillStyle = 'rgba(26, 21, 32, 0.16)';
       ctx.fillRect(0, 0, width, height);
 
       const centerX = width / 2;
       const centerY = height / 2;
 
-      // Ultra-dreamy central nebula glow (soft color shifts, low opacity)
+      // Ultra-dreamy central nebula glow (very low opacity, subtle shades)
       const coreGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(width, height) * 0.65);
       const coreShift = Math.sin(time * 0.25) * 25;
-      // Soft Lavender (250) shifting towards Slate Blue/Purple
-      coreGrad.addColorStop(0, `hsla(${250 + coreShift}, 35%, 65%, 0.08)`);
-      // Soft Dusty Rose (325) shifting towards Peach/Orchid
-      coreGrad.addColorStop(0.4, `hsla(${325 - coreShift}, 35%, 68%, 0.035)`);
-      // Soft Teal/Mint (185) for a cold cosmic touch
-      coreGrad.addColorStop(0.75, `hsla(${185 + coreShift}, 30%, 62%, 0.01)`);
+      // Soft Lavender (250)
+      coreGrad.addColorStop(0, `hsla(${250 + coreShift}, 35%, 65%, 0.04)`);
+      // Soft Dusty Rose (325)
+      coreGrad.addColorStop(0.4, `hsla(${325 - coreShift}, 35%, 68%, 0.015)`);
+      // Soft Teal/Mint (185)
+      coreGrad.addColorStop(0.75, `hsla(${185 + coreShift}, 30%, 62%, 0.005)`);
       coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       
       ctx.save();
@@ -1794,7 +1795,6 @@ const authenticated = await isAdmin(Astro.request, ADMIN_JWT_SECRET());
 
       particles.forEach((p) => {
         // Iridescent color shift: oscillating hue around the particle's base hue
-        // We use a combination of time, radius, and angle to create iridescent ripples
         const colorWave = Math.sin(time * 1.3 + p.radius * 0.04 + p.orbitOffset) * 20;
         p.hue = (p.baseHue + colorWave + 360) % 360;
 
@@ -1879,14 +1879,14 @@ const authenticated = await isAdmin(Astro.request, ADMIN_JWT_SECRET());
           }
         }
 
-        // Faded Ethereal Radial Glow (exponential falloff, no hard edges)
-        const glowRadius = currentSize * 8.5;
+        // Faded Ethereal Radial Glow (exponential falloff, narrower glow radius to limit bloom)
+        const glowRadius = currentSize * 5.5; 
         const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowRadius);
         
-        // Color stops for dreamy, soft, elegant transition
+        // Color stops for dreamy, soft, elegant transition with sharp edge falloff
         grad.addColorStop(0, `hsla(${p.hue}, ${p.saturation}%, 92%, ${currentAlpha})`);
-        grad.addColorStop(0.12, `hsla(${p.hue}, ${p.saturation}%, 82%, ${currentAlpha * 0.45})`);
-        grad.addColorStop(0.38, `hsla(${p.hue}, ${p.saturation}%, 72%, ${currentAlpha * 0.12})`);
+        grad.addColorStop(0.15, `hsla(${p.hue}, ${p.saturation}%, 82%, ${currentAlpha * 0.3})`);
+        grad.addColorStop(0.4, `hsla(${p.hue}, ${p.saturation}%, 70%, ${currentAlpha * 0.05})`);
         grad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
 
         ctx.fillStyle = grad;
