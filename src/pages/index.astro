@@ -8,6 +8,7 @@ import { getPosts, getProfile } from '../lib/feed';
 import { isAdmin } from '../lib/auth';
 import { ADMIN_JWT_SECRET } from '../lib/env';
 import YoukaiDashboard from '../features/youkai/YoukaiDashboard.astro';
+import Guestbook from '../features/guestbook/Guestbook.astro';
 
 const profile = getProfile();
 const { posts, next_cursor } = getPosts(undefined, 20);
@@ -56,6 +57,11 @@ const authenticated = await isAdmin(Astro.request, ADMIN_JWT_SECRET());
           <div class="galaxy-overlay">
             <span class="galaxy-title">Youkai Core</span>
           </div>
+        </div>
+
+        <!-- Card 3: Guestbook Widget -->
+        <div class="hero-guestbook-card">
+          <Guestbook authenticated={authenticated} />
         </div>
       </header>
 
@@ -308,22 +314,22 @@ const authenticated = await isAdmin(Astro.request, ADMIN_JWT_SECRET());
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* ═══ HERO SECTION: TWO COLUMNS ON DESKTOP ═══ */
+  /* ═══ HERO SECTION: THREE COLUMNS ON DESKTOP ═══ */
   .feed-hero-layout {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: var(--space-8);
+    align-items: stretch;
+    gap: var(--space-6);
     margin-bottom: var(--space-12);
     width: 100%;
   }
 
-  @media (min-width: 900px) {
+  @media (min-width: 1024px) {
     .feed-hero-layout {
       display: grid;
-      grid-template-columns: auto 1fr;
-      align-items: center;
-      gap: var(--space-8);
+      grid-template-columns: auto 1.15fr 300px;
+      align-items: stretch;
+      gap: var(--space-6);
     }
   }
 
@@ -364,6 +370,26 @@ const authenticated = await isAdmin(Astro.request, ADMIN_JWT_SECRET());
   }
 
   .hero-galaxy-card:hover {
+    border-color: var(--color-border-accent);
+    box-shadow: var(--glow-sm);
+  }
+
+  /* Guestbook Widget Card */
+  .hero-guestbook-card {
+    position: relative;
+    background: var(--glass-bg);
+    border: var(--glass-border);
+    border-radius: var(--radius-lg);
+    backdrop-filter: var(--glass-blur);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-4);
+    transition: border-color var(--duration) var(--ease-out), box-shadow var(--duration) var(--ease-out);
+    min-height: 260px;
+    height: 100%;
+    box-sizing: border-box;
+  }
+
+  .hero-guestbook-card:hover {
     border-color: var(--color-border-accent);
     box-shadow: var(--glow-sm);
   }
