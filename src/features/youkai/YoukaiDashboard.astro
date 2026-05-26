@@ -121,7 +121,6 @@ const formatNum = (num: number) => new Intl.NumberFormat('es-MX').format(num);
       <h3 class="card-title">
         <span class="icon">✦</span> Pipeline de Procesamiento de Mensajes (NLP)
       </h3>
-      <p class="section-desc">Pasa el cursor por cada bloque para ver los detalles del pipeline.</p>
       
       <div class="pipeline-graph">
         <!-- Step 1 -->
@@ -428,7 +427,7 @@ const formatNum = (num: number) => new Intl.NumberFormat('es-MX').format(num);
     align-items: center;
     justify-content: space-between;
     gap: var(--space-2);
-    padding: 85px 0 var(--space-4) 0;
+    padding: 65px 0 var(--space-4) 0;
     width: 100%;
     max-width: 100%;
     overflow-x: auto;
@@ -512,7 +511,7 @@ const formatNum = (num: number) => new Intl.NumberFormat('es-MX').format(num);
   .node-tooltip {
     display: none;
     position: absolute;
-    bottom: 110%;
+    bottom: calc(100% + 6px);
     left: 50%;
     transform: translateX(-50%);
     width: 240px;
