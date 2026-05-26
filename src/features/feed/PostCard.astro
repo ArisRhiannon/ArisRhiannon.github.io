@@ -1,0 +1,517 @@
+---
+/**
+ * PostCard — un solo post en el feed.
+ * Props: post (PostWithMedia), profile (Profile), authenticated (boolean), isFirst? (boolean)
+ */
+import type { PostWithMedia, Profile, MediaObj } from '../../lib/feed';
+
+interface Props {
+  post: PostWithMedia;
+  profile: Profile;
+  authenticated: boolean;
+  isFirst?: boolean;
+}
+
+const { post, profile, authenticated, isFirst = false } = Astro.props;
+
+// Mood color map
+const moodMap: Record<string, { border: string; glow: string }> = {
+  '✨': { border: 'rgba(251,191,36,0.15)', glow: '0 0 12px rgba(251,191,36,0.10)' },
+  '💭': { border: 'rgba(196,181,253,0.15)', glow: '0 0 12px rgba(196,181,253,0.10)' },
+  '🎮': { border: 'rgba(103,232,249,0.15)', glow: '0 0 12px rgba(103,232,249,0.10)' },
+  '😭': { border: 'rgba(255,107,157,0.20)', glow: '0 0 12px rgba(255,107,157,0.12)' },
+  '📖': { border: 'rgba(134,239,172,0.15)', glow: '0 0 12px rgba(134,239,172,0.10)' },
+  '♪':  { border: 'rgba(196,181,253,0.15)', glow: '0 0 12px rgba(196,181,253,0.10)' },
+};
+
+const moodStyle = post.mood ? moodMap[post.mood] : null;
+const moodBorder = moodStyle?.border ?? 'var(--color-border)';
+const moodGlow = moodStyle?.glow ?? 'none';
+
+// Format date
+const date = new Date(post.created_at + 'Z');
+const fecha = date.toLocaleDateString('es-MX', { month: 'short', day: 'numeric', year: 'numeric' });
+
+// Media layout class
+const mediaCount = post.media.filter(m => m.type === 'image' || m.type === 'video').length;
+let mediaLayout = 'single';
+if (mediaCount === 2) mediaLayout = 'duo';
+else if (mediaCount === 3) mediaLayout = 'trio';
+else if (mediaCount >= 4) mediaLayout = 'grid';
+
+// Detect if body is long for fade-out (heuristic: > 300 chars)
+const isLongBody = post.body.length > 300;
+---
+
+<article
+  class:list={['post-card', { 'post-card--first': isFirst }]}
+  style={`--mood-border: ${moodBorder}; --mood-glow: ${moodGlow};`}
+  data-post-id={post.id}
+  data-has-media={String(post.media.length > 0)}
+>
+  <!-- Header -->
+  <div class="post-header">
+    <img class="post-pfp" src={profile.pfp_url} alt="" width="32" height="32" loading="lazy" />
+    <div class="post-identity">
+      <span class="post-name">{profile.display_name}</span>
+      <span class="post-sub">{profile.subtitle}</span>
+    </div>
+    {post.pinned && <span class="post-pin-badge">📌</span>}
+  </div>
+
+  <div class="post-divider"></div>
+
+  <!-- Body -->
+  <div class:list={['post-body', { 'post-body--long': isLongBody }]}>
+    {post.body.split('\n').map(line => (
+      line ? <p>{line}</p> : <br />
+    ))}
+  </div>
+
+  <!-- Typewriter subtitle -->
+  <span class="post-subtitle-typer" data-subtitle-typer data-text={profile.subtitle}></span>
+
+  <!-- Media -->
+  {post.media.length > 0 && (
+    <div class={`post-media post-media--${mediaLayout}`}>
+      {post.media.map((m, i) => (
+        m.type === 'image' ? (
+          <div class="media-item media-image" data-media-index={i}>
+            <img src={m.thumb ?? m.url} alt={m.alt ?? ''} loading="lazy" />
+          </div>
+        ) : m.type === 'video' ? (
+          <div class="media-item media-video" data-media-index={i}>
+            {m.thumb && <img src={m.thumb} alt={m.alt ?? ''} loading="lazy" />}
+            <div class="video-play-overlay" aria-hidden="true">▶</div>
+          </div>
+        ) : (
+          <a class="media-item media-doc" href={m.url} target="_blank" rel="noopener" data-media-index={i}>
+            <span class="doc-icon">📄</span>
+            <span class="doc-info">
+              <span class="doc-name">{m.name ?? 'documento'}</span>
+              {m.size && <span class="doc-size">{m.size}</span>}
+            </span>
+          </a>
+        )
+      ))}
+    </div>
+  )}
+
+  <!-- Footer -->
+  <div class="post-footer">
+    <div class="post-meta">
+      {post.mood && <span class="post-mood">{post.mood}</span>}
+      <span class="post-date">· {fecha}</span>
+    </div>
+    {authenticated && (
+      <div class="post-actions">
+        <button class="post-action-btn" data-action="pin" title={post.pinned ? 'Desfijar' : 'Fijar'}>
+          📌
+        </button>
+        <button class="post-action-btn" data-action="delete" title="Eliminar">
+          🗑
+        </button>
+      </div>
+    )}
+  </div>
+
+  <!-- Reactions bar -->
+  <div class="post-reactions" data-reactions-bar>
+    {["💖", "😂", "😭", "🤯", "✨", "🔥"].map((emoji) => (
+      <button
+        class="reaction-btn"
+        data-reaction-emoji={emoji}
+        title={emoji}
+      >
+        <span class="reaction-emoji">{emoji}</span>
+        <span class="reaction-count" data-reaction-count={emoji}>0</span>
+      </button>
+    ))}
+  </div>
+</article>
+
+<style>
+  .post-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--color-bg-2);
+    border: 1px solid var(--mood-border, var(--color-border));
+    border-radius: var(--radius-lg);
+    transition:
+      transform 200ms var(--ease-out),
+      box-shadow 200ms var(--ease-out),
+      border-color 200ms var(--ease-out);
+    cursor: pointer;
+    position: relative;
+  }
+
+  .post-card:hover {
+    border-color: var(--color-border-accent);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 40px rgba(232,64,96,0.06);
+    transform: translateY(-2px);
+  }
+
+  /* ── First post — more breathing room ── */
+  .post-card--first {
+    padding: var(--space-6);
+  }
+
+  .post-card--first .post-body {
+    font-size: var(--text-lg);
+    line-height: 1.7;
+    --line-clamp: 10;
+  }
+
+  /* Pinned — permanent accent with subtle gradient */
+  .post-card:has(.post-pin-badge) {
+    border-color: var(--color-border-accent);
+    background: linear-gradient(
+      135deg,
+      var(--color-bg-2) 0%,
+      color-mix(in srgb, var(--color-bg-2), var(--color-accent) 6%) 100%
+    );
+  }
+
+  /* ── Header ── */
+  .post-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .post-pfp {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border-accent);
+    flex-shrink: 0;
+    object-fit: cover;
+  }
+
+  .post-identity {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .post-name {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--color-ink);
+    line-height: 1;
+  }
+
+  .post-sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-muted-2);
+    letter-spacing: 0.03em;
+  }
+
+  .post-pin-badge {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    font-size: 10px;
+    color: var(--color-accent);
+    opacity: 0.6;
+    z-index: 1;
+  }
+
+  .post-divider {
+    height: 1px;
+    background: var(--color-border);
+    opacity: 0.5;
+  }
+
+  /* ── Body — con fade-out para texto largo ── */
+  .post-body {
+    --line-clamp: 6;
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-ink-soft);
+    line-height: 1.65;
+    position: relative;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: var(--line-clamp);
+    -webkit-box-orient: vertical;
+  }
+
+  .post-body p {
+    margin: 0;
+  }
+
+  /* Fade-out gradient at the bottom — only when text overflows */
+  .post-body--long::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3em;
+    background: linear-gradient(to bottom, transparent, var(--color-bg-2));
+    pointer-events: none;
+  }
+
+  /* ── Typewriter subtitle ── */
+  .post-subtitle-typer {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--color-muted-2);
+    letter-spacing: 0.06em;
+    min-height: 1.2em;
+    margin-top: var(--space-2);
+    opacity: 0.55;
+  }
+
+  .post-subtitle-typer::after {
+    content: '|';
+    color: var(--color-accent);
+    animation: cursor-blink 0.8s step-end infinite;
+  }
+
+  .post-subtitle-typer.typed::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  @keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* ── Media ── */
+  .post-media {
+    display: grid;
+    gap: var(--space-2);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .post-media--single { grid-template-columns: 1fr; }
+  .post-media--duo { grid-template-columns: 1fr 1fr; }
+  .post-media--trio { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; }
+  .post-media--trio .media-item:first-child { grid-column: 1 / -1; }
+  .post-media--grid { grid-template-columns: 1fr 1fr; }
+
+  .media-item {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    position: relative;
+    background: var(--color-bg-2);
+  }
+
+  .post-media--single .media-image {
+    max-height: none;
+    aspect-ratio: auto;
+  }
+
+  .post-media--single .media-image img,
+  .post-media--single .media-video img {
+    object-fit: contain;
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    display: block;
+    transition: transform 0.3s var(--ease-out);
+  }
+
+  .post-media--duo .media-item,
+  .post-media--trio .media-item,
+  .post-media--grid .media-item {
+    aspect-ratio: 1 / 1;
+    max-height: none;
+    background: var(--color-bg-2);
+  }
+
+  .post-media--duo .media-image img,
+  .post-media--trio .media-image img,
+  .post-media--grid .media-image img,
+  .post-media--duo .media-video img,
+  .post-media--trio .media-video img,
+  .post-media--grid .media-video img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s var(--ease-out);
+  }
+
+  .post-card:hover .media-image img,
+  .post-card:hover .media-video img {
+    transform: scale(1.02);
+  }
+
+  .video-play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(26, 21, 32, 0.4);
+    color: var(--color-ink);
+    font-size: 28px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .post-card:hover .video-play-overlay {
+    opacity: 0.8;
+  }
+
+  .media-doc {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: rgba(255, 245, 250, 0.03);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: border-color var(--duration) var(--ease-out);
+  }
+
+  .media-doc:hover {
+    border-color: var(--color-border-accent);
+  }
+
+  .doc-icon { font-size: 20px; flex-shrink: 0; }
+
+  .doc-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .doc-name {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-ink-soft);
+    font-weight: 600;
+  }
+
+  .doc-size {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--color-muted-2);
+  }
+
+  /* ── Footer ── */
+  .post-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .post-mood { font-size: 12px; }
+
+  .post-date {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--color-muted-2);
+    letter-spacing: 0.04em;
+  }
+
+  .post-actions {
+    display: flex;
+    gap: var(--space-1);
+    opacity: 0;
+    transition: opacity var(--duration) var(--ease-out);
+  }
+
+  .post-card:hover .post-actions { opacity: 1; }
+
+  .post-action-btn {
+    background: none;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    opacity: 0.5;
+    transition: opacity var(--duration), background var(--duration);
+  }
+
+  .post-action-btn:hover {
+    opacity: 1;
+    background: rgba(255,107,157,0.08);
+  }
+
+  /* ── Reactions bar ── */
+  .post-reactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-top: var(--space-1);
+  }
+
+  .reaction-btn {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    background: var(--glass-bg);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition:
+      border-color var(--duration) var(--ease-out),
+      box-shadow var(--duration) var(--ease-out),
+      background var(--duration) var(--ease-out),
+      transform var(--duration) var(--ease-bounce);
+    user-select: none;
+  }
+
+  .reaction-btn:hover {
+    border-color: var(--color-border-accent);
+    box-shadow: var(--glow-sm);
+    background: rgba(255, 107, 157, 0.06);
+    transform: scale(1.08);
+  }
+
+  .reaction-btn:active { transform: scale(0.95); }
+
+  .reaction-btn.is-active {
+    border-color: var(--color-accent);
+    background: rgba(255, 107, 157, 0.12);
+    box-shadow: var(--glow-sm);
+  }
+
+  .reaction-btn.is-loading {
+    animation: reaction-pulse 1s ease-in-out infinite;
+  }
+
+  @keyframes reaction-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .reaction-emoji { font-size: 13px; line-height: 1; }
+
+  .reaction-count {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--color-muted-2);
+    line-height: 1;
+    min-width: 4px;
+    text-align: center;
+  }
+
+  .reaction-btn.is-active .reaction-count { color: var(--color-accent); }
+  .reaction-count.is-zero { display: none; }
+</style>

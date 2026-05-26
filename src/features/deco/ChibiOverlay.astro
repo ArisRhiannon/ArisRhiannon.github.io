@@ -1,0 +1,65 @@
+---
+---
+<!-- Chibi Aris — watermark decorativo en tema oscuro -->
+<div class="chibi-overlay" aria-hidden="true">
+  <svg viewBox="0 0 160 220" xmlns="http://www.w3.org/2000/svg" fill="none">
+    <!-- Cabello — contorno -->
+    <path d="M40 90 C40 45, 120 45, 120 90 L120 110 C120 115, 40 115, 40 110 Z" fill="#2a1f2e"/>
+    <!-- Moño grande -->
+    <ellipse cx="118" cy="62" rx="18" ry="14" fill="#ff6b9d" stroke="#2a1f2e" stroke-width="1.2"/>
+    <ellipse cx="126" cy="56" rx="12" ry="10" fill="#ffa0c4" stroke="#2a1f2e" stroke-width="1"/>
+    <circle cx="120" cy="62" r="3.5" fill="#2a1f2e"/>
+    <!-- Cabello — flequillo -->
+    <path d="M45 85 Q55 65, 70 82 Q80 62, 90 80 Q100 63, 115 85" fill="#2a1f2e"/>
+    <!-- Cara -->
+    <ellipse cx="80" cy="105" rx="32" ry="30" fill="#f0e6f6" stroke="#2a1f2e" stroke-width="1.2"/>
+    <!-- Ojos -->
+    <ellipse cx="68" cy="102" rx="5" ry="6" fill="#2a1f2e"/>
+    <ellipse cx="92" cy="102" rx="5" ry="6" fill="#2a1f2e"/>
+    <circle cx="70" cy="100" r="1.5" fill="#f0e6f6"/>
+    <circle cx="94" cy="100" r="1.5" fill="#f0e6f6"/>
+    <!-- Boca -->
+    <path d="M76 112 Q80 115, 84 112" stroke="#2a1f2e" stroke-width="1" fill="none" stroke-linecap="round"/>
+    <!-- Mejillas sonrojadas -->
+    <ellipse cx="62" cy="108" rx="5" ry="3" fill="#ff6b9d" opacity="0.5"/>
+    <ellipse cx="98" cy="108" rx="5" ry="3" fill="#ff6b9d" opacity="0.5"/>
+    <!-- Cuello -->
+    <rect x="74" y="132" width="12" height="10" rx="3" fill="#f0e6f6" stroke="#2a1f2e" stroke-width="1"/>
+    <!-- Cuerpo — vestido -->
+    <path d="M55 142 L50 195 C50 200, 110 200, 110 195 L105 142 C100 138, 60 138, 55 142 Z" fill="#1a1520" stroke="#c4b5fd" stroke-width="1" opacity="0.8"/>
+    <!-- Cuello del vestido -->
+    <path d="M60 142 Q80 148, 100 142" stroke="#ff6b9d" stroke-width="1.5" fill="none"/>
+    <!-- Cinto del moño del vestido -->
+    <rect x="62" y="160" width="36" height="6" rx="3" fill="#ff6b9d"/>
+    <ellipse cx="80" cy="163" rx="5" ry="4" fill="#ff3d7f"/>
+    <!-- Mangas -->
+    <ellipse cx="48" cy="150" rx="10" ry="14" fill="#1a1520" stroke="#c4b5fd" stroke-width="1" opacity="0.8"/>
+    <ellipse cx="112" cy="150" rx="10" ry="14" fill="#1a1520" stroke="#c4b5fd" stroke-width="1" opacity="0.8"/>
+    <!-- Manos -->
+    <circle cx="44" cy="165" r="5" fill="#f0e6f6" stroke="#2a1f2e" stroke-width="1"/>
+    <circle cx="116" cy="165" r="5" fill="#f0e6f6" stroke="#2a1f2e" stroke-width="1"/>
+    <!-- Piernas -->
+    <rect x="66" y="195" width="10" height="18" rx="4" fill="#f0e6f6" stroke="#2a1f2e" stroke-width="1"/>
+    <rect x="84" y="195" width="10" height="18" rx="4" fill="#f0e6f6" stroke="#2a1f2e" stroke-width="1"/>
+    <!-- Zapatos -->
+    <ellipse cx="71" cy="215" rx="8" ry="4" fill="#ff6b9d"/>
+    <ellipse cx="89" cy="215" rx="8" ry="4" fill="#ff6b9d"/>
+  </svg>
+</div>
+
+<style>
+  .chibi-overlay {
+    position: fixed;
+    bottom: 16px;
+    right: 24px;
+    width: 140px;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.06;
+    filter: drop-shadow(0 0 20px rgba(255,107,157,0.3));
+  }
+
+  @media (max-width: 768px) {
+    .chibi-overlay { display: none; }
+  }
+</style>

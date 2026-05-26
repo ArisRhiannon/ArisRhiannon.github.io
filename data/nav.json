@@ -1,11 +1,9 @@
 {
-  "items": [
-    { "label": "jardin",  "href": "/garden" },
-    { "label": "ahora",   "href": "/now" },
-    { "label": "videos",  "href": "/videos" },
-    { "label": "gacha",   "href": "/gacha" },
-    { "label": "danmaku", "href": "/danmaku" },
-    { "label": "anime",   "href": "/anime" },
-    { "label": "libros",  "href": "/bookshelf" }
-  ]
+ "items": [
+  { "label": "jardin", "href": "/garden" },
+  { "label": "ahora", "href": "/now" },
+  { "label": "videos", "href": "/videos" },
+  { "label": "gacha", "href": "/gacha" },
+  { "label": "anime", "href": "/anime" }
+ ]
 }

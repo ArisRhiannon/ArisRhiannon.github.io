@@ -27,3 +27,116 @@ aris-sama.duckdns.org {
     Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:;"
   }
 }
+
+# ── Test Fork Site ──
+test.aris-sama.duckdns.org {
+  handle {
+    reverse_proxy test-web:4322
+  }
+
+  encode gzip zstd
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "SAMEORIGIN"
+    Referrer-Policy "strict-origin-when-cross-origin"
+  }
+}
+
+# ── Kavita Manga Reader ──
+manga.aris-sama.duckdns.org {
+  # Matcher: requests que YA traen un Bearer JWT (sesión activa de Kavita)
+  @bearer header Authorization "Bearer *"
+
+  # Requests con JWT → pasan directo con Bearer intacto (sin basic auth)
+  handle @bearer {
+    reverse_proxy kavita:5000
+  }
+
+  # Resto de requests → basic auth, luego strip del header Basic antes de Kavita
+  handle {
+    basicauth {
+      aris $2b$14$TzNJ0C6FNc.ij6krXBgRieJPN0Nbbtiu.tcDcH1Ev1z7wdLX6fXOq
+    }
+    reverse_proxy kavita:5000 {
+      header_up -Authorization
+    }
+  }
+
+  encode gzip zstd
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "SAMEORIGIN"
+    Referrer-Policy "strict-origin-when-cross-origin"
+  }
+}
+
+# ── Youkai Architecture Graph ──
+youkai.aris-sama.duckdns.org {
+  reverse_proxy youkai-arch:80
+
+  encode gzip zstd
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "DENY"
+    Referrer-Policy "strict-origin-when-cross-origin"
+  }
+}
+
+# ── Kadath — Playable Test ──
+kadath.aris-sama.duckdns.org {
+  reverse_proxy kadath:8081
+
+  encode gzip zstd
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "SAMEORIGIN"
+    Referrer-Policy "strict-origin-when-cross-origin"
+  }
+}
+
+# ── Dreamlands — Kadath World Editor ──
+dreamlands.aris-sama.duckdns.org {
+  basic_auth {
+    dreamlands $2a$14$/Hu/5Ddhst/yBXPDyVCkvegDE.IymmGqWmvlGmhRFgQQlLboa8m1i
+  }
+
+  reverse_proxy dreamlands:8080
+
+  encode gzip zstd
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "SAMEORIGIN"
+    Referrer-Policy "strict-origin-when-cross-origin"
+  }
+}
+
+# ── Youkai Override Panel ──
+override.aris-sama.duckdns.org {
+  reverse_proxy override:80
+
+  encode gzip zstd
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "DENY"
+    Referrer-Policy "strict-origin-when-cross-origin"
+  }
+}
+
+# ── Arias Ro Portfolio ──
+arias.is-a.dev {
+  root * /srv/arias
+  file_server
+  encode gzip zstd
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "SAMEORIGIN"
+    Referrer-Policy "strict-origin-when-cross-origin"
+  }
+}

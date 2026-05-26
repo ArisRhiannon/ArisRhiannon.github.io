@@ -1,8 +1,8 @@
 ---
-// VideoGrid.astro — lista de videos desde /api/videos
+// VideoGrid.astro
 ---
 <div class="video-module" id="video-module">
-  <div class="video-loading font-mono text-sm">Cargando videos…</div>
+  <div class="video-loading">Cargando...</div>
 </div>
 
 <script>
@@ -16,12 +16,7 @@
       const videos: any[] = data.videos ?? [];
 
       if (!videos.length) {
-        container.innerHTML = `
-          <div class="video-empty">
-            <p class="font-mono text-sm" style="color:var(--color-muted);padding:2rem;text-align:center;">
-              Sin videos todavía. Añade entradas a la tabla <code>videos</code> de la DB.
-            </p>
-          </div>`;
+        container.innerHTML = '<div class="video-empty"><p style="color:var(--color-muted);padding:2rem;text-align:center;font-size:var(--text-sm);">Sin videos todavia.</p></div>';
         return;
       }
 
@@ -29,32 +24,59 @@
       grid.className = 'video-grid';
 
       for (const v of videos) {
-        // Detectar si es YouTube embed o URL directa
         const ytMatch = v.url?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]{11})/);
         const embedUrl = ytMatch ? `https://www.youtube.com/embed/${ytMatch[1]}` : null;
 
-        grid.innerHTML += `
-          <article class="video-card">
-            <div class="video-thumb">
-              ${embedUrl
-                ? `<iframe src="${embedUrl}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:0;"></iframe>`
-                : v.thumbnail
-                  ? `<img src="${v.thumbnail}" alt="${v.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover;" />`
-                  : `<div class="video-placeholder">▶</div>`
-              }
-            </div>
-            <div class="video-info">
-              <span class="video-category font-mono">${v.category ?? 'general'}</span>
-              <h3 class="video-title">${v.title}</h3>
-            </div>
-          </article>
-        `;
+        const card = document.createElement('article');
+        card.className = 'video-card';
+
+        const thumb = document.createElement('div');
+        thumb.className = 'video-thumb';
+
+        if (embedUrl) {
+          const iframe = document.createElement('iframe');
+          iframe.src = embedUrl;
+          iframe.loading = 'lazy';
+          iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+          iframe.allowFullscreen = true;
+          iframe.style.cssText = 'width:100%;height:100%;border:0;';
+          thumb.appendChild(iframe);
+        } else if (v.thumbnail) {
+          const img = document.createElement('img');
+          img.src = v.thumbnail;
+          img.alt = v.title || '';
+          img.loading = 'lazy';
+          img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+          thumb.appendChild(img);
+        } else {
+          const ph = document.createElement('div');
+          ph.className = 'video-placeholder';
+          ph.textContent = '\u25B6';
+          thumb.appendChild(ph);
+        }
+
+        const info = document.createElement('div');
+        info.className = 'video-info';
+
+        const cat = document.createElement('span');
+        cat.className = 'video-category';
+        cat.textContent = v.category ?? 'general';
+
+        const title = document.createElement('h3');
+        title.className = 'video-title';
+        title.textContent = v.title || '';
+
+        info.appendChild(cat);
+        info.appendChild(title);
+        card.appendChild(thumb);
+        card.appendChild(info);
+        grid.appendChild(card);
       }
 
       container.innerHTML = '';
       container.appendChild(grid);
     } catch (e) {
-      if (container) container.innerHTML = `<p style="color:#F87171;font-family:monospace;padding:1rem;">Error: ${e}</p>`;
+      if (container) container.innerHTML = `<p style="color:var(--color-accent-hi);font-size:var(--text-sm);padding:1rem;">Error: ${e}</p>`;
     }
   }
 
@@ -69,32 +91,33 @@
     gap: 1.25rem;
   }
   .video-card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-card);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: transform 0.2s, border-color 0.2s;
+    transition: transform var(--duration) var(--ease-out), box-shadow var(--duration) var(--ease-out);
   }
-  .video-card:hover { transform: translateY(-3px); border-color: rgba(168,85,247,0.4); }
+  .video-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
   .video-thumb {
     aspect-ratio: 16/9;
-    background: rgba(168,85,247,0.06);
+    background: var(--color-surface-2);
     overflow: hidden;
     position: relative;
   }
   .video-placeholder {
     display: flex; align-items: center; justify-content: center;
     width: 100%; height: 100%;
-    font-size: 2rem; opacity: 0.3; color: var(--color-accent);
+    font-size: 1.5rem; opacity: 0.2; color: var(--color-muted);
   }
-  .video-info { padding: 0.75rem 1rem; }
+  .video-info { padding: var(--space-3) var(--space-4); }
   .video-category {
-    font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--color-accent); display: block; margin-bottom: 0.25rem;
+    font-size: var(--text-xs); letter-spacing: 0.06em; text-transform: lowercase;
+    color: var(--color-muted); display: block; margin-bottom: 0.25rem;
+    font-family: var(--font-mono);
   }
   .video-title {
-    font-size: 0.875rem; color: var(--color-ink); font-weight: 500; line-height: 1.4;
+    font-size: var(--text-sm); color: var(--color-ink); font-weight: 600; line-height: 1.4;
     overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   }
-  .video-loading { color: var(--color-muted); padding: 2rem; text-align: center; font-size: 0.875rem; }
+  .video-loading { color: var(--color-muted); padding: 2rem; text-align: center; font-size: var(--text-sm); }
 </style>

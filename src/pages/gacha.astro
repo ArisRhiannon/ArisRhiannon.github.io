@@ -8,14 +8,92 @@ const config = JSON.parse(readFileSync(join(process.cwd(), "data", "gacha-config
 ---
 
 <Base title="Gacha · aris-sama">
-  <main class="max-w-4xl mx-auto px-4 py-12">
-    <header class="mb-8">
-      <h1 class="font-mono text-2xl text-[var(--color-accent)]">GACHA ROSTER</h1>
-      <p class="text-[var(--color-muted)] text-sm mt-1">
-        Personajes desbloqueados — histórico completo
-      </p>
-    </header>
 
+  <section class="page-hero">
+    <div class="page-hero-bg" aria-hidden="true">
+      <div class="hero-glow"></div>
+    </div>
+    <div class="page-hero-content">
+      <div class="hero-chip">rostero completo</div>
+      <h1 class="hero-title">gacha roster</h1>
+      <p class="hero-sub">personajes desbloqueados — historico completo</p>
+    </div>
+  </section>
+
+  <section class="gacha-page">
     <GachaGrid games={config.games} />
-  </main>
+  </section>
+
 </Base>
+
+<style>
+  .page-hero {
+    position: relative;
+    padding: var(--space-20) var(--space-8) var(--space-12);
+    overflow: hidden;
+  }
+
+  .page-hero-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 400px; height: 400px;
+    top: -80px; left: 30%;
+    background: radial-gradient(circle, rgba(251,191,36,0.12) 0%, transparent 70%);
+    filter: blur(40px);
+  }
+
+  .page-hero-content {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .hero-chip {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    color: var(--color-gold);
+    background: rgba(251,191,36,0.08);
+    border: 1px solid rgba(251,191,36,0.20);
+    padding: 4px 14px;
+    border-radius: var(--radius-full);
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: var(--text-5xl);
+    font-weight: 700;
+    color: var(--color-ink);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 20px rgba(251,191,36,0.15);
+  }
+
+  .hero-sub {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .gacha-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-8) var(--space-20);
+  }
+
+  @media (max-width: 768px) {
+    .page-hero { padding: var(--space-12) var(--space-4) var(--space-8); }
+    .hero-title { font-size: var(--text-4xl); }
+    .gacha-page { padding: 0 var(--space-4) var(--space-12); }
+  }
+</style>

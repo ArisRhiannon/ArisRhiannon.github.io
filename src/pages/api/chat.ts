@@ -1,18 +1,16 @@
 import type { APIRoute } from "astro";
-
-const PASSWORD = "Bebaziel777";
-const LLAMA_URL = "http://host.docker.internal:8080/v1/chat/completions";
+import { CHAT_PASSWORD, LLAMA_URL } from "../../lib/env";
 
 export const POST: APIRoute = async ({ request }) => {
   const body = await request.json().catch(() => null);
   if (!body) return new Response("bad request", { status: 400 });
 
   const { password, messages } = body;
-  if (password !== PASSWORD) {
+  if (password !== CHAT_PASSWORD()) {
     return new Response("unauthorized", { status: 401 });
   }
 
-  const upstream = await fetch(LLAMA_URL, {
+  const upstream = await fetch(LLAMA_URL(), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

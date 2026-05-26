@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg python3 
 
 FROM base AS deps
 COPY package.json bun.lock* ./
-RUN bun install --frozen-lockfile
+RUN bun install --frozen-lockfile --prefer-offline
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
@@ -16,15 +16,14 @@ RUN bun run build
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-# ffmpeg en la imagen final también
-RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
+# ffmpeg ya está instalado en stage base
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/data ./data
-RUN mkdir -p public/uploads public/thumbs
+RUN mkdir -p public/uploads public/thumbs public/music
 
 EXPOSE 4321
 CMD ["bun", "./dist/server/entry.mjs"]

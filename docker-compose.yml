@@ -7,10 +7,34 @@ services:
       - ./data:/app/data
       - ./public/uploads:/app/public/uploads
       - ./public/thumbs:/app/public/thumbs
+      - ./public/music:/app/public/music
+      - /home/ubuntu/Desktop/los nitos hermanos/youkai/db:/app/data/youkai_db:ro
     env_file:
       - .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    restart: always
+
+  test-web:
+    build:
+      context: ../misitio-test
+    ports:
+      - "127.0.0.1:4322:4322"
+    volumes:
+      - ../misitio-test/data:/app/data
+      - ../misitio-test/public/uploads:/app/public/uploads
+      - ../misitio-test/public/thumbs:/app/public/thumbs
+      - ../misitio-test/public/music:/app/public/music
+      - /home/ubuntu/Desktop/los nitos hermanos/youkai/db:/app/data/youkai_db:ro
+    env_file:
+      - ../misitio-test/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=4322
+      - NODE_ENV=production
+    command: bun ./dist/server/entry.mjs
     restart: always
 
   caddy:
@@ -24,8 +48,25 @@ services:
       - caddy_config:/config
       - ./public/uploads:/srv/uploads
       - ./public/thumbs:/srv/thumbs
+      - ./public/music:/srv/music
+      - /home/ubuntu/arias:/srv/arias:ro
     depends_on:
       - web
+    restart: always
+
+  # ── Kavita — lector de manga/cómics auto-hospedado ──
+  kavita:
+    image: linuxserver/kavita:latest
+    container_name: misitio-kavita
+    ports:
+      - "127.0.0.1:5000:5000"
+    volumes:
+      - ./kavita/config:/config
+      - ./kavita/manga:/manga
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Mexico_City
     restart: always
 
 volumes:

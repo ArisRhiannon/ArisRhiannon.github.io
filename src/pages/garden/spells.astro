@@ -1,0 +1,375 @@
+---
+// src/pages/garden/spells.astro
+import Base from '../../layouts/Base.astro';
+---
+
+<Base
+  title="sigilum forge · aris"
+  description="Forja de shaders GLSL — escribe, guarda y ejecuta tus propios conjuros."
+>
+  <div id="spells-root"></div>
+</Base>
+
+<style>
+  :global(body:has(#spells-root)) {
+    overflow: hidden;
+    background: #06070f;
+  }
+  :global(main:has(#spells-root)) {
+    padding: 0;
+    max-width: none;
+  }
+  #spells-root {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+</style>
+
+<script>
+(function(){
+var root = document.getElementById('spells-root');
+if (!root) return;
+
+root.innerHTML = [
+  '<style>',
+  '*{margin:0;padding:0;box-sizing:border-box}',
+  '#sf-app{display:flex;height:100vh}',
+  '#sf-sidebar{width:340px;min-width:340px;background:#0c0e1c;border-right:1px solid rgba(124,109,250,0.25);overflow:hidden;height:100vh}',
+  '#sf-scroll{flex:1;overflow-y:auto;padding:20px 16px 16px;scrollbar-width:thin;scrollbar-color:#1a1f3a transparent}',
+  '#sf-scroll::-webkit-scrollbar{width:4px}',
+  '#sf-scroll::-webkit-scrollbar-track{background:transparent}',
+  '#sf-scroll::-webkit-scrollbar-thumb{background:#1a1f3a;border-radius:4px}',
+  '.logo{font-family:Cinzel,serif;font-size:15px;font-weight:700;color:#7c6dfa;letter-spacing:0.15em;margin-bottom:18px}',
+  '.logo span{color:#00d4ff}',
+  'h3{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#585b70;margin:14px 0 6px;display:flex;align-items:center;gap:6px;font-family:DM Sans,sans-serif}',
+  'h3:before{content:"";display:inline-block;width:4px;height:4px;border-radius:50%;background:#7c6dfa}',
+  '.btn-row{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}',
+  '.btn{background:#0c0e1c;border:1px solid #1a1f3a;border-radius:6px;color:#cdd6f4;font-family:DM Sans,sans-serif;font-size:11px;font-weight:500;padding:6px 12px;cursor:pointer;transition:border-color .18s,color .18s,background .18s;white-space:nowrap}',
+  '.btn:hover{border-color:#7c6dfa;color:#7c6dfa}',
+  '.btn:active{background:rgba(124,109,250,0.1)}',
+  '.btn:disabled{opacity:0.35;cursor:default}',
+  '.btn-primary{background:linear-gradient(135deg,#7c6dfa,#5a4bd6);border:none;color:#cdd6f4}',
+  '.btn-primary:hover{border:none;color:#fff;background:linear-gradient(135deg,#8d7ffb,#6c5de8)}',
+  '.btn-danger:hover{border-color:#ff6b6b;color:#ff6b6b}',
+  '.btn-danger:active{background:rgba(255,107,107,0.1)}',
+  '#sf-editor{width:100%;background:#06070f;border:1px solid #1a1f3a;border-radius:6px;padding:10px;font-family:JetBrains Mono,monospace;font-size:11px;line-height:1.6;color:#cdd6f4;resize:none;min-height:240px;max-height:360px;outline:none;tab-size:2;scrollbar-width:thin;white-space:pre;overflow-x:auto}',
+  '#sf-editor:focus{border-color:#7c6dfa;}',
+  '.spell-list{display:flex;flex-direction:column;gap:3px;margin:6px 0;max-height:140px;overflow-y:auto;scrollbar-width:thin}',
+  '.spell-item{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;border:1px solid #1a1f3a;border-radius:5px;background:rgba(6,7,15,0.5);cursor:pointer;transition:border-color .15s,background .15s}',
+  '.spell-item:hover{border-color:#7c6dfa;background:rgba(124,109,250,0.06)}',
+  '.spell-item.active{border-color:#7c6dfa;background:rgba(124,109,250,0.1)}',
+  '.spell-item .name{font-size:11px;color:#cdd6f4;font-family:DM Sans,sans-serif;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+  '.spell-item .del{cursor:pointer;color:#585b70;font-size:12px;padding:0 4px;transition:color .12s}',
+  '.spell-item .del:hover{color:#ff6b6b}',
+  '.btn-icon{background:none;border:none;color:#585b70;cursor:pointer;font-size:13px;padding:0 2px;transition:color .12s}',
+  '.btn-icon:hover{color:#7c6dfa}',
+  '.status{font-size:11px;min-height:18px;margin:4px 0 0;display:flex;align-items:center;gap:5px;font-family:DM Sans,sans-serif}',
+  '.status.ok{color:#4ade80}',
+  '.status.err{color:#ff6b6b}',
+  '#sf-canvas-wrap{flex:1;position:relative;overflow:hidden;background:#06070f}',
+  '#sf-canvas{display:block;width:100%;height:100%}',
+  '#sf-fps{position:absolute;bottom:12px;right:14px;font-family:JetBrains Mono,monospace;font-size:11px;background:rgba(6,7,15,0.75);padding:3px 8px;border-radius:4px;border:1px solid rgba(124,109,250,0.15);pointer-events:none;z-index:2}',
+  '#sf-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;opacity:1;transition:opacity .5s ease;z-index:1;pointer-events:none}',
+  '#sf-placeholder.hidden{opacity:0}',
+  '.hex-logo{width:56px;height:56px;color:rgba(124,109,250,0.35);animation:pulse 3s ease-in-out infinite}',
+  '@keyframes pulse{0%,100%{opacity:0.25;transform:scale(1)}50%{opacity:0.55;transform:scale(1.08)}}',
+  '.placeholder-txt{font-family:Cinzel,serif;font-size:13px;letter-spacing:0.18em;color:rgba(124,109,250,0.25);margin-top:12px}',
+  '</style>',
+  '<div id="sf-app">',
+  '<div id="sf-sidebar"><div id="sf-scroll">',
+  '<div class="logo">Sigilum <span>Forge</span></div>',
+  '<h3>Editor GLSL</h3>',
+  '<textarea id="sf-editor" spellcheck="false" placeholder="/* escribe tu shader aqui... */\n#version 300 es\nprecision highp float;\n\nuniform float u_time;\nuniform vec2 u_res;\nuniform float u_dpr;\n\nout vec4 fragColor;\n\nvoid main() {\n  vec2 uv = (gl_FragCoord.xy - 0.5 * u_res) / min(u_res.x, u_res.y);\n  fragColor = vec4(uv, sin(u_time) * 0.5 + 0.5, 1.0);\n}"></textarea>',
+  '<div class="btn-row">',
+  '<button class="btn btn-primary" id="sf-run">▶ Run</button>',
+  '<button class="btn" id="sf-save">💾 Guardar</button>',
+  '<button class="btn" id="sf-copy">📋 Copiar</button>',
+  '<button class="btn btn-danger" id="sf-stop">■ Stop</button>',
+  '</div>',
+  '<div class="status" id="sf-status"></div>',
+  '<h3>Grimorio</h3>',
+  '<div class="spell-list" id="sf-spell-list">',
+  '<div style="font-size:11px;color:#585b70;padding:4px;font-family:DM Sans,sans-serif">(aún no hay conjuros guardados)</div>',
+  '</div>',
+  '<div class="btn-row">',
+  '<button class="btn" id="sf-new">✧ Nuevo conjuro</button>',
+  '<button class="btn btn-danger" id="sf-clear-all">🗑 Limpiar todo</button>',
+  '</div>',
+  '</div></div>',
+  '<div id="sf-canvas-wrap">',
+  '<canvas id="sf-canvas"></canvas>',
+  '<div id="sf-placeholder">',
+  '<svg class="hex-logo" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">',
+  '<polygon points="24,4 44,14 44,34 24,44 4,34 4,14"/>',
+  '<polygon points="24,10 38,18 38,30 24,38 10,30 10,18" stroke-opacity="0.5"/>',
+  '<line x1="24" y1="10" x2="24" y2="38" stroke-opacity="0.3"/>',
+  '<line x1="10" y1="24" x2="38" y2="24" stroke-opacity="0.3"/>',
+  '</svg><div class="placeholder-txt">forja un spell</div></div>',
+  '<div id="sf-fps">-- fps</div></div></div>'
+].join('\n');
+
+// ── ELEMENTS ──
+var editor = document.getElementById('sf-editor');
+var btnRun = document.getElementById('sf-run');
+var btnSave = document.getElementById('sf-save');
+var btnCopy = document.getElementById('sf-copy');
+var btnStop = document.getElementById('sf-stop');
+var btnNew = document.getElementById('sf-new');
+var btnClearAll = document.getElementById('sf-clear-all');
+var statusEl = document.getElementById('sf-status');
+var spellList = document.getElementById('sf-spell-list');
+var canvas = document.getElementById('sf-canvas');
+var cw = document.getElementById('sf-canvas-wrap');
+var fpsEl = document.getElementById('sf-fps');
+var placeholder = document.getElementById('sf-placeholder');
+
+// ── STATE ──
+var gl = null, prog = null, uT = null, uR = null, uD = null;
+var st = 0, af = 0, running = false;
+var currentName = '';
+
+// ── GRIMORIO (localStorage) ──
+function loadGrimoire() {
+  try { return JSON.parse(localStorage.getItem('sf_grimoire') || '{}') } catch(e) { return {} }
+}
+function saveGrimoire(g) {
+  localStorage.setItem('sf_grimoire', JSON.stringify(g));
+}
+function renderSpellList() {
+  var g = loadGrimoire();
+  var keys = Object.keys(g).sort();
+  if (keys.length === 0) {
+    spellList.innerHTML = '<div style="font-size:11px;color:#585b70;padding:4px;font-family:DM Sans,sans-serif">(aún no hay conjuros guardados)</div>';
+    return;
+  }
+  spellList.innerHTML = '';
+  keys.forEach(function(name) {
+    var item = document.createElement('div');
+    item.className = 'spell-item' + (name === currentName ? ' active' : '');
+    
+    var nameSpan = document.createElement('span');
+    nameSpan.className = 'name';
+    nameSpan.textContent = name;
+    
+    var delBtn = document.createElement('span');
+    delBtn.className = 'del';
+    delBtn.textContent = '✕';
+    delBtn.title = 'Borrar conjuro';
+    delBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var g2 = loadGrimoire();
+      delete g2[name];
+      saveGrimoire(g2);
+      if (currentName === name) { currentName = ''; }
+      renderSpellList();
+    });
+    
+    item.appendChild(nameSpan);
+    item.appendChild(delBtn);
+    
+    item.addEventListener('click', function() {
+      var g3 = loadGrimoire();
+      if (g3[name]) {
+        editor.value = g3[name];
+        currentName = name;
+        renderSpellList();
+        status('Cargado: ' + name, 'ok');
+      }
+    });
+    
+    spellList.appendChild(item);
+  });
+}
+
+// ── STATUS ──
+function status(msg, cls) {
+  if (!msg) { statusEl.textContent = ''; statusEl.className = 'status'; return }
+  statusEl.textContent = msg;
+  statusEl.className = 'status ' + (cls || '');
+}
+
+// ── WEBGL ──
+function initGL() {
+  if (gl) return true;
+  try {
+    var ctx = canvas.getContext('webgl2', {antialias:false, alpha:false, powerPreference:'high-performance'})
+      || canvas.getContext('webgl2', {antialias:false, alpha:false})
+      || canvas.getContext('webgl');
+    if (!ctx) return false;
+    gl = ctx;
+    return true;
+  } catch(e) { return false }
+}
+
+function resizeGL() {
+  var d = Math.min(window.devicePixelRatio || 1, 2);
+  var w = Math.floor(cw.clientWidth * d);
+  var h = Math.floor(cw.clientHeight * d);
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
+  }
+}
+window.addEventListener('resize', resizeGL);
+
+function destroyGL() {
+  if (af) { cancelAnimationFrame(af); af = 0; }
+  if (prog && gl) { gl.deleteProgram(prog); prog = null; }
+  running = false;
+  placeholder.classList.remove('hidden');
+}
+
+function compileAndRun(glslSrc) {
+  if (!gl && !initGL()) { status('WebGL no disponible', 'err'); return }
+  destroyGL();
+  placeholder.classList.add('hidden');
+  
+  var isGL2 = !!(window.WebGL2RenderingContext && gl instanceof WebGL2RenderingContext);
+  var vs = isGL2
+    ? '#version 300 es\nin vec2 a_pos;\nvoid main(){gl_Position=vec4(a_pos,0.0,1.0);}'
+    : 'attribute vec2 a_pos;\nvoid main(){gl_Position=vec4(a_pos,0.0,1.0);}';
+  
+  try {
+    function comp(type, src) {
+      var s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+        var l = gl.getShaderInfoLog(s);
+        gl.deleteShader(s);
+        throw new Error(l || 'error de compilación');
+      }
+      return s;
+    }
+    var p = gl.createProgram();
+    gl.attachShader(p, comp(gl.VERTEX_SHADER, vs));
+    gl.attachShader(p, comp(gl.FRAGMENT_SHADER, glslSrc));
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+      var l = gl.getProgramInfoLog(p);
+      gl.deleteProgram(p);
+      throw new Error(l || 'error de link');
+    }
+    prog = p;
+    gl.useProgram(prog);
+    uT = gl.getUniformLocation(prog, 'u_time');
+    uR = gl.getUniformLocation(prog, 'u_res');
+    uD = gl.getUniformLocation(prog, 'u_dpr');
+    
+    var buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,3,-1,-1,3]), gl.STATIC_DRAW);
+    var loc = gl.getAttribLocation(prog, 'a_pos');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    
+    st = performance.now();
+    running = true;
+    status('spell activo', 'ok');
+    render();
+  } catch(e) {
+    destroyGL();
+    status('Error: ' + e.message, 'err');
+  }
+}
+
+var fc = 0, fpsLast = 0;
+function measFPS(ts) {
+  fc++;
+  if (ts - fpsLast >= 500) {
+    var cur = Math.round(fc * 1000 / (ts - fpsLast));
+    fc = 0; fpsLast = ts;
+    fpsEl.textContent = cur + ' fps';
+    fpsEl.style.color = cur < 30 ? '#ff6b6b' : cur < 50 ? '#ffd93d' : '#4ade80';
+  }
+}
+
+function render(ts) {
+  if (!prog || !gl) return;
+  if (!ts) ts = performance.now();
+  resizeGL();
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.useProgram(prog);
+  gl.uniform1f(uT, (ts - st) / 1000);
+  gl.uniform2f(uR, canvas.width, canvas.height);
+  gl.uniform1f(uD, Math.min(window.devicePixelRatio || 1, 2));
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  measFPS(ts);
+  af = requestAnimationFrame(render);
+}
+
+// ── ACCIONES ──
+btnRun.addEventListener('click', function() {
+  var code = editor.value.trim();
+  if (!code) { status('El editor está vacío', 'err'); return }
+  compileAndRun(code);
+});
+
+btnStop.addEventListener('click', function() {
+  destroyGL();
+  fpsEl.textContent = '-- fps';
+  status('detenido', '');
+});
+
+btnCopy.addEventListener('click', function() {
+  var code = editor.value.trim();
+  if (!code) { status('Nada que copiar', 'err'); return }
+  navigator.clipboard.writeText(code).then(function() {
+    status('Copiado al portapapeles', 'ok');
+  }).catch(function() {
+    status('Error al copiar', 'err');
+  });
+});
+
+btnSave.addEventListener('click', function() {
+  var code = editor.value.trim();
+  if (!code) { status('El editor está vacío', 'err'); return }
+  var name = prompt('Nombre del conjuro:', currentName || '');
+  if (!name) return;
+  var g = loadGrimoire();
+  g[name] = code;
+  saveGrimoire(g);
+  currentName = name;
+  renderSpellList();
+  status('Conjuro guardado: ' + name, 'ok');
+});
+
+btnNew.addEventListener('click', function() {
+  editor.value = '/* escribe tu shader aqui... */\n#version 300 es\nprecision highp float;\n\nuniform float u_time;\nuniform vec2 u_res;\nuniform float u_dpr;\n\nout vec4 fragColor;\n\nvoid main() {\n  vec2 uv = (gl_FragCoord.xy - 0.5 * u_res) / min(u_res.x, u_res.y);\n  fragColor = vec4(uv, sin(u_time) * 0.5 + 0.5, 1.0);\n}';
+  currentName = '';
+  renderSpellList();
+  status('Nuevo conjuro (template)', '');
+});
+
+btnClearAll.addEventListener('click', function() {
+  if (!confirm('¿Borrar todos los conjuros guardados?')) return;
+  saveGrimoire({});
+  currentName = '';
+  renderSpellList();
+  status('Grimorio limpiado', '');
+});
+
+// keyboard shortcuts
+editor.addEventListener('keydown', function(e) {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    var start = editor.selectionStart;
+    var end = editor.selectionEnd;
+    editor.value = editor.value.substring(0, start) + '  ' + editor.value.substring(end);
+    editor.selectionStart = editor.selectionEnd = start + 2;
+  }
+  // Ctrl/Cmd+Enter = run
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    btnRun.click();
+  }
+});
+
+// ── INIT ──
+resizeGL();
+initGL();
+renderSpellList();
+status('', '');
+})();
+</script>

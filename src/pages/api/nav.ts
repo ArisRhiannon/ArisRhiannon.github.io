@@ -1,10 +1,12 @@
-import type { APIRoute } from 'astro';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import type { APIRoute } from "astro";
+import { readJson } from "../../lib/data";
+import { jsonResponse } from "../../lib/response";
 
 export const GET: APIRoute = () => {
-  const raw = readFileSync(join(process.cwd(), 'data/nav.json'), 'utf-8');
-  return new Response(raw, {
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-  });
+  try {
+    const data = readJson("nav.json");
+    return jsonResponse(data, 200);
+  } catch {
+    return jsonResponse({}, 200);
+  }
 };

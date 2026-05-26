@@ -1,44 +1,51 @@
-import type { APIRoute } from 'astro';
-import { Database } from 'bun:sqlite';
-import { join } from 'path';
+import type { APIRoute } from "astro";
+import { getDb, getReadDb } from "../../../lib/db";
+import { jsonResponse, errorResponse, okResponse } from "../../../lib/response";
+import { isAdmin } from "../../../lib/auth";
+import { ADMIN_JWT_SECRET } from "../../../lib/env";
+import { join } from "path";
 
-const DB = () => new Database(join(process.cwd(), 'data', 'database.sqlite'));
-
-// GET /api/videos — lista todos
+// GET /api/videos
 export const GET: APIRoute = async () => {
   try {
-    const db = DB();
-    const videos = db.query('SELECT * FROM videos ORDER BY created_at DESC').all();
+    const db = getReadDb();
+    const videos = db
+      .query("SELECT * FROM videos ORDER BY created_at DESC")
+      .all();
     db.close();
-    return json({ videos });
+    return jsonResponse({ videos });
   } catch {
-    return json({ videos: [] });
+    return jsonResponse({ videos: [] });
   }
 };
 
-// DELETE /api/videos?id=xxx — elimina un video
-export const DELETE: APIRoute = async ({ url }) => {
-  const id = url.searchParams.get('id');
-  if (!id) return json({ error: 'id requerido' }, 400);
+// DELETE /api/videos?id=xxx
+export const DELETE: APIRoute = async ({ url, request }) => {
+  const secret = ADMIN_JWT_SECRET();
+  if (!(await isAdmin(request, secret))) {
+    return errorResponse("no autorizado", 403);
+  }
+
+  const id = url.searchParams.get("id");
+  if (!id) return errorResponse("id requerido", 400);
+
   try {
-    const db = DB();
-    // Obtener filename para borrar el archivo
-    const row = db.query('SELECT filename FROM videos WHERE id = ?').get(id) as any;
-    db.run('DELETE FROM videos WHERE id = ?', [id]);
+    const db = getDb();
+    const row = db
+      .query("SELECT filename FROM videos WHERE id = ?")
+      .get(id) as any;
+    db.run("DELETE FROM videos WHERE id = ?", [id]);
     db.close();
+
     if (row?.filename) {
-      const filePath = join(process.cwd(), 'public', 'uploads', row.filename);
-      try { await Bun.file(filePath).exists() && (await import('fs')).promises.unlink(filePath); } catch {}
+      const filePath = join(process.cwd(), "public", "uploads", row.filename);
+      try {
+        const { unlink } = await import("fs/promises");
+        await unlink(filePath);
+      } catch {}
     }
-    return json({ ok: true });
+    return okResponse();
   } catch (e) {
-    return json({ error: String(e) }, 500);
+    return errorResponse(String(e), 500);
   }
 };
-
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' }
-  });
-}

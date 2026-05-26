@@ -1,152 +1,66 @@
 ---
 interface Props {
-  character: {
-    id: string;
-    name: string;
-    level: number;
-    rarity: number;
-    element?: string;
-    constellation: number;
-    imageUrl: string;
-    game: string;
-  };
-  gameColor: string;
+  name?: string;
+  element?: string;
+  rarity?: number;
+  imageUrl?: string;
+  constellation?: string;
 }
 
-const { character, gameColor } = Astro.props;
-
-const rarityStars = "★".repeat(character.rarity ?? 4);
-const rarityColor = character.rarity >= 5 ? "#FFD700" : "#CE93D8";
+const { name = '', element = '', rarity = 0, imageUrl = '', constellation = '' } = Astro.props;
 ---
 
-<article
-  class="gacha-card"
-  style={`--game-color: ${gameColor};`}
-  data-rarity={character.rarity}
->
-  <div class="card-image-wrap">
-    {character.imageUrl ? (
-      <img
-        src={character.imageUrl}
-        alt={character.name}
-        loading="lazy"
-        class="card-image"
-        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-      />
-    ) : null}
-    <div class="card-placeholder" style={character.imageUrl ? "display:none" : ""}>
-      <span style="font-size:2rem;">✦</span>
-    </div>
+<div class="gacha-card">
+  <div class="gacha-card-img">
+    {imageUrl && <img src={imageUrl} alt={name} loading="lazy" />}
   </div>
-
-  <div class="card-info">
-    <div class="card-name">{character.name}</div>
-    <div class="card-meta">
-      <span class="card-level font-mono">Lv.{character.level}</span>
-      {character.element && (
-        <span class="card-element">{character.element}</span>
-      )}
-    </div>
-    <div class="card-rarity" style={`color: ${rarityColor}`}>{rarityStars}</div>
-    {character.constellation > 0 && (
-      <div class="card-constellation font-mono">C{character.constellation}</div>
+  <div class="gacha-card-body">
+    <span class="gacha-card-name">{name}</span>
+    {element && <span class="gacha-card-element">{element}</span>}
+    {rarity > 0 && (
+      <span class="gacha-card-rarity">
+        {Array.from({ length: rarity }).map(() => '*').join('')}
+      </span>
+    )}
+    {constellation && (
+      <span class="gacha-card-const">{constellation}</span>
     )}
   </div>
-</article>
+</div>
 
 <style>
   .gacha-card {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-card);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
+    transition: transform var(--duration) var(--ease-out), box-shadow var(--duration) var(--ease-out);
   }
   .gacha-card:hover {
-    transform: translateY(-4px);
-    background: rgba(255, 255, 255, 0.06);
-    border-color: color-mix(in srgb, var(--game-color) 60%, transparent);
-    box-shadow: 0 12px 24px -8px rgba(0,0,0,0.5), 0 0 15px -5px var(--game-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
   }
-  .card-image-wrap {
+  .gacha-card-img {
     aspect-ratio: 1;
-    background: linear-gradient(135deg, color-mix(in srgb, var(--game-color) 15%, transparent), transparent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: var(--color-surface-2);
     overflow: hidden;
-    position: relative;
   }
-  .card-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
+  .gacha-card-img img { width: 100%; height: 100%; object-fit: cover; }
+  .gacha-card-body { padding: var(--space-2) var(--space-3); }
+  .gacha-card-name {
+    display: block; font-size: var(--text-sm); font-weight: 600;
+    color: var(--color-ink); line-height: 1.3;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .gacha-card:hover .card-image {
-    transform: scale(1.05);
-  }
-  .card-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.2;
-    width: 100%;
-    height: 100%;
-    font-size: 2rem;
-  }
-  .card-info {
-    padding: 0.85rem;
-    background: linear-gradient(to top, rgba(0,0,0,0.2), transparent);
-  }
-  .card-name {
-    font-size: 0.85rem;
-    color: #F8FAFC;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    letter-spacing: -0.01em;
-  }
-  .card-meta {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-top: 0.3rem;
-  }
-  .card-level { 
-    font-family: 'JetBrains Mono', monospace; 
-    font-size: 0.65rem; 
-    color: #//color-muted; 
-    opacity: 0.8;
-  }
-  .card-element { 
-    font-size: 0.65rem; 
-    text-transform: uppercase;
-    font-weight: 700;
+  .gacha-card-element { font-size: var(--text-xs); color: var(--color-muted); }
+  .gacha-card-rarity {
+    font-size: var(--text-xs); color: var(--color-accent-hi);
     letter-spacing: 0.05em;
-    color: var(--color-muted-2, #94A3B8); 
   }
-  .card-rarity { 
-    font-size: 0.7rem; 
-    margin-top: 0.5rem; 
-    letter-spacing: 2px;
-    text-shadow: 0 0 8px currentColor;
-  }
-  .card-constellation { 
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    padding: 2px 6px;
-    border-radius: 6px;
-    background: rgba(0,0,0,0.4);
-    color: var(--game-color);
-    border: 1px solid color-mix(in srgb, var(--game-color) 40%, transparent);
-    backdrop-filter: blur(4px);
-    z-index: 10;
+  .gacha-card-const {
+    display: inline-block; font-size: var(--text-xs);
+    color: var(--color-ink-soft); background: var(--color-lavender);
+    padding: 1px 6px; border-radius: var(--radius-sm);
+    margin-top: 2px;
   }
 </style>

@@ -1,0 +1,596 @@
+---
+/**
+ * YoukaiDashboard.astro
+ * Premium glassmorphic dashboard showcasing Youkai Bot live metrics,
+ * architecture stack, and interactive processing pipelines.
+ */
+import { getYoukaiStats } from '../../lib/youkai';
+
+const stats = getYoukaiStats();
+
+// Formatter for credits / numbers
+const formatNum = (num: number) => new Intl.NumberFormat('es-MX').format(num);
+---
+
+<div class="youkai-dashboard">
+  <!-- Status Header -->
+  <div class="youkai-header-card">
+    <div class="header-main">
+      <div class="sentinel-indicator">
+        <span class="pulse-dot"></span>
+        <span class="sentinel-status">SENTINEL ACTIVE</span>
+      </div>
+      <h2 class="youkai-title">Youkai Core System</h2>
+      <p class="youkai-subtitle">Sub-sistema de IA y automatización de los Nitos Hermanos</p>
+    </div>
+    <div class="sys-version">
+      <span class="tag-mono">v3.1.2-stable</span>
+    </div>
+  </div>
+
+  <div class="youkai-bento">
+    <!-- Live Telemetry Card -->
+    <div class="bento-card telemetry-card">
+      <h3 class="card-title">
+        <span class="icon">⛨</span> Telemetría en Vivo
+      </h3>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-label">Mensajes Registrados</span>
+          <span class="stat-value">{formatNum(stats.totalMessages)}</span>
+          <div class="stat-progress" style="width: 85%"></div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Economía Circulante</span>
+          <span class="stat-value">{formatNum(stats.circulatingCredits)} <span class="unit">cr</span></span>
+          <div class="stat-progress" style="width: 60%"></div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Reserva del Tesoro</span>
+          <span class="stat-value">{formatNum(stats.treasuryBalance)} <span class="unit">cr</span></span>
+          <div class="stat-progress" style="width: 45%"></div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Préstamos Activos</span>
+          <span class="stat-value">{formatNum(stats.activeLoans)}</span>
+          <div class="stat-progress" style="width: 25%"></div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Triggers/Listeners</span>
+          <span class="stat-value">{formatNum(stats.totalListeners)}</span>
+          <div class="stat-progress" style="width: 70%"></div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Disparos de Reglas</span>
+          <span class="stat-value">{formatNum(stats.triggerLogs)}</span>
+          <div class="stat-progress" style="width: 50%"></div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Puntajes de Confianza</span>
+          <span class="stat-value">{formatNum(stats.trustScores)}</span>
+          <div class="stat-progress" style="width: 75%"></div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Perfiles de IA</span>
+          <span class="stat-value">{formatNum(stats.userProfiles)}</span>
+          <div class="stat-progress" style="width: 90%"></div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="footnote">* Datos agregados en tiempo real. Respetando la privacidad del usuario.</span>
+      </div>
+    </div>
+
+    <!-- Tech Stack Card -->
+    <div class="bento-card stack-card">
+      <h3 class="card-title">
+        <span class="icon">⚙</span> Arquitectura & Stack
+      </h3>
+      <div class="stack-sections">
+        <div class="stack-group">
+          <h4>Núcleo & Ejecución</h4>
+          <ul>
+            <li><strong>Runtime:</strong> Python 3.11 + discord.py</li>
+            <li><strong>Servidor:</strong> Debian Linux + Systemd</li>
+          </ul>
+        </div>
+        
+        <div class="stack-group">
+          <h4>Inteligencia Artificial</h4>
+          <ul>
+            <li><strong>Modelos Cloud:</strong> Google Gemma 4 26B/31B (AI Studio)</li>
+            <li><strong>Modelos Locales:</strong> llama.cpp (Mouthwash Qwen 0.6B)</li>
+            <li><strong>Traducción:</strong> OPUS-MT MarianMT (Curse translation)</li>
+          </ul>
+        </div>
+
+        <div class="stack-group">
+          <h4>Búsqueda & Visión</h4>
+          <ul>
+            <li><strong>Base de datos:</strong> SQLite + sqlite-vec (KNN vector search)</li>
+            <li><strong>FTS5 Engine:</strong> BM25 Full-text search</li>
+            <li><strong>Media Guard:</strong> ONNX Runtime (MobileNetV3 small)</li>
+            <li><strong>Index Manager:</strong> Hnswlib similarity index</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message Pipeline Diagram Card -->
+    <div class="bento-card pipeline-card">
+      <h3 class="card-title">
+        <span class="icon">✦</span> Pipeline de Procesamiento de Mensajes (NLP)
+      </h3>
+      <p class="section-desc">Pasa el cursor por cada bloque para ver los detalles del pipeline.</p>
+      
+      <div class="pipeline-graph">
+        <!-- Step 1 -->
+        <div class="pipeline-node" tabindex="0">
+          <div class="node-badge">01</div>
+          <div class="node-title">Entrada de Evento</div>
+          <div class="node-desc">Mensaje de Discord o Mención directa</div>
+          <div class="node-tooltip">
+            <strong>Discord API:</strong> Captura de eventos mediante `on_message` de `NLPHandlerCog`. Se valida el nivel de permiso del usuario.
+          </div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <!-- Step 2 -->
+        <div class="pipeline-node" tabindex="0">
+          <div class="node-badge">02</div>
+          <div class="node-title">Filtros de Seguridad</div>
+          <div class="node-desc">Automod v2 & Media Guard</div>
+          <div class="node-tooltip">
+            <strong>Shields Activos:</strong> Detección de toxicidad y spam. `MediaGuard` extrae embeddings de imágenes (ONNX) y busca duplicados prohibidos en Hnswlib.
+          </div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <!-- Step 3 -->
+        <div class="pipeline-node" tabindex="0">
+          <div class="node-badge">03</div>
+          <div class="node-title">Ensamblado RAG</div>
+          <div class="node-desc">Orchestrator, Vector & Nexus</div>
+          <div class="node-tooltip">
+            <strong>Memoria de Contexto:</strong> Búsqueda híbrida (KNN vectorial con `sqlite-vec` + FTS5 textual). `FairyNexus` añade alias e identidad histórica del usuario.
+          </div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <!-- Step 4 -->
+        <div class="pipeline-node" tabindex="0">
+          <div class="node-badge">04</div>
+          <div class="node-title">Inferencia Core LLM</div>
+          <div class="node-desc">Google Gemma 4 / DeepSeek</div>
+          <div class="node-tooltip">
+            <strong>Generador de Respuestas:</strong> Consulta principal a Google AI Studio con Gemma 4. Permite hot-swapping a DeepSeek v4 o OpenRouter en caliente.
+          </div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <!-- Step 5 -->
+        <div class="pipeline-node" tabindex="0">
+          <div class="node-badge">05</div>
+          <div class="node-title">Llamada a Tools</div>
+          <div class="node-desc">Banco, Codex, Admin</div>
+          <div class="node-tooltip">
+            <strong>ToolExecutor:</strong> Ejecución de funciones en vivo en la base de datos (consultar saldo, préstamos, transacciones de la tesorería o moderación).
+          </div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <!-- Step 6 -->
+        <div class="pipeline-node" tabindex="0">
+          <div class="node-badge">06</div>
+          <div class="node-title">Filtro de Salida</div>
+          <div class="node-desc">Shield de Repetición & Chunking</div>
+          <div class="node-tooltip">
+            <strong>Repetition Shield:</strong> Evita bucles infinitos de la IA. Formatea el texto en bloques seguros (&lt; 2000 carácteres) para Discord.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .youkai-dashboard {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 var(--space-6) var(--space-12) var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    color: var(--color-ink);
+  }
+
+  /* Version & Header */
+  .youkai-header-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-5) var(--space-6);
+    background: var(--glass-bg);
+    border: var(--glass-border);
+    border-radius: var(--radius-lg);
+    backdrop-filter: var(--glass-blur);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .sentinel-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--color-accent);
+    letter-spacing: 0.1em;
+    margin-bottom: var(--space-2);
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-accent);
+    border-radius: 50%;
+    animation: beacon-pulse 2s infinite ease-in-out;
+  }
+
+  @keyframes beacon-pulse {
+    0% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 0 0 rgba(207, 162, 64, 0.4); }
+    50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 0 6px rgba(207, 162, 64, 0); }
+    100% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 0 0 rgba(207, 162, 64, 0); }
+  }
+
+  .youkai-title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    color: var(--color-ink);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .youkai-subtitle {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    margin-top: 2px;
+  }
+
+  .sys-version {
+    font-family: var(--font-mono);
+  }
+
+  .tag-mono {
+    background: rgba(207, 162, 64, 0.1);
+    color: var(--color-accent);
+    border: 1px solid rgba(207, 162, 64, 0.25);
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    letter-spacing: 0.05em;
+  }
+
+  /* Bento Grid */
+  .youkai-bento {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: var(--space-6);
+  }
+
+  .bento-card {
+    background: var(--glass-bg);
+    border: var(--glass-border);
+    border-radius: var(--radius-lg);
+    backdrop-filter: var(--glass-blur);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-card);
+    transition: transform var(--duration) var(--ease-out), border var(--duration) var(--ease-out), box-shadow var(--duration) var(--ease-out);
+  }
+
+  .bento-card:hover {
+    border-color: var(--color-border-accent);
+    box-shadow: var(--glow-sm);
+  }
+
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--color-accent-hi);
+    margin-bottom: var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--space-3);
+  }
+
+  .card-title .icon {
+    font-family: var(--font-mono);
+    color: var(--color-accent);
+  }
+
+  /* Telemetry Styles */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4) var(--space-5);
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+    padding-bottom: 8px;
+  }
+
+  .stat-label {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    font-family: var(--font-body);
+    letter-spacing: 0.02em;
+  }
+
+  .stat-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-xl);
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .stat-value .unit {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    margin-left: 2px;
+  }
+
+  .stat-progress {
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-accent) 0%, transparent 100%);
+    border-radius: var(--radius-full);
+    opacity: 0.4;
+    margin-top: 2px;
+  }
+
+  .card-footer {
+    margin-top: var(--space-6);
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-3);
+  }
+
+  .footnote {
+    font-size: var(--text-xs);
+    color: var(--color-muted-2);
+    font-style: italic;
+  }
+
+  /* Tech Stack Styles */
+  .stack-sections {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .stack-group h4 {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-lavender);
+    margin-bottom: var(--space-2);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .stack-group ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding-left: var(--space-2);
+  }
+
+  .stack-group li {
+    font-size: var(--text-sm);
+    color: var(--color-ink-soft);
+    position: relative;
+    padding-left: 12px;
+  }
+
+  .stack-group li::before {
+    content: "◇";
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
+    font-size: 8px;
+    top: 4px;
+  }
+
+  /* Pipeline Card (Full Width at Bottom of Bento) */
+  .pipeline-card {
+    grid-column: span 2;
+    min-width: 0;
+  }
+
+  .section-desc {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    margin-bottom: var(--space-5);
+  }
+
+  .pipeline-graph {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: 85px 0 var(--space-4) 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(207, 162, 64, 0.25) rgba(255, 255, 255, 0.02);
+  }
+
+  .pipeline-graph::-webkit-scrollbar {
+    height: 5px;
+  }
+  .pipeline-graph::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--radius-full);
+  }
+  .pipeline-graph::-webkit-scrollbar-thumb {
+    background: rgba(207, 162, 64, 0.25);
+    border-radius: var(--radius-full);
+  }
+  .pipeline-graph::-webkit-scrollbar-thumb:hover {
+    background: rgba(207, 162, 64, 0.45);
+  }
+
+  .pipeline-node {
+    flex: 1;
+    min-width: 140px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-3);
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    transition: background var(--duration) var(--ease-out), border var(--duration) var(--ease-out), box-shadow var(--duration) var(--ease-out);
+  }
+
+  .pipeline-node:hover, .pipeline-node:focus-visible {
+    background: rgba(207, 162, 64, 0.04);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 15px rgba(207, 162, 64, 0.15);
+    outline: none;
+  }
+
+  .node-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border-accent);
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 1px 6px;
+    border-radius: var(--radius-full);
+  }
+
+  .node-title {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-top: 4px;
+  }
+
+  .node-desc {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    margin-top: var(--space-1);
+    line-height: 1.2;
+  }
+
+  .pipeline-arrow {
+    font-family: var(--font-mono);
+    color: var(--color-muted-2);
+    font-size: var(--text-md);
+    user-select: none;
+  }
+
+  /* Tooltip logic on hover */
+  .node-tooltip {
+    display: none;
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    background: #191428;
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    font-size: var(--text-xs);
+    color: var(--color-ink-soft);
+    text-align: left;
+    box-shadow: var(--shadow-md), 0 0 20px rgba(140, 123, 181, 0.1);
+    z-index: 10;
+  }
+
+  .node-tooltip strong {
+    color: var(--color-accent-hi);
+    display: block;
+    margin-bottom: 4px;
+    font-family: var(--font-mono);
+  }
+
+  .pipeline-node:hover .node-tooltip,
+  .pipeline-node:focus-visible .node-tooltip {
+    display: block;
+    animation: tooltip-fade 180ms var(--ease-out) both;
+  }
+
+  @keyframes tooltip-fade {
+    from { opacity: 0; transform: translate(-50%, 8px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .youkai-bento {
+      grid-template-columns: 1fr;
+    }
+    
+    .pipeline-card {
+      grid-column: span 1;
+    }
+
+    .pipeline-graph {
+      flex-direction: column;
+      gap: var(--space-4);
+      padding: var(--space-4) 0;
+    }
+
+    .pipeline-arrow {
+      transform: rotate(90deg);
+    }
+
+    .pipeline-node {
+      width: 100%;
+      min-width: unset;
+    }
+
+    .node-tooltip {
+      bottom: unset;
+      top: 105%;
+      width: 100%;
+    }
+
+    @keyframes tooltip-fade {
+      from { opacity: 0; transform: translate(-50%, -8px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+  }
+
+  @media (max-width: 600px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-3);
+    }
+    .youkai-header-card {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-3);
+    }
+  }
+</style>

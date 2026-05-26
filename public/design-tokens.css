@@ -1,85 +1,94 @@
-/* ─── Kawaii Design Tokens · Paleta extraída de la referencia ──
-   Colores exactos de la imagen Steam kawaii:
-   #FCE6EC fondo exterior   #EFE3E6 sidebar   #7B666C acento mauve
-   #9EBD7B verde matcha     #FFFFFF cards blancas
-   El kawaii es warm gray + hint rosa, NO rosa saturado.
-   ─────────────────────────────────────────────────────────── */
+/* ─── Yume Kawaii Design Tokens v3 ──
+   Dark atmospheric base + neon rose/lavender accents.
+   Paleta refinada: más profundidad, mejor contraste tipográfico.
+────────────────────────────────────── */
 
 :root {
-  /* Superficies — de la imagen real */
-  --color-bg:         #FFFFFF;   /* blanco puro — sin rosa */
-  --color-surface:    #FFFFFF;   /* cards blancas puras */
-  --color-surface-2:  #FBF0F3;   /* hover muy sutil */
-  --color-sidebar-bg: #EFE3E6;   /* gris rosado del panel lateral */
-  --color-panel-bar:  #F8F6F7;   /* topbar blanco cálido neutral */
+  /* ── Superficies — space-gothic ── */
+  --color-bg: #141021;
+  --color-bg-2: #1c172d;
+  --color-surface: rgba(255, 255, 255, 0.03);
+  --color-surface-2: rgba(255, 255, 255, 0.06);
+  --color-surface-3: rgba(255, 255, 255, 0.1);
+  --color-sidebar: transparent;
+  --color-topbar: rgba(20, 16, 33, 0.85);
 
-  /* Tinta */
-  --color-ink:       #241A1D;    /* oscuro cálido */
-  --color-ink-soft:  #4A363C;
-  --color-muted:     #7B666C;    /* mauve apagado — el "acento oscuro" de Steam */
-  --color-muted-2:   #A08890;
+  /* ── Tinta — mejor contraste ── */
+  --color-ink: #f0ecf5;
+  --color-ink-soft: #d3cbdc;
+  --color-muted: #9c91b1;
+  --color-muted-2: #5b526d;
 
-  /* Acento — mauve apagado, NO rosa brillante */
-  --color-accent:    #7B666C;    /* botones, labels activos */
-  --color-accent-2:  #B89BA3;    /* versión más suave */
-  --color-accent-hi: #C8506A;    /* solo para el logo dot y highlights mínimos */
+  /* ── Acentos — gothic celestial ── */
+  --color-accent: #cfa240;
+  --color-accent-2: #e5b955;
+  --color-accent-hi: #eecb6e;
+  --color-lavender: #a394cc;
+  --color-cyan: #7cd5f9;
+  --color-sage: #40b080;
+  --color-gold: #cfa240;
+  --color-violet: #8c7bb5;
+  --color-teal: #3ba385;
+  --color-amber: #cfa240;
+  --color-sky: #7bb5e5;
 
-  /* Verde matcha — status online */
-  --color-online:    #9EBD7B;
+  /* ── Bordes ── */
+  --color-border: rgba(207, 162, 64, 0.09);
+  --color-border-accent: rgba(207, 162, 64, 0.3);
+  --color-border-card: rgba(140, 123, 181, 0.09);
 
-  /* Bordes */
-  --color-border:        rgba(123, 102, 108, 0.12);
-  --color-border-accent: rgba(123, 102, 108, 0.25);
-  --color-border-card:   rgba(0, 0, 0, 0.06);
+  /* ── Sombras — glow celestiales ── */
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.5);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.6);
+  --shadow-card: 0 4px 20px rgba(207, 162, 64, 0.04), 0 0 40px rgba(140, 123, 181, 0.03);
+  --glow-sm: 0 0 10px rgba(207, 162, 64, 0.15), 0 0 20px rgba(140, 123, 181, 0.05);
+  --glow-md: 0 0 18px rgba(207, 162, 64, 0.2), 0 0 50px rgba(140, 123, 181, 0.08);
+  --glow-lg: 0 0 28px rgba(207, 162, 64, 0.25), 0 0 70px rgba(140, 123, 181, 0.1), 0 0 100px rgba(207, 162, 64, 0.03);
+  --glow-cyan: 0 0 10px rgba(124, 213, 249, 0.15), 0 0 24px rgba(124, 213, 249, 0.05);
+  --glow-lavender: 0 0 10px rgba(163, 148, 204, 0.2), 0 0 24px rgba(163, 148, 204, 0.05);
 
-  /* Glass */
-  --glass-bg:     rgba(255, 255, 255, 0.92);
-  --glass-border: 1px solid rgba(0, 0, 0, 0.06);
-  --glass-blur:   blur(20px);
+  /* ── Glass ── */
+  --glass-bg: rgba(255, 255, 255, 0.045);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(16px);
 
-  /* Glow — muy sutil, mauve */
-  --glow-sm:   0 2px 12px rgba(123, 102, 108, 0.14);
-  --glow-md:   0 4px 24px rgba(123, 102, 108, 0.18);
+  /* ── Tipografia ── */
+  --font-display: 'Playfair Display', 'Kaisei Decol', 'Noto Serif', Georgia, serif;
+  --font-body: 'DM Sans', 'Zen Maru Gothic', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Quicksand', monospace;
+  --font-deco: 'Playfair Display', 'Kaisei Decol', serif;
 
-  /* Shadows neutras */
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.07), 0 2px 8px rgba(0,0,0,0.04);
-  --shadow-md: 0 2px 10px rgba(0,0,0,0.09), 0 4px 18px rgba(0,0,0,0.05);
+  --text-xs: 0.70rem;
+  --text-sm: 0.813rem;
+  --text-base: 0.938rem;
+  --text-lg: 1.063rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.75rem;
+  --text-5xl: 3.25rem;
+  --text-6xl: 4.25rem;
+  --text-7xl: clamp(3rem, 8vw, 5.5rem);
 
-  /* Tipografía */
-  --font-display: 'Quicksand', 'Nunito', sans-serif;
-  --font-body:    'Nunito', system-ui, sans-serif;
-  --font-mono:    'Space Mono', monospace;
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+  --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem;
+  --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+  --space-16: 4rem; --space-20: 5rem; --space-24: 6rem;
 
-  --text-xs:   0.72rem;
-  --text-sm:   0.875rem;
-  --text-base: 1rem;
-  --text-lg:   1.125rem;
-  --text-xl:   1.25rem;
-  --text-2xl:  1.5rem;
-  --text-3xl:  2rem;
-  --text-4xl:  2.6rem;
-  --text-5xl:  3.4rem;
-
-  --space-1:  0.25rem;
-  --space-2:  0.5rem;
-  --space-3:  0.75rem;
-  --space-4:  1rem;
-  --space-5:  1.25rem;
-  --space-6:  1.5rem;
-  --space-8:  2rem;
-  --space-10: 2.5rem;
-  --space-12: 3rem;
-  --space-16: 4rem;
-  --space-20: 5rem;
-
-  --radius-sm:   8px;
-  --radius-md:   14px;
-  --radius-lg:   18px;
-  --radius-xl:   26px;
-  --radius-full: 9999px;
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px;
+  --radius-xl: 24px; --radius-full: 9999px;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --duration: 200ms;
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration: 180ms;
+  --duration-slow: 360ms;
 }
 
-/* Sin dark mode — siempre la paleta kawaii extraída */
+/* ── Reducción de movimiento ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,435 @@
+---
+/**
+ * TaglineTyper — Typewriter effect for the hero subtitle.
+ * Fetches taglines from /api/taglines, cycles through them
+ * with a typewriter + delete animation.
+ * Props: authenticated (boolean) — shows admin panel if true.
+ */
+interface Props {
+  authenticated: boolean;
+}
+
+const { authenticated } = Astro.props;
+---
+
+<p class="hero-sub" id="hero-sub">
+  <span class="typer-text" id="typer-text"></span>
+  <span class="typer-cursor" id="typer-cursor" aria-hidden="true">|</span>
+</p>
+
+<!-- Admin tagline manager (only visible when authenticated + opened) -->
+{authenticated && (
+  <div class="tagline-admin" id="tagline-admin" style="display:none">
+    <div class="tagline-admin-header">
+      <span class="tagline-admin-title">taglines</span>
+      <button class="tagline-admin-close" id="tagline-admin-close" type="button">✕</button>
+    </div>
+    <div class="tagline-admin-add">
+      <input class="tagline-admin-input" id="tagline-admin-input" type="text" placeholder="nueva frase..." maxlength="100" />
+      <button class="tagline-admin-add-btn" id="tagline-admin-add-btn" type="button">+</button>
+    </div>
+    <div class="tagline-admin-list" id="tagline-admin-list"></div>
+  </div>
+)}
+
+{authenticated && (
+  <button class="tagline-edit-btn" id="tagline-edit-btn" type="button" title="Editar taglines">
+    <span class="tagline-edit-icon">✎</span>
+  </button>
+)}
+
+<style>
+  .hero-sub {
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
+    font-weight: 500;
+    color: var(--color-muted);
+    letter-spacing: 0.06em;
+    margin-bottom: var(--space-8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.8em;
+    position: relative;
+  }
+
+  .typer-text {
+    display: inline;
+  }
+
+  .typer-cursor {
+    display: inline-block;
+    color: var(--color-accent);
+    font-weight: 300;
+    animation: cursor-blink 0.8s step-end infinite;
+    margin-left: 1px;
+  }
+
+  @keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* ── Edit Button ── */
+  .tagline-edit-btn {
+    position: absolute;
+    right: -1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--color-muted-2);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity var(--duration), color var(--duration);
+    padding: 4px;
+    font-size: 12px;
+  }
+
+  .hero-sub:hover .tagline-edit-btn {
+    opacity: 0.5;
+  }
+
+  .tagline-edit-btn:hover {
+    opacity: 1 !important;
+    color: var(--color-accent);
+  }
+
+  .tagline-edit-icon {
+    font-size: 10px;
+  }
+
+  /* ── Admin Panel ── */
+  .tagline-admin {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(360px, 90vw);
+    background: rgba(26, 21, 32, 0.95);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 107, 157, 0.12);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    z-index: 200;
+    box-shadow: var(--shadow-card);
+    animation: tagline-panel-in 0.2s var(--ease-out) both;
+  }
+
+  @keyframes tagline-panel-in {
+    from { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  .tagline-admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid rgba(255, 107, 157, 0.08);
+  }
+
+  .tagline-admin-title {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .tagline-admin-close {
+    background: none;
+    border: none;
+    color: var(--color-muted);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 2px 4px;
+    transition: color var(--duration);
+  }
+
+  .tagline-admin-close:hover { color: var(--color-accent); }
+
+  .tagline-admin-add {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .tagline-admin-input {
+    flex: 1;
+    background: rgba(255, 245, 250, 0.04);
+    border: 1px solid rgba(255, 107, 157, 0.10);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-ink);
+    outline: none;
+    transition: border-color var(--duration);
+  }
+
+  .tagline-admin-input:focus {
+    border-color: var(--color-border-accent);
+  }
+
+  .tagline-admin-input::placeholder {
+    color: var(--color-muted-2);
+  }
+
+  .tagline-admin-add-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border-accent);
+    background: rgba(255, 107, 157, 0.08);
+    color: var(--color-accent);
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--duration) var(--ease-out);
+    flex-shrink: 0;
+  }
+
+  .tagline-admin-add-btn:hover {
+    background: rgba(255, 107, 157, 0.15);
+    box-shadow: var(--glow-sm);
+  }
+
+  .tagline-admin-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,107,157,0.15) transparent;
+  }
+
+  .tagline-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 5px 8px;
+    background: rgba(255, 245, 250, 0.025);
+    border: 1px solid rgba(196, 181, 253, 0.04);
+    border-radius: var(--radius-sm);
+    transition: border-color var(--duration);
+  }
+
+  .tagline-item:hover {
+    border-color: rgba(255, 107, 157, 0.10);
+  }
+
+  .tagline-item-text {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-ink-soft);
+    word-break: break-word;
+  }
+
+  .tagline-item-delete {
+    background: none;
+    border: none;
+    color: var(--color-muted-2);
+    cursor: pointer;
+    font-size: 9px;
+    padding: 2px 4px;
+    opacity: 0;
+    transition: opacity var(--duration), color var(--duration);
+  }
+
+  .tagline-item:hover .tagline-item-delete { opacity: 0.6; }
+  .tagline-item-delete:hover { opacity: 1 !important; color: var(--color-accent); }
+</style>
+
+<script>
+function initTaglineTyper() {
+  const typerText = document.getElementById('typer-text');
+  const typerCursor = document.getElementById('typer-cursor');
+  if (!typerText) return;
+
+  let phrases: string[] = ['colecciono nitos'];
+  let phraseIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  let isPaused = false;
+  let cycleOrder: number[] = [];
+  let cyclePos = 0;
+
+  // Fetch taglines
+  async function loadPhrases() {
+    try {
+      const res = await fetch('/api/taglines');
+      const data = await res.json();
+      if (data.taglines && data.taglines.length > 0) {
+        phrases = data.taglines.map((t: any) => t.text);
+        // Build a shuffled cycle order
+        rebuildCycle();
+      }
+    } catch { /* use defaults */ }
+  }
+
+  function rebuildCycle() {
+    // Create an interesting cycling pattern:
+    // Shuffle, then go forward, then backward, repeat
+    cycleOrder = [];
+    const indices = Array.from({ length: phrases.length }, (_, i) => i);
+
+    // Fisher-Yates shuffle
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+
+    // Forward then backward (without duplicating ends)
+    cycleOrder = [...indices];
+    if (indices.length > 2) {
+      cycleOrder.push(...indices.slice(1, -1).reverse());
+    }
+
+    cyclePos = 0;
+  }
+
+  function type() {
+    if (phrases.length === 0) {
+      setTimeout(type, 500);
+      return;
+    }
+
+    if (cycleOrder.length === 0) rebuildCycle();
+
+    phraseIndex = cycleOrder[cyclePos % cycleOrder.length];
+    const current = phrases[phraseIndex] ?? phrases[0];
+
+    if (!isDeleting) {
+      charIndex++;
+      typerText.textContent = current.slice(0, charIndex);
+
+      if (charIndex === current.length) {
+        // Finished typing — pause, then advance
+        isPaused = true;
+        const pauseTime = 2000 + Math.random() * 1500; // 2-3.5s
+        setTimeout(() => {
+          isPaused = false;
+          isDeleting = true;
+          type();
+        }, pauseTime);
+        return;
+      }
+      // Variable typing speed for natural feel
+      const speed = 50 + Math.random() * 60;
+      setTimeout(type, speed);
+    } else {
+      charIndex--;
+      typerText.textContent = current.slice(0, charIndex);
+
+      if (charIndex === 0) {
+        isDeleting = false;
+        // Advance to next phrase in cycle
+        cyclePos = (cyclePos + 1) % cycleOrder.length;
+        // Rebuild cycle when we complete a full rotation
+        if (cyclePos === 0) rebuildCycle();
+        setTimeout(type, 300 + Math.random() * 200);
+        return;
+      }
+      // Delete faster than typing
+      setTimeout(type, 25 + Math.random() * 15);
+    }
+  }
+
+  loadPhrases().then(() => {
+    // Start with a small delay for dramatic effect
+    setTimeout(type, 800);
+  });
+
+  // ── Admin panel ──
+  const editBtn = document.getElementById('tagline-edit-btn');
+  const adminPanel = document.getElementById('tagline-admin');
+  const adminClose = document.getElementById('tagline-admin-close');
+  const adminInput = document.getElementById('tagline-admin-input') as HTMLInputElement;
+  const adminAddBtn = document.getElementById('tagline-admin-add-btn');
+  const adminList = document.getElementById('tagline-admin-list');
+
+  editBtn?.addEventListener('click', () => {
+    if (adminPanel) adminPanel.style.display = '';
+    loadAdminList();
+  });
+
+  adminClose?.addEventListener('click', () => {
+    if (adminPanel) adminPanel.style.display = 'none';
+  });
+
+  // Add tagline
+  async function addTagline() {
+    const text = adminInput?.value?.trim();
+    if (!text) return;
+
+    try {
+      const res = await fetch('/api/taglines', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+      if (res.ok) {
+        if (adminInput) adminInput.value = '';
+        loadAdminList();
+        loadPhrases(); // Refresh the typer
+      }
+    } catch { /* ok */ }
+  }
+
+  adminAddBtn?.addEventListener('click', addTagline);
+  adminInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') addTagline();
+  });
+
+  // Load admin list
+  async function loadAdminList() {
+    if (!adminList) return;
+    try {
+      const res = await fetch('/api/taglines');
+      const data = await res.json();
+      const taglines = data.taglines ?? [];
+      adminList.innerHTML = '';
+
+      taglines.forEach((item: any) => {
+        const el = document.createElement('div');
+        el.className = 'tagline-item';
+        el.innerHTML = `
+          <span class="tagline-item-text">${escHtml(item.text)}</span>
+          <button class="tagline-item-delete" data-id="${item.id}" title="Eliminar">✕</button>
+        `;
+        adminList.appendChild(el);
+      });
+
+      // Delete handlers
+      adminList.querySelectorAll('.tagline-item-delete').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = (btn as HTMLElement).dataset.id;
+          if (!id) return;
+          await fetch('/api/taglines', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: Number(id) }),
+          });
+          loadAdminList();
+          loadPhrases();
+        });
+      });
+    } catch { /* ok */ }
+  }
+
+  function escHtml(s: string): string {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+}
+
+document.addEventListener('astro:page-load', initTaglineTyper);
+</script>

@@ -75,10 +75,10 @@ const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json
     :root {
       --adm-bg:       #03030A;
       --adm-surface:  #080814;
-      --adm-panel:    #0B0B1A;
-      --adm-border:   rgba(168,85,247,0.1);
-      --adm-border2:  rgba(168,85,247,0.2);
-      --adm-acc:      #A855F7;
+      --adm-panel:    #EDE7DC;
+      --adm-border:   rgba(255,107,157,0.1);
+      --adm-border2:  rgba(255,107,157,0.2);
+ --adm-acc: #D4A5A5;
       --adm-cyan:     #22D3EE;
       --adm-green:    #4ADE80;
       --adm-red:      #F87171;
@@ -131,7 +131,7 @@ const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json
       width: 8px; height: 8px;
       border-radius: 50%;
       background: var(--adm-acc);
-      box-shadow: 0 0 8px rgba(168,85,247,.6);
+      box-shadow: 0 0 8px rgba(255,107,157,.6);
       animation: pulse-dot 2s ease-in-out infinite;
     }
     @keyframes pulse-dot {
@@ -237,7 +237,7 @@ const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json
     .adm-tree-item.active {
       color: var(--adm-acc);
       border-left-color: var(--adm-acc);
-      background: rgba(168,85,247,.07);
+      background: rgba(255,107,157,.07);
     }
     .adm-tree-icon {
       font-size: 11px;
@@ -248,7 +248,7 @@ const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json
     .adm-tree-badge {
       margin-left: auto;
       font-size: 9px;
-      background: rgba(168,85,247,.15);
+      background: rgba(255,107,157,.15);
       border: 1px solid var(--adm-border2);
       border-radius: 3px;
       padding: 1px 5px;
@@ -349,7 +349,7 @@ const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json
     .adm-ph-icon {
       width: 40px; height: 40px;
       border-radius: 8px;
-      background: rgba(168,85,247,.12);
+      background: rgba(255,107,157,.12);
       border: 1px solid var(--adm-border2);
       display: flex;
       align-items: center;
@@ -414,7 +414,7 @@ const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json
     }
     .adm-mod-card:hover {
       border-color: var(--adm-border2);
-      background: rgba(168,85,247,.05);
+      background: rgba(255,107,157,.05);
       transform: translateY(-1px);
     }
     .adm-mod-top { display: flex; align-items: center; gap: 8px; }
@@ -454,12 +454,12 @@ const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json
 
     /* ── UPLOAD ZONE ────────────────────────────────────────── */
     .adm-drop {
-      border: 1.5px dashed rgba(168,85,247,.25);
+      border: 1.5px dashed rgba(255,107,157,.25);
       border-radius: 10px;
       transition: all .2s;
       margin-bottom: 16px;
     }
-    .adm-drop.over { border-color: var(--adm-acc); background: rgba(168,85,247,.05); }
+    .adm-drop.over { border-color: var(--adm-acc); background: rgba(255,107,157,.05); }
     .adm-drop-inner {
       display: flex;
       flex-direction: column;
@@ -531,7 +531,7 @@ const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json
       tab-size: 2;
       min-height: 200px;
     }
-    .adm-textarea:focus { border-color: rgba(168,85,247,.3); }
+    .adm-textarea:focus { border-color: rgba(255,107,157,.3); }
 
     /* ── BUTTONS ────────────────────────────────────────────── */
     .adm-btn {
@@ -586,7 +586,7 @@ const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json
       aspect-ratio: 16/9;
       border-radius: 6px;
       overflow: hidden;
-      background: rgba(168,85,247,.06);
+      background: rgba(255,107,157,.06);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -617,8 +617,8 @@ const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json
     .adm-item-fields { display: flex; gap: 5px; flex: 1; align-items: center; flex-wrap: wrap; }
     .adm-badge {
       font-size: 10px;
-      background: rgba(168,85,247,.1);
-      border: 1px solid rgba(168,85,247,.2);
+      background: rgba(255,107,157,.1);
+      border: 1px solid rgba(255,107,157,.2);
       border-radius: 4px;
       padding: 2px 6px;
       color: var(--adm-acc);
@@ -701,7 +701,7 @@ const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json
     @keyframes toast-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
     .adm-toast.ok  { background:#0a1f0e; border-color:rgba(74,222,128,.3); color:#86efac; }
     .adm-toast.err { background:#1f0a0a; border-color:rgba(248,113,113,.3); color:#fca5a5; }
-    .adm-toast.inf { background:#0d0a1f; border-color:rgba(168,85,247,.3); color:#d8b4fe; }
+    .adm-toast.inf { background:var(--color-surface); border-color:rgba(255,107,157,.3); color:var(--color-ink); }
 
     /* ── CMD PALETTE ────────────────────────────────────────── */
     #adm-palette-bg {
@@ -746,7 +746,7 @@ const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json
       font-size: 12px;
       color: var(--adm-muted);
     }
-    .adm-pal-item:hover, .adm-pal-item.sel { background: rgba(168,85,247,.1); color: var(--adm-ink); }
+    .adm-pal-item:hover, .adm-pal-item.sel { background: rgba(255,107,157,.1); color: var(--adm-ink); }
     .adm-pal-icon { font-size: 13px; width: 18px; text-align: center; }
     .adm-pal-label { flex: 1; }
     .adm-pal-kbd {
@@ -787,8 +787,8 @@ const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json
     /* ── SCROLLBAR ──────────────────────────────────────────── */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(168,85,247,.2); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(168,85,247,.4); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,107,157,.2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,107,157,.4); }
 
     /* ── RESPONSIVE ─────────────────────────────────────────── */
     @media(max-width:700px) {
@@ -811,7 +811,7 @@ const ALLOWED_SAVE = ['now.json','books.json','homepage.json','gacha-config.json
     .adm-nav-pill {
       font-size: 10px;
       padding: 2px 8px;
-      border: 1px solid rgba(168,85,247,.2);
+      border: 1px solid rgba(255,107,157,.2);
       border-radius: 100px;
       color: var(--adm-muted);
     }

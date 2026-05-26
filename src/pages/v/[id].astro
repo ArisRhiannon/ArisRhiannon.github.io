@@ -17,17 +17,16 @@ const BASE = `https://aris-sama.duckdns.org`;
 const videoUrl = `${BASE}${video.url}`;
 const thumbUrl = video.thumbnail ? `${BASE}${video.thumbnail}` : `${BASE}/favicon.svg`;
 
-// Parsear descriptores
 let descriptors: Record<string, string> = {};
 try { descriptors = JSON.parse(video.descriptors ?? '{}'); } catch {}
 
-// og:description con descriptores
 const descParts: string[] = [];
 if (video.category) descParts.push(video.category);
 const descEntries = Object.entries(descriptors).map(([k, v]) => `${k}=${v}`);
 if (descEntries.length > 0) descParts.push(descEntries.join(' · '));
 const ogDescription = descParts.length > 0 ? descParts.join(' · ') : 'video · aris-sama';
 ---
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -35,7 +34,7 @@ const ogDescription = descParts.length > 0 ? descParts.join(' · ') : 'video · 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{video.title} · aris-sama</title>
 
-  <!-- Open Graph — Discord lee estos -->
+  <!-- Open Graph — Discord embed -->
   <meta property="og:site_name"          content="aris-sama" />
   <meta property="og:type"              content="video.other" />
   <meta property="og:title"             content={video.title} />
@@ -47,9 +46,8 @@ const ogDescription = descParts.length > 0 ? descParts.join(' · ') : 'video · 
   <meta property="og:video:type"        content="video/mp4" />
   <meta property="og:video:width"       content={video.width ?? 1920} />
   <meta property="og:video:height"      content={video.height ?? 1080} />
-  <meta property="theme-color"          content="#A855F7" />
+  <meta property="theme-color" content="#ff6b9d" />
 
-  <!-- Twitter card (fallback) -->
   <meta name="twitter:card"        content="player" />
   <meta name="twitter:title"       content={video.title} />
   <meta name="twitter:description" content={ogDescription} />
@@ -61,145 +59,250 @@ const ogDescription = descParts.length > 0 ? descParts.join(' · ') : 'video · 
   <link rel="stylesheet" href="/design-tokens.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     html, body {
-      background: var(--color-bg); color: var(--color-ink);
-      font-family: var(--font-body); min-height: 100dvh;
+      background: var(--color-bg);
+      color: var(--color-ink);
+      font-family: var(--font-body);
+      min-height: 100dvh;
+      overflow-x: hidden;
     }
-    .video-page {
-      max-width: 960px; margin: 0 auto;
-      padding: 1.5rem 1rem 4rem;
+
+    /* ═══ BACKGROUND ORBS ═══ */
+    .vv-bg {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
     }
-    .back-link {
-      display: inline-flex; align-items: center; gap: 0.4rem;
+    .vv-orb {
+      position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.12;
+    }
+    .vv-orb-a {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(103,232,249,0.4) 0%, transparent 70%);
+      top: -150px; right: -100px;
+      animation: vv-float 30s ease-in-out infinite alternate;
+    }
+    .vv-orb-b {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(196,181,253,0.35) 0%, transparent 70%);
+      bottom: -100px; left: -80px;
+      animation: vv-float 40s ease-in-out infinite alternate-reverse;
+    }
+    @keyframes vv-float {
+      from { transform: translate(0,0) scale(1); }
+      to { transform: translate(30px,20px) scale(1.1); }
+    }
+
+    .vv-page {
+      position: relative; z-index: 1;
+      max-width: 1000px; margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+    }
+
+    /* ── Back link ── */
+    .vv-back {
+      display: inline-flex; align-items: center; gap: 0.5rem;
       font-family: var(--font-mono); font-size: 0.75rem;
       color: var(--color-muted); text-decoration: none;
-      margin-bottom: 1.5rem; letter-spacing: 0.06em;
-      transition: color 0.15s;
+      margin-bottom: 2rem; letter-spacing: 0.06em;
+      padding: 6px 14px;
+      border: 1px solid rgba(196,181,253,0.10);
+      border-radius: var(--radius-full);
+      background: rgba(26,21,32,0.5);
+      backdrop-filter: blur(8px);
+      transition: all 0.2s var(--ease-out);
     }
-    .back-link:hover { color: var(--color-accent); }
-    .player-wrap {
-      width: 100%; border-radius: 12px; overflow: hidden;
+    .vv-back:hover {
+      border-color: var(--color-border-accent);
+      color: var(--color-cyan);
+      box-shadow: var(--glow-cyan);
+    }
+
+    /* ── Player ── */
+    .vv-player-wrap {
+      width: 100%;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
       background: #000;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+      box-shadow: 0 8px 60px rgba(0,0,0,0.6), 0 0 80px rgba(103,232,249,0.06);
+      margin-bottom: 2rem;
     }
-    video {
+    .vv-player-wrap video {
       width: 100%; display: block;
-      max-height: 80vh; object-fit: contain;
+      max-height: 70vh; object-fit: contain;
     }
-    .video-info { margin-top: 1.5rem; }
-    .video-title {
-      font-family: var(--font-display); font-size: 1.75rem;
-      color: var(--color-ink); line-height: 1.2; margin-bottom: 0.5rem;
+
+    /* ── Info ── */
+    .vv-info {
+      background: rgba(26,21,32,0.5);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(196,181,253,0.08);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: 2rem;
     }
-    .video-category {
-      font-family: var(--font-mono); font-size: 0.7rem;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--color-accent); margin-bottom: 1rem;
+    .vv-category {
+      font-family: var(--font-mono); font-size: 0.68rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--color-cyan); margin-bottom: 0.75rem;
+      display: inline-block;
+      background: rgba(103,232,249,0.08);
+      border: 1px solid rgba(103,232,249,0.15);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
     }
-    .descriptors {
-      display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem;
+    .vv-title {
+      font-family: var(--font-display); font-size: 2rem;
+      color: var(--color-ink); line-height: 1.15; margin-bottom: 1rem;
+      font-weight: 700;
     }
-    .descriptor-tag {
-      background: rgba(168,85,247,0.1);
-      border: 1px solid rgba(168,85,247,0.25);
-      border-radius: 6px; padding: 0.25rem 0.6rem;
+    .vv-descriptors {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .vv-desc-tag {
+      background: rgba(103,232,249,0.06);
+      border: 1px solid rgba(103,232,249,0.12);
+      border-radius: 6px; padding: 0.3rem 0.65rem;
       font-family: var(--font-mono); font-size: 0.72rem;
       color: var(--color-muted);
     }
-    .descriptor-tag strong { color: var(--color-accent); margin-right: 4px; }
-    .share-row {
-      margin-top: 1.25rem; display: flex; align-items: center; gap: 0.75rem;
+    .vv-desc-tag strong { color: var(--color-cyan); margin-right: 4px; }
+
+    /* ── Share ── */
+    .vv-share-row {
+      display: flex; align-items: center; gap: 0.75rem;
     }
-    .share-url {
-      flex: 1; background: rgba(255,255,255,0.04);
+    .vv-share-url {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px; padding: 0.5rem 0.75rem;
+      border-radius: 8px; padding: 0.6rem 0.85rem;
       font-family: var(--font-mono); font-size: 0.72rem;
       color: var(--color-muted-2); white-space: nowrap;
       overflow: hidden; text-overflow: ellipsis;
     }
-    .copy-btn {
-      background: var(--color-accent); color: var(--color-bg);
-      border: none; border-radius: 8px;
-      padding: 0.5rem 1rem;
+    .vv-copy-btn {
+      background: rgba(103,232,249,0.10);
+      color: var(--color-cyan);
+      border: 1px solid rgba(103,232,249,0.25);
+      border-radius: var(--radius-full); padding: 0.55rem 1.1rem;
       font-family: var(--font-mono); font-size: 0.72rem;
       cursor: pointer; white-space: nowrap; letter-spacing: 0.04em;
-      transition: opacity 0.15s;
+      transition: all 0.2s var(--ease-out);
     }
-    .copy-btn:hover { opacity: 0.85; }
+    .vv-copy-btn:hover {
+      background: rgba(103,232,249,0.18);
+      box-shadow: var(--glow-cyan);
+    }
 
-    /* ── Comentarios ── */
-    .comments-section {
-      margin-top: 2.5rem;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      padding-top: 2rem;
+    /* ── Comments Section ── */
+    .vv-comments {
+      background: rgba(26,21,32,0.4);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(196,181,253,0.06);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
     }
-    .comments-title {
-      font-family: var(--font-mono); font-size: 0.7rem;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--color-accent); margin-bottom: 1.25rem;
+    .vv-comments-title {
+      font-family: var(--font-mono); font-size: 0.68rem;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--color-lavender); margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 0.5rem;
     }
-    .comment-form {
-      display: flex; flex-direction: column; gap: 0.6rem;
+    .vv-comments-title::before {
+      content: '◇'; font-size: 10px; color: var(--color-lavender); opacity: 0.5;
+    }
+
+    .vv-comment-form {
+      display: flex; flex-direction: column; gap: 0.65rem;
       margin-bottom: 2rem;
     }
-    .comment-form input, .comment-form textarea {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px; padding: 0.6rem 0.85rem;
-      color: var(--color-ink); font-family: var(--font-body); font-size: 0.88rem;
-      outline: none; transition: border-color 0.15s; resize: vertical;
+    .vv-comment-form input,
+    .vv-comment-form textarea {
+      background: rgba(255,245,250,0.04);
+      border: 1px solid rgba(196,181,253,0.10);
+      border-radius: var(--radius-md); padding: 0.65rem 0.9rem;
+      color: var(--color-ink); font-family: var(--font-body);
+      font-size: 0.88rem; outline: none;
+      transition: border-color 0.2s var(--ease-out);
     }
-    .comment-form input:focus, .comment-form textarea:focus {
-      border-color: rgba(168,85,247,0.4);
+    .vv-comment-form input:focus,
+    .vv-comment-form textarea:focus {
+      border-color: var(--color-lavender);
+      box-shadow: var(--glow-lavender);
     }
-    .comment-form textarea { min-height: 80px; }
-    .comment-submit {
+    .vv-comment-form textarea { min-height: 80px; resize: vertical; }
+    .vv-comment-submit {
       align-self: flex-end;
-      background: var(--color-accent); color: var(--color-bg);
-      border: none; border-radius: 8px; padding: 0.5rem 1.1rem;
+      background: rgba(196,181,253,0.10);
+      color: var(--color-lavender);
+      border: 1px solid rgba(196,181,253,0.20);
+      border-radius: var(--radius-full); padding: 0.5rem 1.2rem;
       font-family: var(--font-mono); font-size: 0.72rem;
-      cursor: pointer; letter-spacing: 0.04em; transition: opacity 0.15s;
+      cursor: pointer; letter-spacing: 0.04em;
+      transition: all 0.2s var(--ease-out);
     }
-    .comment-submit:hover { opacity: 0.85; }
-    .comment-submit:disabled { opacity: 0.4; cursor: not-allowed; }
-    .comment-error {
+    .vv-comment-submit:hover {
+      background: rgba(196,181,253,0.18);
+      box-shadow: var(--glow-lavender);
+    }
+    .vv-comment-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+    .vv-comment-error {
       font-family: var(--font-mono); font-size: 0.72rem;
-      color: #f87171; display: none;
+      color: var(--color-accent-hi); display: none;
     }
-    .comments-list { display: flex; flex-direction: column; gap: 1rem; }
-    .comment-empty {
+
+    .vv-comments-list { display: flex; flex-direction: column; gap: 0.85rem; }
+    .vv-comment-empty {
       font-family: var(--font-mono); font-size: 0.78rem;
-      color: var(--color-muted-2);
+      color: var(--color-muted-2); text-align: center; padding: var(--space-4);
     }
-    .comment-card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 10px; padding: 0.85rem 1rem;
+    .vv-comment-card {
+      background: rgba(255,245,250,0.025);
+      border: 1px solid rgba(196,181,253,0.06);
+      border-radius: var(--radius-md); padding: 0.9rem 1.05rem;
+      transition: border-color 0.2s var(--ease-out);
+      animation: vv-fade-up 0.35s var(--ease-out) both;
     }
-    .comment-header {
+    .vv-comment-card:hover { border-color: rgba(196,181,253,0.12); }
+    @keyframes vv-fade-up {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .vv-comment-header {
       display: flex; align-items: baseline; gap: 0.6rem;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.45rem;
     }
-    .comment-alias {
-      font-family: var(--font-mono); font-size: 0.78rem;
-      color: var(--color-accent); font-weight: 600;
+    .vv-comment-alias {
+      font-family: var(--font-mono); font-size: 0.8rem;
+      color: var(--color-lavender); font-weight: 600;
     }
-    .comment-date {
+    .vv-comment-date {
       font-family: var(--font-mono); font-size: 0.65rem;
       color: var(--color-muted-2);
     }
-    .comment-body {
-      font-size: 0.9rem; color: var(--color-ink);
-      line-height: 1.55; white-space: pre-wrap; word-break: break-word;
+    .vv-comment-body {
+      font-size: 0.9rem; color: var(--color-ink-soft);
+      line-height: 1.6; white-space: pre-wrap; word-break: break-word;
+    }
+
+    @media (max-width: 640px) {
+      .vv-page { padding: 1rem 0.75rem 3rem; }
+      .vv-title { font-size: 1.5rem; }
+      .vv-info, .vv-comments { padding: var(--space-4); }
     }
   </style>
 </head>
 <body>
-  <div class="video-page">
-    <a href="/videos" class="back-link">← videos</a>
+  <div class="vv-bg" aria-hidden="true">
+    <div class="vv-orb vv-orb-a"></div>
+    <div class="vv-orb vv-orb-b"></div>
+  </div>
 
-    <div class="player-wrap">
+  <div class="vv-page">
+    <a href="/videos" class="vv-back">← volver a galeria</a>
+
+    <div class="vv-player-wrap">
       <video
         src={video.url}
         controls
@@ -208,31 +311,28 @@ const ogDescription = descParts.length > 0 ? descParts.join(' · ') : 'video · 
       ></video>
     </div>
 
-    <div class="video-info">
-      <div class="video-category">{video.category ?? 'general'}</div>
-      <h1 class="video-title">{video.title}</h1>
+    <div class="vv-info">
+      <div class="vv-category">{video.category ?? 'general'}</div>
+      <h1 class="vv-title">{video.title}</h1>
 
       {Object.keys(descriptors).length > 0 && (
-        <div class="descriptors">
+        <div class="vv-descriptors">
           {Object.entries(descriptors).map(([k, v]) => (
-            <span class="descriptor-tag">
-              <strong>{k}</strong>{v}
-            </span>
+            <span class="vv-desc-tag"><strong>{k}</strong>{v}</span>
           ))}
         </div>
       )}
 
-      <div class="share-row">
-        <div class="share-url" id="share-url">{BASE}/v/{id}</div>
-        <button class="copy-btn" id="copy-btn">copiar link</button>
+      <div class="vv-share-row">
+        <div class="vv-share-url" id="share-url">{BASE}/v/{id}</div>
+        <button class="vv-copy-btn" id="copy-btn">copiar link</button>
       </div>
     </div>
 
-    <!-- Comentarios -->
-    <section class="comments-section">
-      <div class="comments-title">comentarios</div>
+    <section class="vv-comments">
+      <div class="vv-comments-title">comentarios</div>
 
-      <form class="comment-form" id="comment-form">
+      <form class="vv-comment-form" id="comment-form">
         <input
           type="text" id="alias-input"
           placeholder="tu nombre o alias"
@@ -243,20 +343,17 @@ const ogDescription = descParts.length > 0 ? descParts.join(' · ') : 'video · 
           placeholder="deja un comentario..."
           maxlength="500"
         ></textarea>
-        <span class="comment-error" id="comment-error"></span>
-        <button type="submit" class="comment-submit" id="comment-submit">
-          enviar →
-        </button>
+        <span class="vv-comment-error" id="comment-error"></span>
+        <button type="submit" class="vv-comment-submit" id="comment-submit">enviar →</button>
       </form>
 
-      <div class="comments-list" id="comments-list">
-        <span class="comment-empty">cargando comentarios...</span>
+      <div class="vv-comments-list" id="comments-list">
+        <span class="vv-comment-empty">cargando comentarios...</span>
       </div>
     </section>
   </div>
 
   <script define:vars={{ videoId: id }}>
-    // ── Copiar link ──
     const btn = document.getElementById('copy-btn');
     const urlEl = document.getElementById('share-url');
     btn?.addEventListener('click', () => {
@@ -265,7 +362,6 @@ const ogDescription = descParts.length > 0 ? descParts.join(' · ') : 'video · 
       });
     });
 
-    // ── Comentarios ──
     const list = document.getElementById('comments-list');
     const form = document.getElementById('comment-form');
     const aliasInput = document.getElementById('alias-input');
@@ -273,7 +369,7 @@ const ogDescription = descParts.length > 0 ? descParts.join(' · ') : 'video · 
     const submitBtn = document.getElementById('comment-submit');
     const errorEl = document.getElementById('comment-error');
 
-    function formatDate(str) {
+    function formatDate(str: string) {
       try {
         return new Date(str + 'Z').toLocaleString('es-MX', {
           day: '2-digit', month: 'short', year: 'numeric',
@@ -282,19 +378,25 @@ const ogDescription = descParts.length > 0 ? descParts.join(' · ') : 'video · 
       } catch { return str; }
     }
 
-    function renderComments(comments) {
+function escHtml(s: string): string {
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function renderComments(comments: any[]) {
       if (!list) return;
       if (!comments.length) {
-        list.innerHTML = '<span class="comment-empty">sin comentarios todavía. sé el primero ✨</span>';
+        list.innerHTML = '<span class="vv-comment-empty">sin comentarios todavía. sé el primero ✨</span>';
         return;
       }
-      list.innerHTML = comments.map(c => `
-        <div class="comment-card">
-          <div class="comment-header">
-            <span class="comment-alias">${c.alias}</span>
-            <span class="comment-date">${formatDate(c.created_at)}</span>
+      list.innerHTML = comments.map((c, i) => `
+        <div class="vv-comment-card" style="animation-delay:${i * 50}ms">
+          <div class="vv-comment-header">
+            <span class="vv-comment-alias">${escHtml(c.alias ?? '')}</span>
+            <span class="vv-comment-date">${formatDate(c.created_at)}</span>
           </div>
-          <div class="comment-body">${c.body.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+          <div class="vv-comment-body">${escHtml(c.body ?? '')}</div>
         </div>
       `).join('');
     }
@@ -305,11 +407,10 @@ const ogDescription = descParts.length > 0 ? descParts.join(' · ') : 'video · 
         const data = await res.json();
         renderComments(Array.isArray(data) ? data : []);
       } catch {
-        if (list) list.innerHTML = '<span class="comment-empty">error al cargar comentarios.</span>';
+        if (list) list.innerHTML = '<span class="vv-comment-empty">error al cargar comentarios.</span>';
       }
     }
 
-    // Restaurar alias guardado
     const savedAlias = localStorage.getItem('aris_comment_alias') ?? '';
     if (aliasInput && savedAlias) aliasInput.value = savedAlias;
 

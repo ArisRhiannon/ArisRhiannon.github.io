@@ -1,0 +1,131 @@
+---
+/**
+ * FeedGrid — mosaico editorial 3-columnas asimétricas.
+ * Distribución masonry: posts[i % 3] en cada columna.
+ */
+import type { PostWithMedia, Profile } from '../../lib/feed';
+import PostCard from './PostCard.astro';
+
+interface Props {
+  posts: PostWithMedia[];
+  profile: Profile;
+  authenticated: boolean;
+}
+
+const { posts, profile, authenticated } = Astro.props;
+
+// Distribuir en 3 columnas (orden cronológico horizontal natural)
+const cols: PostWithMedia[][] = [[], [], []];
+posts.forEach((post, i) => {
+  cols[i % 3].push(post);
+});
+---
+
+{posts.length > 0 ? (
+  <div class="feed-mosaic">
+    <div class="masonry-col" style="--col-delay: 0ms">
+      {cols[0].map((post, i) => (
+        <PostCard post={post} profile={profile} authenticated={authenticated} isFirst={i === 0} />
+      ))}
+    </div>
+    <div class="masonry-col" style="--col-delay: 80ms">
+      {cols[1].map(post => (
+        <PostCard post={post} profile={profile} authenticated={authenticated} />
+      ))}
+    </div>
+    <div class="masonry-col" style="--col-delay: 160ms">
+      {cols[2].map(post => (
+        <PostCard post={post} profile={profile} authenticated={authenticated} />
+      ))}
+    </div>
+  </div>
+) : (
+  <div class="feed-empty">
+    <p class="feed-empty-text">aun no hay posts</p>
+    <div class="page-ornament" aria-hidden="true"></div>
+  </div>
+)}
+
+<style>
+  .feed-mosaic {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr 1fr;
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 var(--space-6);
+  }
+
+  .masonry-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    /* Staggered entrance */
+    animation: col-rise 500ms var(--ease-out) both;
+    animation-delay: var(--col-delay, 0ms);
+  }
+
+  @keyframes col-rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .feed-empty {
+    text-align: center;
+    padding: var(--space-20) 0;
+  }
+
+  .feed-empty-text {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-muted-2);
+    letter-spacing: 0.06em;
+    margin-bottom: var(--space-8);
+  }
+
+  .page-ornament {
+    width: 3rem;
+    height: 1px;
+    background: var(--color-border);
+    margin: 0 auto;
+  }
+
+  @media (max-width: 900px) {
+    .feed-mosaic {
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 0 var(--space-3);
+    }
+    .masonry-col:nth-child(3) { display: none; }
+  }
+
+  @media (max-width: 600px) {
+    .feed-mosaic {
+      grid-template-columns: 1fr;
+      padding: 0 var(--space-3);
+    }
+    .masonry-col:nth-child(2),
+    .masonry-col:nth-child(3) { display: flex; }
+    /* On mobile, flatten to single column but keep masonry order */
+    /* Use JS to reorder in DOM instead */
+  }
+</style>
+
+<script>
+  // Flatten masonry to single column on small screens
+  function flattenMobile() {
+    if (window.innerWidth > 600) return;
+    const mosaic = document.querySelector('.feed-mosaic');
+    if (!mosaic) return;
+    const cards = mosaic.querySelectorAll('.post-card');
+    const wrapper = document.createElement('div');
+    wrapper.className = 'masonry-col';
+    wrapper.style.cssText = '--col-delay: 0ms; animation: col-rise 500ms var(--ease-out) both;';
+    cards.forEach(c => wrapper.appendChild(c));
+    mosaic.innerHTML = '';
+    mosaic.style.display = 'flex';
+    mosaic.style.flexDirection = 'column';
+    mosaic.appendChild(wrapper);
+  }
+  document.addEventListener('astro:page-load', flattenMobile);
+</script>

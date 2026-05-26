@@ -1,0 +1,44 @@
+# Version control
+.git
+.gitignore
+
+# Documentación y planes
+*.md
+!README.md
+AGENTS.md
+docs/
+PLAN*.md
+ARCHITECTURE*.md
+
+# Desarrollo local
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+
+# Testing
+coverage/
+*.test.ts
+*.spec.ts
+__tests__/
+
+# Scripts archive (no se usan en producción)
+scripts/archive/
+scripts_backup/
+
+# Misc
+*.log
+npm-debug.log*
+
+# Dependencias y compilación
+node_modules/
+dist/
+.astro/
+.bun/
+
+# Volúmenes locales y datos pesados
+kavita/
+public/uploads/
+public/thumbs/
+data/database.sqlite

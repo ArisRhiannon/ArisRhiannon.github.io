@@ -1,0 +1,211 @@
+---
+// 404.astro — Página no encontrada con animación nicole-style
+---
+<div class="not-found-page">
+  <!-- Floating particles -->
+  <div class="nf-particles" aria-hidden="true">
+    <span class="nf-p" style="--x:10%;--y:20%;--d:12s;--s:0.6">◇</span>
+    <span class="nf-p" style="--x:80%;--y:15%;--d:18s;--s:0.8">✦</span>
+    <span class="nf-p" style="--x:25%;--y:70%;--d:15s;--s:0.5">◈</span>
+    <span class="nf-p" style="--x:70%;--y:60%;--d:20s;--s:0.7">◆</span>
+    <span class="nf-p" style="--x:50%;--y:85%;--d:14s;--s:0.4">◇</span>
+    <span class="nf-p" style="--x:90%;--y:40%;--d:16s;--s:0.9">✧</span>
+  </div>
+
+  <div class="nf-content">
+    <div class="nf-emoji" aria-hidden="true">🌌</div>
+    <h1 class="nf-title">404</h1>
+    <p class="nf-sub">esta pagina se perdio en el espacio onirico</p>
+
+    <div class="nf-ornament" aria-hidden="true">
+      <span class="orn-dot"></span>
+      <span class="orn-line"></span>
+      <span class="orn-dot"></span>
+      <span class="orn-line"></span>
+      <span class="orn-dot"></span>
+    </div>
+
+    <p class="nf-hint">tal vez nunca existio...<br/>o tal vez se fue a otro universo</p>
+
+    <a href="/" class="nf-back">
+      <span class="nf-back-icon" aria-hidden="true">&#8592;</span>
+      volver al inicio
+    </a>
+  </div>
+
+  <!-- Glitch overlay -->
+  <div class="nf-glitch" aria-hidden="true"></div>
+</div>
+
+<style>
+  .not-found-page {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ── Particles ── */
+  .nf-particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .nf-p {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    font-size: calc(var(--s) * 1.5rem);
+    color: var(--color-accent);
+    opacity: 0;
+    animation: nf-float var(--d) ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(255,107,157,0.3));
+  }
+
+  @keyframes nf-float {
+    0%, 100% { opacity: 0; transform: translateY(0) rotate(0deg); }
+    20% { opacity: 0.4; }
+    50% { opacity: 0.7; transform: translateY(-30px) rotate(180deg); }
+    80% { opacity: 0.3; }
+  }
+
+  /* ── Content ── */
+  .nf-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: var(--space-8);
+  }
+
+  .nf-emoji {
+    font-size: 4rem;
+    margin-bottom: var(--space-4);
+    animation: nf-pulse 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(196,181,253,0.3));
+  }
+
+  @keyframes nf-pulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(196,181,253,0.3)); }
+    50% { transform: scale(1.08); filter: drop-shadow(0 0 30px rgba(255,107,157,0.4)); }
+  }
+
+  .nf-title {
+    font-family: var(--font-deco);
+    font-size: 8rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--color-ink);
+    letter-spacing: -0.04em;
+    text-shadow:
+      0 0 40px rgba(255,107,157,0.2),
+      0 0 80px rgba(196,181,253,0.1);
+    animation: nf-glow 4s ease-in-out infinite alternate;
+    margin-bottom: var(--space-4);
+  }
+
+  @keyframes nf-glow {
+    from { text-shadow: 0 0 40px rgba(255,107,157,0.2), 0 0 80px rgba(196,181,253,0.1); }
+    to { text-shadow: 0 0 60px rgba(255,107,157,0.3), 0 0 120px rgba(196,181,253,0.15), 0 0 200px rgba(103,232,249,0.05); }
+  }
+
+  .nf-sub {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    letter-spacing: 0.06em;
+    margin-bottom: var(--space-8);
+  }
+
+  /* ── Ornament ── */
+  .nf-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+  }
+
+  .orn-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    opacity: 0.4;
+  }
+
+  .orn-line {
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--color-border-accent), transparent);
+  }
+
+  .nf-hint {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-muted-2);
+    line-height: 1.8;
+    margin-bottom: var(--space-8);
+  }
+
+  /* ── Back Link ── */
+  .nf-back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    border: 1px solid var(--color-border-accent);
+    border-radius: var(--radius-full);
+    background: rgba(255,107,157,0.06);
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    transition: all var(--duration) var(--ease-out);
+    box-shadow: var(--glow-sm);
+  }
+
+  .nf-back:hover {
+    background: rgba(255,107,157,0.12);
+    box-shadow: var(--glow-md);
+    transform: translateY(-2px);
+  }
+
+  .nf-back-icon {
+    transition: transform var(--duration) var(--ease-out);
+  }
+
+  .nf-back:hover .nf-back-icon {
+    transform: translateX(-3px);
+  }
+
+  /* ── Glitch overlay ── */
+  .nf-glitch {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,107,157,0.015) 2px,
+      rgba(255,107,157,0.015) 4px
+    );
+    pointer-events: none;
+    animation: nf-scan 8s linear infinite;
+  }
+
+  @keyframes nf-scan {
+    from { background-position: 0 0; }
+    to { background-position: 0 100vh; }
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 640px) {
+    .nf-title { font-size: 5rem; }
+    .nf-emoji { font-size: 3rem; }
+  }
+</style>
