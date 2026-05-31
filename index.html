@@ -7,16 +7,15 @@
     <!-- Importar fuentes elegantes y góticas de Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #000000;
             --border-color: #222222;
-            --border-heavy: #e0e0e0;
+            --border-heavy: #cccccc;
             --text-primary: #e0e0e0;
             --text-secondary: #888888;
             --text-dim: #444444;
-            --font-gothic: 'Cinzel', serif;
             --font-serif: 'EB Garamond', serif;
             --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
@@ -34,154 +33,143 @@
             min-height: 100vh;
         }
 
-        /* Contenedor principal que emula un pliego de manga en blanco y negro */
         .manga-page {
-            max-width: 900px;
+            max-width: 800px;
             width: 100%;
             border: 2px solid var(--border-heavy);
-            padding: 20px;
+            padding: 30px;
             box-sizing: border-box;
             background-color: #050505;
         }
 
-        /* Encabezado estilo epitafio gótico */
         header {
-            border-bottom: 2px solid var(--border-heavy);
-            padding-bottom: 30px;
-            margin-bottom: 20px;
-            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         h1 {
-            font-family: var(--font-gothic);
-            font-size: 32px;
+            font-family: 'Cinzel', serif;
+            font-size: 26px;
             font-weight: 400;
-            margin: 0 0 10px 0;
-            letter-spacing: 4px;
-            color: var(--text-primary);
+            margin: 0 0 5px 0;
+            letter-spacing: 3px;
             text-transform: uppercase;
         }
 
         .subtitle {
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 12px;
             color: var(--text-secondary);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        /* Cita icónica de Umineko */
-        .epitaph-quote {
-            font-style: italic;
-            font-size: 18px;
-            color: var(--text-secondary);
-            margin: 25px auto 0 auto;
-            max-width: 600px;
-            line-height: 1.6;
-            border-left: 1px solid var(--text-dim);
-            padding-left: 20px;
-            text-align: left;
-        }
-
-        /* Contenedor de paneles simulando viñetas de manga */
-        .panel-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
+            letter-spacing: 1px;
         }
 
         .manga-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 30px;
+            margin-bottom: 30px;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 20px;
+            padding-bottom: 30px;
+        }
+
+        .manga-row.reverse {
+            grid-template-columns: 0.8fr 1.2fr;
         }
 
         @media (max-width: 768px) {
-            .manga-row {
+            .manga-row, .manga-row.reverse {
                 grid-template-columns: 1fr;
-            }
-            .manga-row.reverse {
-                direction: ltr;
             }
         }
 
-        /* Viñetas individuales */
-        .panel {
-            border: 1px solid var(--border-color);
-            padding: 25px;
-            box-sizing: border-box;
+        .content-panel {
             display: flex;
             flex-direction: column;
             justify-content: center;
-            background-color: #000000;
         }
 
-        .panel.image-panel {
-            padding: 0;
-            overflow: hidden;
+        .image-panel {
             border: 1px solid var(--border-heavy);
+            background-color: #000000;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .panel.image-panel img {
+        .image-panel img {
             width: 100%;
             height: auto;
             display: block;
-            filter: grayscale(100%) contrast(110%);
-            transition: transform 0.5s ease;
+            filter: grayscale(100%) contrast(105%);
         }
 
-        .panel.image-panel img:hover {
-            transform: scale(1.02);
-        }
-
-        /* Títulos de viñeta */
-        .panel-title {
-            font-family: var(--font-gothic);
+        p {
             font-size: 16px;
-            margin-top: 0;
-            margin-bottom: 15px;
-            letter-spacing: 2px;
-            border-bottom: 1px dashed var(--text-dim);
-            padding-bottom: 8px;
-            color: var(--text-primary);
-        }
-
-        .panel p {
-            font-size: 15px;
             line-height: 1.7;
             color: var(--text-secondary);
-            margin: 0 0 15px 0;
+            margin: 0 0 20px 0;
         }
 
-        .panel p:last-child {
+        p:last-child {
             margin-bottom: 0;
         }
 
-        /* Código monoespaciado incrustado con sobriedad */
-        .code-snippet {
-            font-family: var(--font-mono);
-            font-size: 12px;
-            color: var(--text-dim);
-            background-color: #050505;
-            padding: 10px;
-            border-left: 2px solid var(--text-dim);
-            margin-top: 10px;
+        .projects-section {
+            margin-top: 20px;
         }
 
-        /* Pie de página */
+        .projects-title {
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            border-bottom: 1px dashed var(--text-dim);
+            padding-bottom: 5px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            margin-bottom: 15px;
+        }
+
+        a {
+            color: var(--text-primary);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--text-secondary);
+            transition: color 0.2s, border-color 0.2s;
+            font-family: var(--font-serif);
+            font-size: 16px;
+        }
+
+        a:hover {
+            color: #ffffff;
+            border-bottom-color: #ffffff;
+        }
+
+        .project-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            font-family: var(--font-serif);
+        }
+
         footer {
-            margin-top: 20px;
+            margin-top: 30px;
             padding-top: 20px;
             text-align: center;
             font-family: var(--font-mono);
             font-size: 10px;
             color: var(--text-dim);
-            letter-spacing: 1px;
+            border-top: 1px solid var(--border-color);
         }
     </style>
 </head>
@@ -189,55 +177,46 @@
     <div class="manga-page">
         <header>
             <h1>Aris Rhiannon</h1>
-            <div class="subtitle">Fragmento Cero // Sin Ilusiones</div>
-            
-            <div class="epitaph-quote">
-                "Beatorīche... Sin amor, la verdad no puede ser vista. Pero en este tablero de ajedrez, incluso las ilusiones de oro terminan convirtiéndose en ceniza y código estático."
-            </div>
+            <div class="subtitle">Desarrollador independiente</div>
         </header>
 
-        <main class="panel-grid">
-            <!-- Primera fila de viñetas: Retrato e Introducción -->
+        <main>
             <div class="manga-row">
-                <div class="panel image-panel">
-                    <img src="images/real_witch_portrait.png" alt="Retrato melancólico de la bruja">
+                <div class="content-panel">
+                    <p>
+                        El sitio web anterior ha sido eliminado. En su lugar, he configurado esta landing page minimalista en blanco y negro, utilizando paneles del manga oficial de Umineko como acentos de diseño.
+                    </p>
+                    <p>
+                        Este espacio funciona únicamente como un índice personal y un directorio directo, libre de decoraciones innecesarias o interfaces complejas.
+                    </p>
                 </div>
-                <div class="panel">
-                    <h2 class="panel-title">La Regla del Tablero</h2>
-                    <p>
-                        El sitio web anterior ha sido descartado por completo. Era una ilusión innecesaria, un intento ruidoso de llenar la pantalla con funciones que no aportaban nada al vacío. 
-                    </p>
-                    <p>
-                        He decidido dejar solo este fragmento plano. Un espacio sobrio, monocromático, libre de distracciones. A veces, la simplicidad de la tinta negra sobre el fondo absoluto es la única forma de verdad que nos queda.
-                    </p>
-                    <div class="code-snippet">
-                        STATUS: ONLINE // FRAGMENT: 0x00
-                    </div>
+                <div class="image-panel">
+                    <img src="images/real_witch_portrait.png" alt="Beatrice">
                 </div>
             </div>
 
-            <!-- Segunda fila de viñetas: Ajedrez y Reflexión -->
             <div class="manga-row reverse">
-                <div class="panel">
-                    <h2 class="panel-title">Verdad Roja y Azul</h2>
-                    <p>
-                        Al igual que en el juego de las brujas, el código que escribimos responde estrictamente a las reglas que decidimos creer. Si no hay una intención genuina detrás de lo que construyes, la arquitectura colapsa ante la primera duda.
-                    </p>
-                    <p>
-                        No hay milagros en este fragmento. Solo un par de viñetas que eventualmente desaparecerán de la caché. 
-                    </p>
-                    <div class="code-snippet">
-                        # Sin amor, no puede ser visto.
-                    </div>
+                <div class="image-panel">
+                    <img src="images/real_chessboard_butterflies.png" alt="Manga Panel">
                 </div>
-                <div class="panel image-panel">
-                    <img src="images/real_chessboard_butterflies.png" alt="Tablero de ajedrez disolviéndose en mariposas">
+                <div class="content-panel">
+                    <div class="projects-section">
+                        <div class="projects-title">Proyectos</div>
+                        <ul>
+                            <li>
+                                <a href="https://github.com/ErikGallardo/Calculadora-ZZZ" target="_blank">Calculadora ZZZ</a>
+                                <div class="project-desc">
+                                    Calculadora de daño y acumulación de anomalías para Zenless Zone Zero en Python. Lógica de daño general, sheer, anomaly y disorder.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </main>
 
         <footer>
-            Tablero cerrado // Fragmentos recopilados en el mar de la nada. 2026.
+            Tablero cerrado // 2026.
         </footer>
     </div>
 </body>
