@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aris Rhiannon</title>
-    <!-- Importar fuentes elegantes y góticas de Google Fonts -->
+    <!-- Importar fuentes elegantes de Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
@@ -33,11 +33,11 @@
             min-height: 100vh;
         }
 
-        .manga-page {
-            max-width: 800px;
+        .container {
+            max-width: 600px;
             width: 100%;
-            border: 2px solid var(--border-heavy);
-            padding: 30px;
+            border: 1px solid var(--border-heavy);
+            padding: 40px;
             box-sizing: border-box;
             background-color: #050505;
         }
@@ -64,47 +64,6 @@
             letter-spacing: 1px;
         }
 
-        .manga-row {
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 30px;
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 30px;
-        }
-
-        .manga-row.reverse {
-            grid-template-columns: 0.8fr 1.2fr;
-        }
-
-        @media (max-width: 768px) {
-            .manga-row, .manga-row.reverse {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .content-panel {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .image-panel {
-            border: 1px solid var(--border-heavy);
-            background-color: #000000;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .image-panel img {
-            width: 100%;
-            height: auto;
-            display: block;
-            filter: grayscale(100%) contrast(105%);
-        }
-
         p {
             font-size: 16px;
             line-height: 1.7;
@@ -117,7 +76,9 @@
         }
 
         .projects-section {
-            margin-top: 20px;
+            margin-top: 30px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
         }
 
         .projects-title {
@@ -127,8 +88,6 @@
             color: var(--text-primary);
             margin-bottom: 15px;
             text-transform: uppercase;
-            border-bottom: 1px dashed var(--text-dim);
-            padding-bottom: 5px;
         }
 
         ul {
@@ -146,7 +105,6 @@
             text-decoration: none;
             border-bottom: 1px dashed var(--text-secondary);
             transition: color 0.2s, border-color 0.2s;
-            font-family: var(--font-serif);
             font-size: 16px;
         }
 
@@ -159,11 +117,10 @@
             font-size: 13px;
             color: var(--text-secondary);
             margin-top: 4px;
-            font-family: var(--font-serif);
         }
 
         footer {
-            margin-top: 30px;
+            margin-top: 40px;
             padding-top: 20px;
             text-align: center;
             font-family: var(--font-mono);
@@ -174,49 +131,35 @@
     </style>
 </head>
 <body>
-    <div class="manga-page">
+    <div class="container">
         <header>
             <h1>Aris Rhiannon</h1>
             <div class="subtitle">Desarrollador independiente</div>
         </header>
 
         <main>
-            <div class="manga-row">
-                <div class="content-panel">
-                    <p>
-                        El sitio web anterior ha sido eliminado. En su lugar, he configurado esta landing page minimalista en blanco y negro, utilizando paneles del manga oficial de Umineko como acentos de diseño.
-                    </p>
-                    <p>
-                        Este espacio funciona únicamente como un índice personal y un directorio directo, libre de decoraciones innecesarias o interfaces complejas.
-                    </p>
-                </div>
-                <div class="image-panel">
-                    <img src="images/real_witch_portrait.png" alt="Beatrice">
-                </div>
-            </div>
+            <p>
+                El sitio web anterior ha sido eliminado. En su lugar, he configurado esta landing page minimalista en blanco y negro.
+            </p>
+            <p>
+                Este espacio funciona únicamente como un índice personal y un directorio directo, libre de decoraciones innecesarias o interfaces complejas.
+            </p>
 
-            <div class="manga-row reverse">
-                <div class="image-panel">
-                    <img src="images/real_chessboard_butterflies.png" alt="Manga Panel">
-                </div>
-                <div class="content-panel">
-                    <div class="projects-section">
-                        <div class="projects-title">Proyectos</div>
-                        <ul>
-                            <li>
-                                <a href="https://github.com/ErikGallardo/Calculadora-ZZZ" target="_blank">Calculadora ZZZ</a>
-                                <div class="project-desc">
-                                    Calculadora de daño y acumulación de anomalías para Zenless Zone Zero en Python. Lógica de daño general, sheer, anomaly y disorder.
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+            <div class="projects-section">
+                <div class="projects-title">Proyectos</div>
+                <ul>
+                    <li>
+                        <a href="https://github.com/ErikGallardo/Calculadora-ZZZ" target="_blank">Calculadora ZZZ</a>
+                        <div class="project-desc">
+                            Calculadora de daño y acumulación de anomalías para Zenless Zone Zero en Python. Lógica de daño general, sheer, anomaly y disorder.
+                        </div>
+                    </li>
+                </ul>
             </div>
         </main>
 
         <footer>
-            Tablero cerrado // 2026.
+            2026.
         </footer>
     </div>
 </body>
