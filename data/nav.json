@@ -1,9 +1,0 @@
-{
- "items": [
-  { "label": "jardin", "href": "/garden" },
-  { "label": "ahora", "href": "/now" },
-  { "label": "videos", "href": "/videos" },
-  { "label": "gacha", "href": "/gacha" },
-  { "label": "anime", "href": "/anime" }
- ]
-}

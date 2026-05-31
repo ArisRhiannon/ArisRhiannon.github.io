@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aris Rhiannon</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1a1a1a;
+            --text-color: #a0a0a0;
+            --text-title: #e0e0e0;
+            --accent-color: #555555;
+            --link-color: #888888;
+            --link-hover: #b5b5b5;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background-color: var(--card-bg);
+            border: 1px solid #2a2a2a;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            color: var(--text-title);
+            font-size: 20px;
+            font-weight: normal;
+            margin-top: 0;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: var(--accent-color);
+            margin-bottom: 24px;
+        }
+        p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .section-title {
+            color: var(--text-title);
+            font-size: 14px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        a {
+            color: var(--link-color);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--accent-color);
+            transition: color 0.2s, border-color 0.2s;
+        }
+        a:hover {
+            color: var(--link-hover);
+            border-bottom-color: var(--link-hover);
+        }
+        footer {
+            margin-top: 40px;
+            font-size: 11px;
+            color: var(--accent-color);
+            border-top: 1px solid #222222;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Aris Rhiannon</h1>
+        <div class="subtitle">Desarrollador independiente</div>
+        
+        <p>
+            El sitio web anterior ha sido eliminado por completo. Era demasiado complejo y no servía para nada práctico. He decidido mantener una página simple, sin decoraciones inútiles.
+        </p>
+
+        <div class="section-title">Proyectos</div>
+        <ul>
+            <li>
+                <a href="/Calculadora-ZZZ/">Calculadora Zenless Zone Zero (Demo Web)</a>
+                <br>
+                <span style="color: #666666; font-size: 12px;">Herramienta para calcular daño de agentes, anomalías y disorder en combate. Ejecutada en cliente mediante WebAssembly (Flet).</span>
+            </li>
+        </ul>
+
+        <footer>
+            Todo lo demás está vacío. Supongo que eventualmente pondré algo aquí si es necesario.
+        </footer>
+    </div>
+</body>
+</html>
