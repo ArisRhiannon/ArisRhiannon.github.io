@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detecting Shai-Hulud npm supply-chain worms offline</title>
+<meta name="description" content="How to audit npm, pnpm, yarn and bun install scripts offline and catch Shai-Hulud-style supply-chain worms — what static AST analysis can and cannot detect, with no network, account, or CVE database.">
+<link rel="canonical" href="https://arisrhiannon.github.io/guides/detecting-shai-hulud-npm-worms-offline/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Detecting Shai-Hulud npm supply-chain worms offline">
+<meta property="og:description" content="What offline, AST-grade install-script auditing can and cannot catch — and how to detect the Shai-Hulud injection pattern without a network or account.">
+<meta property="og:url" content="https://arisrhiannon.github.io/guides/detecting-shai-hulud-npm-worms-offline/">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/220097246?v=4">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Detecting Shai-Hulud npm supply-chain worms offline",
+  "datePublished": "2026-06-01",
+  "dateModified": "2026-06-01",
+  "author": {"@type": "Person", "name": "Aris Rhiannon", "url": "https://github.com/ArisRhiannon"},
+  "mainEntityOfPage": "https://arisrhiannon.github.io/guides/detecting-shai-hulud-npm-worms-offline/",
+  "about": ["npm supply-chain security", "install script auditing", "Shai-Hulud worm", "static analysis"],
+  "description": "How offline, AST-grade auditing of package install scripts can catch Shai-Hulud-style supply-chain worms without a network, account, or CVE database."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "Can you detect malicious npm install scripts without internet access?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, to a degree. Static AST analysis of lifecycle scripts plus a bundled offline corpus of known-malicious package names and a fingerprint allowlist of trusted native packages can flag most opportunistic, kit-built worm payloads with no network. It cannot replace a sandbox or a SaaS behavioral monitor."}},
+    {"@type": "Question", "name": "What is the Shai-Hulud injection pattern?", "acceptedAnswer": {"@type": "Answer", "text": "A normally-trusted package whose install script body suddenly differs from any known-good fingerprint. Detecting it requires comparing the current lifecycle script against a baseline of trusted fingerprints rather than relying on a blocklist of bad names."}},
+    {"@type": "Question", "name": "What does offline static analysis miss?", "acceptedAnswer": {"@type": "Answer", "text": "It is not a sandbox and does not run code, it is not a CVE scanner, and it cannot deobfuscate arbitrary JavaScript. A determined attacker can still hide a payload from pure static analysis, so it should sit alongside script-blocking and behavioral tools, not replace them."}}
+  ]
+}
+</script>
+</head>
+<body>
+<div class="container">
+<nav><a href="/">← Aris Rhiannon</a></nav>
+<h1>Detecting Shai-Hulud npm supply-chain worms offline</h1>
+<div class="meta">Updated 2026-06-01 · supply-chain security</div>
+
+<p class="lead">
+You can catch most opportunistic npm supply-chain worms without a network or account by
+statically parsing every package's install script, checking package names against a bundled
+corpus of known-malicious entries, and flagging any trusted package whose lifecycle script
+suddenly drifts from its known-good fingerprint. Static analysis will not run or sandbox the
+code, so treat it as defense-in-depth, not a guarantee.
+</p>
+
+<h2>The threat</h2>
+<p>
+Most supply-chain compromises do their damage in a package's <strong>lifecycle scripts</strong>
+(<code>preinstall</code>, <code>install</code>, <code>postinstall</code>) — code that runs
+automatically the moment you <code>npm install</code>, before you import anything. The
+Shai-Hulud class of worm is the hard case: it doesn't ship as an obviously-bad new package,
+it <strong>injects itself into the install script of a package you already trust</strong>, so a
+blocklist of bad names never sees it.
+</p>
+
+<h2>What offline static auditing can catch</h2>
+<ul>
+<li><strong>Dangerous script behavior</strong> — real JavaScript AST parsing (via <code>acorn</code>, the parser used by webpack, rollup, and eslint) finds <code>eval</code>/<code>new Function</code>, dynamic <code>require()</code>/<code>import()</code>, network builtins, <code>child_process</code> use, and <code>process.env</code> reads in install scripts.</li>
+<li><strong>Anti-evasion</strong> — folding simple string concatenation and decoding one layer of base64 defeats tricks like <code>require('ht' + 'tps')</code> and base64-encoded secret paths.</li>
+<li><strong>Known-malicious names</strong> — matching against an offline corpus (~23,000 names from the GitHub Advisory Database) catches a first-install of a confirmed-bad package even with no baseline.</li>
+<li><strong>Fingerprint drift</strong> — fingerprinting the lifecycle scripts of widely-used native packages (esbuild, sharp, prisma, bcrypt, and similar) means legitimate <code>postinstall</code> work doesn't drown the report, and any unexpected change to a trusted script is flagged as critical. This is the Shai-Hulud tell.</li>
+<li><strong>Baseline diff</strong> — snapshotting inventory and script hashes surfaces newly-added packages, version changes, and packages that gained a lifecycle script on upgrade.</li>
+</ul>
+
+<h2>What it does not do</h2>
+<p>
+It is not a sandbox and does not block <code>npm install</code> — pair it with
+<code>npm</code>'s <code>ignore-scripts</code> or an allow-list tool to actually prevent
+execution. It is not a CVE scanner — use <code>osv-scanner</code> or <code>npm audit</code> for
+known vulnerable versions. And it cannot deobfuscate arbitrary JavaScript. Its value is being
+small, auditable, deterministic, and runnable anywhere.
+</p>
+
+<div class="cta">
+<strong>wormguard</strong> implements this approach as an offline, zero-dependency CLI for npm,
+pnpm, yarn, and bun. Source and docs:
+<a href="https://github.com/ArisRhiannon/wormguard">github.com/ArisRhiannon/wormguard</a>.
+</div>
+
+<footer>
+By <a href="https://github.com/ArisRhiannon">Aris Rhiannon</a> · <a href="/">arisrhiannon.github.io</a>
+</footer>
+</div>
+</body>
+</html>

@@ -16,3 +16,9 @@
 
 Software supply-chain security, static analysis and taint tracking, SAST for AI-generated code,
 transparency logs and Merkle proofs, secret detection, dependency-free TypeScript and Python tooling.
+
+## Writing
+
+- [Detecting Shai-Hulud npm supply-chain worms offline](https://arisrhiannon.github.io/guides/detecting-shai-hulud-npm-worms-offline/)
+- [Verifiable transparency logs in TypeScript: RFC 6962 inclusion and consistency proofs](https://arisrhiannon.github.io/guides/rfc-6962-merkle-transparency-logs-typescript/)
+- [Catching the security bugs AI coding agents introduce (SAST for AI-generated code)](https://arisrhiannon.github.io/guides/sast-for-ai-generated-code/)

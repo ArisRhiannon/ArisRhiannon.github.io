@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catching the security bugs AI coding agents introduce (SAST for AI-generated code)</title>
+<meta name="description" content="The security mistakes AI coding agents repeatedly make, why regex linters drown you in false positives, and how taint-backed static analysis with confidence ranking gives an agent a trustworthy safe-to-ship signal.">
+<link rel="canonical" href="https://arisrhiannon.github.io/guides/sast-for-ai-generated-code/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Catching the security bugs AI coding agents introduce">
+<meta property="og:description" content="Taint-backed SAST for AI-generated code: the failure classes agents get wrong, and why confidence ranking matters inside agent loops.">
+<meta property="og:url" content="https://arisrhiannon.github.io/guides/sast-for-ai-generated-code/">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/220097246?v=4">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Catching the security bugs AI coding agents introduce (SAST for AI-generated code)",
+  "datePublished": "2026-06-01",
+  "dateModified": "2026-06-01",
+  "author": {"@type": "Person", "name": "Aris Rhiannon", "url": "https://github.com/ArisRhiannon"},
+  "mainEntityOfPage": "https://arisrhiannon.github.io/guides/sast-for-ai-generated-code/",
+  "about": ["SAST", "AI-generated code", "taint analysis", "application security", "MCP"],
+  "description": "Why AI-generated code has characteristic security holes and how taint-backed static analysis with confidence ranking provides a trustworthy safe-to-ship gate inside agent loops."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "What security mistakes do AI coding agents make most?", "acceptedAnswer": {"@type": "Answer", "text": "Committed secrets, SQL injection through abstracted raw-query APIs, XSS, SSRF, path traversal, command injection, insecure deserialization, and weak JWT, CORS, and cookie configuration."}},
+    {"@type": "Question", "name": "Why not just use a regex linter on AI-generated code?", "acceptedAnswer": {"@type": "Answer", "text": "Regex linters trip on safe patterns — parameterized queries, schema-validated input, publishable API keys, hardened cookies, allow-listed CORS — and bury an agent in false positives. Taint analysis that proves a user-controlled source actually reaches a dangerous sink produces far fewer false alarms."}},
+    {"@type": "Question", "name": "Does it replace Semgrep or CodeQL?", "acceptedAnswer": {"@type": "Answer", "text": "No. Those are deeper, broader, multi-language engines you should run for full coverage. A focused, low-false-positive, taint-backed gate is meant to run inside agent loops and pre-commit in milliseconds, alongside the big engines rather than instead of them."}}
+  ]
+}
+</script>
+</head>
+<body>
+<div class="container">
+<nav><a href="/">← Aris Rhiannon</a></nav>
+<h1>Catching the security bugs AI coding agents introduce</h1>
+<div class="meta">Updated 2026-06-01 · application security · static analysis</div>
+
+<p class="lead">
+AI coding agents produce working code that is wrong in <strong>predictable</strong> ways:
+committed secrets, SQL injection through abstracted query APIs, XSS, SSRF, path traversal,
+command injection, insecure deserialization, and weak JWT/CORS/cookie settings. The way to gate
+this without burying the agent in false positives is <strong>taint analysis</strong> — proving a
+user-controlled source actually reaches a dangerous sink — with every finding ranked by confidence.
+</p>
+
+<h2>Why AI-generated code fails this way</h2>
+<p>
+An agent optimizes for code that runs and passes the obvious test, not for the security
+invariants a reviewer carries in their head. So it reaches for the convenient raw-query call,
+echoes user input into a response, or hardcodes a key to make the demo work. These are not random
+bugs; they cluster into a small, knowable set of failure classes — which is exactly what makes
+them gateable.
+</p>
+
+<h2>Why regex linters make it worse</h2>
+<p>
+The naive fix is a pattern linter, but in an agent loop that is actively harmful: it flags
+<em>safe</em> code — parameterized queries, tagged-template SQL, schema-validated input,
+publishable/anon API keys, hardened cookies, allow-listed CORS, pinned JWT algorithms — and the
+agent either drowns or learns to ignore the tool. The signal has to be trustworthy or it is noise.
+</p>
+
+<h2>What actually works inside agent loops</h2>
+<ul>
+<li><strong>Real parsers, not regex</strong> — parse JS/TS/JSX/TSX, Python, and Go with real ASTs so analysis reflects the actual program structure.</li>
+<li><strong>Inter-procedural taint tracking</strong> — follow a user-input source across functions and files into a sink, so a finding means a real reachable path, not a coincidental keyword.</li>
+<li><strong>Confidence ranking</strong> — mark a finding <code>high</code> only when a source provably flows to the sink (or a deterministic fact like a committed secret), so a CI gate or an agent can act on the high-confidence set and ignore the rest.</li>
+<li><strong>Agent-native</strong> — expose the scan as an MCP tool and a machine-readable JSON mode so it runs inside the loop and in pre-commit in milliseconds.</li>
+</ul>
+
+<div class="cta">
+<strong>vibecheck</strong> is a taint-backed, agent-native "safe to ship?" gate built on this
+approach, with published precision/recall on a labeled benchmark. Source and docs:
+<a href="https://github.com/ArisRhiannon/vibecheck">github.com/ArisRhiannon/vibecheck</a>.
+</div>
+
+<footer>
+By <a href="https://github.com/ArisRhiannon">Aris Rhiannon</a> · <a href="/">arisrhiannon.github.io</a>
+</footer>
+</div>
+</body>
+</html>
