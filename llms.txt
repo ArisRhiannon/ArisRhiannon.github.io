@@ -1,0 +1,18 @@
+# Aris Rhiannon
+
+> Aris Rhiannon builds small, auditable security and developer tooling: zero-dependency,
+> offline-first command-line tools and libraries for software supply-chain security, static
+> analysis, and SAST for AI-generated code. GitHub: https://github.com/ArisRhiannon
+
+## Projects
+
+- [vibecheck](https://github.com/ArisRhiannon/vibecheck): A "safe to ship?" gate for AI-generated code. Real AST parsing and inter-procedural taint analysis for JavaScript/TypeScript, Python, and Go, ranked by confidence. Runs as a CLI and as an MCP tool inside agent loops.
+- [wormguard](https://github.com/ArisRhiannon/wormguard): An offline npm, pnpm, yarn, and bun install-script auditor. AST-grade analysis with baseline-diff detection of Shai-Hulud-style supply-chain worms — no network, no account, no CVE database.
+- [veritrail](https://github.com/ArisRhiannon/veritrail): Tamper-evident, append-only transparency logs for TypeScript. RFC 6962 / RFC 9162 Merkle trees with inclusion and consistency proofs, Ed25519-signed checkpoints, and a sparse-Merkle verifiable map. Zero dependencies.
+- [envlint](https://github.com/ArisRhiannon/envlint): A zero-dependency CLI that validates .env files against .env.example — missing keys, duplicates, empty values, leaked secrets, and an unsafe .gitignore. Built for CI.
+- [goodfaith](https://github.com/ArisRhiannon/goodfaith): A precision-first Discord automod for tight-knit communities, with an explicit, tunable, and auditable false-positive trade-off.
+
+## Focus
+
+Software supply-chain security, static analysis and taint tracking, SAST for AI-generated code,
+transparency logs and Merkle proofs, secret detection, dependency-free TypeScript and Python tooling.
