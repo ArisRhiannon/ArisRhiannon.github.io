@@ -1,0 +1,240 @@
+---
+import ProjectCard from '../components/ProjectCard.astro';
+import FAQItem from '../components/FAQItem.astro';
+---
+
+<html lang="es">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>La Corte de las Ilusiones — Traducciones de 07th Expansion</title>
+		<meta name="description" content="Portal de traducciones al español de las novelas visuales de 07th Expansion: Umineko, Higurashi y Ciconia When They Cry." />
+		
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+	</head>
+	<body class="bg-[#050507] text-[#e2e8f0] font-serif selection:bg-amber-500/20 selection:text-amber-200 min-h-screen relative overflow-x-hidden pb-24">
+		
+		{/* Subtle gold ambient glow in the background */}
+		<div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[500px] bg-[radial-gradient(circle_at_top,rgba(207,162,64,0.04)_0%,transparent_60%)] pointer-events-none z-0"></div>
+
+		{/* Simple Elegant Divider line */}
+		<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-slate-900/50 pointer-events-none hidden md:block z-0"></div>
+
+		<header class="relative z-10 border-b border-slate-900/60 backdrop-blur-md bg-[#050507]/90 py-6 px-6">
+			<div class="max-w-3xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+				<a href="/" class="flex flex-col items-center sm:items-start group">
+					<span class="font-display text-base tracking-[0.2em] font-semibold text-gray-100 group-hover:text-amber-400 transition-colors">
+						LA CORTE DE LAS ILUSIONES
+					</span>
+					<span class="font-mono text-[9px] text-amber-500/60 uppercase tracking-[0.25em] mt-0.5">07th Expansion Translation</span>
+				</a>
+				<nav class="font-mono text-[11px] flex gap-5 text-gray-400 uppercase tracking-widest">
+					<a href="#proyectos" class="hover:text-amber-400 transition-colors">Proyectos</a>
+					<a href="#noticias" class="hover:text-amber-400 transition-colors">Bitácora</a>
+					<a href="#descargas" class="hover:text-amber-400 transition-colors">Descargas</a>
+					<a href="#faq" class="hover:text-amber-400 transition-colors">FAQ</a>
+				</nav>
+			</div>
+		</header>
+
+		<main class="relative z-10 max-w-3xl mx-auto px-6 pt-16 sm:pt-24 space-y-24">
+			
+			{/* HERO SECTION */}
+			<section class="space-y-8 text-center sm:text-left py-4">
+				<div class="space-y-4">
+					<p class="font-serif italic text-lg sm:text-xl text-gray-400 max-w-xl leading-relaxed border-l-0 sm:border-l sm:border-amber-500/30 sm:pl-6">
+						«No existe la verdad absoluta, solo las hermosas y trágicas ilusiones que creamos para poder seguir adelante».
+					</p>
+					
+					<h2 class="font-display text-3xl sm:text-5xl tracking-wide uppercase font-medium leading-tight text-white pt-4">
+						La Ilusión de las Palabras
+					</h2>
+					
+					<p class="font-serif text-base text-gray-400 leading-relaxed max-w-2xl pt-2">
+						Somos un colectivo independiente dedicado a la traducción y preservación al español de las novelas visuales de 07th Expansion. Nos enfocamos en la fidelidad literaria, la adaptación estética de la interfaz y la integración técnica de parches completos para las versiones modernas.
+					</p>
+				</div>
+			</section>
+
+			{/* DECORATIVE SEPARATOR */}
+			<div class="flex justify-center items-center gap-4 py-2 opacity-30 select-none">
+				<span class="w-2 h-2 rounded-full border border-amber-500"></span>
+				<span class="w-16 h-[1px] bg-amber-500"></span>
+				<span class="w-2 h-2 rounded-full border border-amber-500"></span>
+			</div>
+
+			{/* PROJECTS SECTION */}
+			<section id="proyectos" class="scroll-mt-20 space-y-8">
+				<div class="space-y-1">
+					<h3 class="font-display text-xl font-semibold uppercase tracking-wider text-gray-200">Catálogo de Proyectos</h3>
+					<p class="font-mono text-[10px] text-amber-500/60 uppercase tracking-widest">Active translation and patch index</p>
+				</div>
+
+				<div class="grid grid-cols-1 gap-6">
+					<ProjectCard 
+						title="Ciconia When They Cry — Phase 1"
+						subtitle="For You, the Replaceable Ones"
+						description="Traducción íntegra en curso. Incluye la adaptación literaria de la terminología militar y de ciencia ficción, inyección de fuentes originales y traducción de rótulos gráficos de interfaz."
+						status="En desarrollo"
+						link="#descargas"
+					/>
+					
+					<ProjectCard 
+						title="Umineko When They Cry — Saku"
+						subtitle="Symphony of Catastrophic Truths"
+						description="Proyecto finalizado que unifica la totalidad del juego con gráficos de alta definición, doblaje completo al japonés (procedente de las versiones de consola) y textos refinados en español."
+						status="Completado"
+						link="https://github.com/ArisRhiannon"
+					/>
+
+					<ProjectCard 
+						title="Higurashi When They Cry — Hou"
+						subtitle="When the Cicadas Cry"
+						description="Parches de traducción para los capítulos principales y de consola. Compatibilidad directa con mods que restauran voces y gráficos rediseñados."
+						status="Completado"
+						link="https://github.com/ArisRhiannon"
+					/>
+				</div>
+			</section>
+
+			{/* BITÁCORA SECTION */}
+			<section id="noticias" class="scroll-mt-20 space-y-8">
+				<div class="space-y-1">
+					<h3 class="font-display text-xl font-semibold uppercase tracking-wider text-gray-200">Diario de Desarrollo</h3>
+					<p class="font-mono text-[10px] text-amber-500/60 uppercase tracking-widest">Translation logs & status updates</p>
+				</div>
+
+				<div class="space-y-6 font-serif">
+					<div class="border-b border-slate-900/60 pb-5 space-y-2">
+						<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+							<h4 class="font-display text-base text-gray-200 tracking-wide">Comienzo de Revisión General (Ciconia)</h4>
+							<span class="font-mono text-[10px] text-gray-500">11 de junio, 2026</span>
+						</div>
+						<p class="text-sm text-gray-400 leading-relaxed">
+							Comenzamos el proceso de revisión de estilo y control de coherencia del glosario técnico para la primera mitad de los archivos de texto de Ciconia. Se están adaptando los rótulos gráficos principales de la interfaz.
+						</p>
+					</div>
+
+					<div class="border-b border-slate-900/60 pb-5 space-y-2">
+						<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+							<h4 class="font-display text-base text-gray-200 tracking-wide">Compilación de la Build de Pruebas v1.0.4</h4>
+							<span class="font-mono text-[10px] text-gray-500">28 de mayo, 2026</span>
+						</div>
+						<p class="text-sm text-gray-400 leading-relaxed">
+							Finalizada la inyección de tipos tipográficos compatibles con acentos y caracteres especiales del español dentro del motor. Iniciamos pruebas técnicas internas en Windows.
+						</p>
+					</div>
+
+					<div class="pb-2 space-y-2">
+						<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+							<h4 class="font-display text-base text-gray-200 tracking-wide">Traducción de Texturas e Interfaz</h4>
+							<span class="font-mono text-[10px] text-gray-500">15 de mayo, 2026</span>
+						</div>
+						<p class="text-sm text-gray-400 leading-relaxed">
+							Completado el primer lote de edición de imágenes que sustituye los anuncios y carteles tácticos dentro del juego por versiones localizadas al español.
+						</p>
+					</div>
+				</div>
+			</section>
+
+			{/* DOWNLOADS SECTION */}
+			<section id="descargas" class="scroll-mt-20 space-y-8">
+				<div class="space-y-1">
+					<h3 class="font-display text-xl font-semibold uppercase tracking-wider text-gray-200">Centro de Descargas</h3>
+					<p class="font-mono text-[10px] text-amber-500/60 uppercase tracking-widest">Parches de traducción e instaladores</p>
+				</div>
+
+				<div class="overflow-x-auto">
+					<table class="w-full text-left font-serif text-sm border-collapse">
+						<thead>
+							<tr class="border-b border-slate-800 text-gray-400 font-mono text-[10px] uppercase tracking-wider">
+								<th class="py-3 px-2">Proyecto</th>
+								<th class="py-3 px-2">Versión</th>
+								<th class="py-3 px-2">Tipo</th>
+								<th class="py-3 px-2 text-right">Enlace</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-slate-900/60 text-gray-300">
+							<tr>
+								<td class="py-4 px-2 font-display text-xs tracking-wide">Ciconia When They Cry Phase 1</td>
+								<td class="py-4 px-2 font-mono text-xs text-gray-500">v1.0.0-alpha</td>
+								<td class="py-4 px-2 text-xs text-amber-500">Pruebas cerradas</td>
+								<td class="py-4 px-2 text-right">
+									<span class="font-mono text-[10px] text-gray-600 uppercase tracking-wider">Próximamente</span>
+								</td>
+							</tr>
+							<tr>
+								<td class="py-4 px-2 font-display text-xs tracking-wide">Umineko no Naku Koro ni Saku</td>
+								<td class="py-4 px-2 font-mono text-xs text-gray-500">v2.4.0</td>
+								<td class="py-4 px-2 text-xs text-gray-400">Parche de voces + HD</td>
+								<td class="py-4 px-2 text-right">
+									<a href="https://github.com/ArisRhiannon" class="font-mono text-[10px] text-amber-500 hover:text-white transition-colors uppercase tracking-wider border-b border-dashed border-amber-600/50 hover:border-white">Descargar</a>
+								</td>
+							</tr>
+							<tr>
+								<td class="py-4 px-2 font-display text-xs tracking-wide">Higurashi no Naku Koro ni Hou</td>
+								<td class="py-4 px-2 font-mono text-xs text-gray-500">v3.2.1</td>
+								<td class="py-4 px-2 text-xs text-gray-400">Instalador Automático</td>
+								<td class="py-4 px-2 text-right">
+									<a href="https://github.com/ArisRhiannon" class="font-mono text-[10px] text-amber-500 hover:text-white transition-colors uppercase tracking-wider border-b border-dashed border-amber-600/50 hover:border-white">Descargar</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</section>
+
+			{/* FAQ SECTION */}
+			<section id="faq" class="scroll-mt-20 space-y-8">
+				<div class="space-y-1">
+					<h3 class="font-display text-xl font-semibold uppercase tracking-wider text-gray-200">Preguntas Frecuentes</h3>
+					<p class="font-mono text-[10px] text-amber-500/60 uppercase tracking-widest">Frequently asked questions</p>
+				</div>
+
+				<div class="space-y-4">
+					<FAQItem 
+						id="1"
+						question="¿Son gratuitos estos parches?" 
+						answer="Sí. Todo nuestro trabajo se distribuye de manera absolutamente gratuita. Está hecho por fans para preservar y facilitar el acceso a la literatura visual en nuestro idioma. Te instamos a comprar las copias originales en tiendas oficiales de distribución (como Steam) para apoyar a 07th Expansion." 
+					/>
+					<FAQItem 
+						id="2"
+						question="¿Cómo aplico las traducciones a mis juegos?" 
+						answer="Para los parches finalizados como Higurashi y Umineko, proporcionamos instaladores o paquetes listos para descomprimir en la carpeta raíz del juego. En cada enlace de descarga encontrarás una guía detallada en español paso a paso." 
+					/>
+					<FAQItem 
+						id="3"
+						question="¿Qué versión de Ciconia será necesaria para el parche?" 
+						answer="El parche de Ciconia When They Cry Phase 1 estará diseñado inicialmente para ser compatible con la versión oficial distribuida en Steam para PC." 
+					/>
+					<FAQItem 
+						id="4"
+						question="¿Puedo ayudar con el testeo o la traducción?" 
+						answer="¡Claro! La corrección y revisión literaria siempre requiere manos dispuestas. Si deseas colaborar con el testeo de builds de Ciconia o en futuros capítulos de traducción, puedes ponerte en contacto con nosotros en el repositorio de GitHub de ArisRhiannon." 
+					/>
+				</div>
+			</section>
+
+		</main>
+
+		<footer class="relative z-10 border-t border-slate-950 bg-[#050507] pt-16 px-6">
+			<div class="max-w-3xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-6 font-mono text-[10px] text-gray-600 uppercase tracking-widest">
+				<div class="text-center sm:text-left space-y-1">
+					<p class="text-gray-400">La Corte de las Ilusiones — Proyectos de Traducción</p>
+					<p>© 2026. Creado por Aris Rhiannon. Sin fines de lucro.</p>
+					<p class="text-gray-600 font-serif lowercase italic">07th Expansion y MangaGamer poseen todos los derechos sobre Higurashi, Umineko y Ciconia.</p>
+				</div>
+				<div class="flex gap-6">
+					<a href="https://github.com/ArisRhiannon" class="hover:text-amber-400 transition-colors">GitHub</a>
+					<a href="#" class="hover:text-amber-400 transition-colors">Discord</a>
+				</div>
+			</div>
+		</footer>
+
+	</body>
+</html>
