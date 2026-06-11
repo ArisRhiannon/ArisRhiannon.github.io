@@ -246,8 +246,8 @@ import FAQItem from '../components/FAQItem.astro';
 						<ProjectCard 
 							title="Ciconia When They Cry Phase 1"
 							subtitle="Traducción al Español"
-							description="Adaptación literaria y técnica no oficial de 'For You, the Replaceable Ones' de 07th Expansion. Localización completa de textos de diálogo, rótulos de interfaz de batalla y glosario terminológico."
-							status="En desarrollo"
+							description="Localización completa no oficial de 'For You, the Replaceable Ones' de 07th Expansion al español latinoamericano neutro. Más de 16,000 líneas de texto traducidas con adaptación literaria fiel al japonés."
+							status="Disponible"
 							link="#descargas"
 						/>
 					</div>
@@ -263,33 +263,72 @@ import FAQItem from '../components/FAQItem.astro';
 				</div>
 
 				{/* DOWNLOADS SECTION */}
-				<section id="descargas" class="scroll-mt-24 space-y-6">
+				<section id="descargas" class="scroll-mt-24 space-y-8">
 					<div class="space-y-2 border-b border-[#e6dec9]/60 pb-3">
-						<span class="font-mono text-[9px] text-[#b58b4c] uppercase tracking-[0.2em] font-semibold">03 / Repositorio</span>
-						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Centro de Descargas</h3>
+						<span class="font-mono text-[9px] text-[#b58b4c] uppercase tracking-[0.2em] font-semibold">03 / Descargar</span>
+						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Ciconia Phase 1 — Parche al Español</h3>
 					</div>
 
+					{/* HERO DOWNLOAD */}
+					<div class="bg-gradient-to-br from-[#fdfcf7] to-[#f7f3e8] border-2 border-[#b58b4c]/40 p-8 sm:p-10 rounded-md text-center space-y-5 shadow-md">
+						<p class="font-display text-lg sm:text-xl text-[#2c241e] tracking-wide">Traducción completa al español · 99% de cobertura</p>
+						<a 
+							href="https://github.com/ArisRhiannon/ciconia-es/releases/latest/download/Instalar-Parche-Ciconia-Phase1.exe"
+							class="inline-block px-8 py-4 font-display text-sm sm:text-base uppercase tracking-widest text-white bg-[#2e7d32] hover:bg-[#256628] rounded-md transition-colors shadow-lg"
+						>
+							⬇ Descargar Instalador (.exe)
+						</a>
+						<p class="font-mono text-[10px] text-[#7c6e62] uppercase tracking-wider">Windows · ~10 MB · No requiere Python ni instalación previa</p>
+					</div>
+
+					{/* INSTALL GUIDE */}
+					<div class="space-y-4 max-w-2xl">
+						<h4 class="font-display text-base text-[#2c241e] uppercase tracking-wider">Guía de instalación (3 pasos)</h4>
+						<ol class="list-decimal list-inside space-y-3 text-[#4a3e37] text-sm leading-relaxed pl-2">
+							<li><strong>Abre el archivo .exe</strong> que descargaste (doble clic). Si Windows muestra "protegió tu PC", pulsa <em>"Más información"</em> → <em>"Ejecutar de todas formas"</em>. Es código abierto y seguro.</li>
+							<li><strong>El programa busca tu juego automáticamente.</strong> Si no lo encuentra, pulsa «Buscar…» y elige la carpeta del juego (la que contiene <code>pscript.dat</code>).</li>
+							<li><strong>Pulsa el botón verde "Instalar parche al español".</strong> ¡Listo! Abre el juego normalmente.</li>
+						</ol>
+						<p class="text-xs text-[#7c6e62] italic">Para quitar el parche: abre el programa otra vez y pulsa «Restaurar original».</p>
+					</div>
+
+					{/* DETAILS TABLE */}
 					<div class="overflow-x-auto border border-[#e6dec9]/80 rounded-md bg-[#fdfcf7]/40 shadow-sm">
 						<table class="w-full text-left font-serif text-sm border-collapse">
 							<thead>
 								<tr class="border-b border-[#e6dec9] text-[#7c6e62] font-mono text-[9px] sm:text-[10px] uppercase tracking-wider bg-[#faf7f2]/80">
-									<th class="py-3 px-4">Proyecto</th>
+									<th class="py-3 px-4">Archivo</th>
 									<th class="py-3 px-4">Versión</th>
-									<th class="py-3 px-4">Tipo de Archivo</th>
+									<th class="py-3 px-4">Descripción</th>
 									<th class="py-3 px-4 text-right">Enlace</th>
 								</tr>
 							</thead>
 							<tbody class="divide-y divide-[#e6dec9]/40 text-[#4a3e37]">
 								<tr class="hover:bg-[#fdfcf7]/80 transition-colors">
-									<td class="py-4 px-4 font-display text-xs sm:text-sm text-[#2c241e] tracking-wide">Ciconia Phase 1 Patch ES</td>
-									<td class="py-4 px-4 font-mono text-xs text-[#7c6e62]">v1.0.0-alpha</td>
-									<td class="py-4 px-4 text-xs">Parche local de traducción</td>
+									<td class="py-4 px-4 font-mono text-xs text-[#2c241e]">Instalar-Parche-Ciconia-Phase1.exe</td>
+									<td class="py-4 px-4 font-mono text-xs text-[#7c6e62]">v0.1.0</td>
+									<td class="py-4 px-4 text-xs">Instalador gráfico (recomendado)</td>
 									<td class="py-4 px-4 text-right">
-										<span class="font-mono text-[9px] text-[#a09082] uppercase tracking-wider text-right block pr-2">Próximamente</span>
+										<a href="https://github.com/ArisRhiannon/ciconia-es/releases/latest/download/Instalar-Parche-Ciconia-Phase1.exe" class="font-mono text-[10px] text-[#b58b4c] hover:text-[#997236] uppercase tracking-wider hover:underline">Descargar</a>
+									</td>
+								</tr>
+								<tr class="hover:bg-[#fdfcf7]/80 transition-colors">
+									<td class="py-4 px-4 font-mono text-xs text-[#2c241e]">Ciconia-Phase1-ParcheES-v0.1.0.zip</td>
+									<td class="py-4 px-4 font-mono text-xs text-[#7c6e62]">v0.1.0</td>
+									<td class="py-4 px-4 text-xs">ZIP con instalador + licencias + README</td>
+									<td class="py-4 px-4 text-right">
+										<a href="https://github.com/ArisRhiannon/ciconia-es/releases/latest/download/Ciconia-Phase1-ParcheES-v0.1.0.zip" class="font-mono text-[10px] text-[#b58b4c] hover:text-[#997236] uppercase tracking-wider hover:underline">Descargar</a>
 									</td>
 								</tr>
 							</tbody>
 						</table>
+					</div>
+
+					{/* IMPORTANT NOTES */}
+					<div class="bg-[#fdfcf7]/60 border border-[#e6dec9]/60 rounded-md p-5 space-y-2 text-xs text-[#7c6e62]">
+						<p><strong class="text-[#4a3e37]">Requisito:</strong> tu propia copia legal de Ciconia When They Cry - Phase 1 (Steam o GOG).</p>
+						<p><strong class="text-[#4a3e37]">Seguridad:</strong> el parche NO modifica los archivos originales del juego. Crea un archivo de traducción que el juego carga con prioridad y se puede revertir en cualquier momento.</p>
+						<p><strong class="text-[#4a3e37]">Código fuente:</strong> <a href="https://github.com/ArisRhiannon/ciconia-es" class="text-[#b58b4c] hover:underline" target="_blank" rel="noopener noreferrer">github.com/ArisRhiannon/ciconia-es</a></p>
 					</div>
 				</section>
 
@@ -316,7 +355,7 @@ import FAQItem from '../components/FAQItem.astro';
 						<FAQItem 
 							id="2"
 							question="¿Cómo se instala el parche de Ciconia?" 
-							answer="Una vez lanzado el parche de traducción, se distribuirá como un paquete comprimido. Solo deberás arrastrar y soltar los archivos del parche dentro del directorio principal de instalación de Ciconia en Steam para jugar inmediatamente en español." 
+							answer="Descarga el archivo .exe desde la sección de Descargas de arriba (o desde GitHub Releases). Ábrelo con doble clic, el programa detecta tu juego automáticamente y con un solo botón instala el parche. No necesitas Python ni conocimientos técnicos. Para quitarlo, abre el programa otra vez y pulsa 'Restaurar original'." 
 						/>
 						<FAQItem 
 							id="3"
