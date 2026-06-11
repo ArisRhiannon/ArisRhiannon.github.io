@@ -52,7 +52,6 @@ import FAQItem from '../components/FAQItem.astro';
 				<nav class="flex flex-col gap-6 text-center font-display text-xl tracking-wider text-[#2c241e]">
 					<a href="#presentacion" class="mobile-nav-link hover:text-[#b58b4c] transition-colors">Sobre Mí</a>
 					<a href="#proyectos" class="mobile-nav-link hover:text-[#b58b4c] transition-colors">Proyectos</a>
-					<a href="#noticias" class="mobile-nav-link hover:text-[#b58b4c] transition-colors">Bitácora</a>
 					<a href="#descargas" class="mobile-nav-link hover:text-[#b58b4c] transition-colors">Descargas</a>
 					<a href="#faq" class="mobile-nav-link hover:text-[#b58b4c] transition-colors">FAQ</a>
 				</nav>
@@ -99,10 +98,6 @@ import FAQItem from '../components/FAQItem.astro';
 							<span class="w-1.5 h-1.5 rounded-full bg-[#b58b4c] opacity-0 transition-opacity"></span>
 							Proyectos
 						</a>
-						<a href="#noticias" class="nav-link hover:text-[#2c241e] flex items-center gap-2 py-1 transition-colors">
-							<span class="w-1.5 h-1.5 rounded-full bg-[#b58b4c] opacity-0 transition-opacity"></span>
-							Bitácora
-						</a>
 						<a href="#descargas" class="nav-link hover:text-[#2c241e] flex items-center gap-2 py-1 transition-colors">
 							<span class="w-1.5 h-1.5 rounded-full bg-[#b58b4c] opacity-0 transition-opacity"></span>
 							Descargas
@@ -122,7 +117,7 @@ import FAQItem from '../components/FAQItem.astro';
 						<a href="https://store.steampowered.com/app/1162560" class="hover:text-[#2c241e] transition-colors">Steam</a>
 					</div>
 					<p class="text-[9px] text-[#a09082] leading-relaxed uppercase">
-						© 2026. Aris Rhiannon. <br/>Sin fines de lucro.
+						© 2026. Aris Rhiannon.
 					</p>
 				</div>
 			</aside>
@@ -139,8 +134,9 @@ import FAQItem from '../components/FAQItem.astro';
 						</h2>
 					</div>
 					
-					<p class="text-base sm:text-lg text-[#4a3e37] leading-relaxed max-w-2xl">
-						Hola, soy Aris Rhiannon. Me dedico al desarrollo de utilidades y herramientas de seguridad enfocadas en diseño offline-first y sin dependencias externas. Combino la programación técnica con la traducción literaria de novelas visuales complejas, buscando ofrecer experiencias de juego inmersivas en español.
+					<p class="text-base sm:text-lg text-[#4a3e37] italic leading-relaxed max-w-2xl border-l-2 border-[#b58b4c]/30 pl-4 py-1">
+						«El futuro tiene muchos nombres. Para los débiles es lo inalcanzable. Para los temerosos, lo desconocido. Para los valientes es la oportunidad.»
+						<span class="block text-xs text-[#7c6e62] font-mono not-italic mt-2">— Victor Hugo, Les Misérables</span>
 					</p>
 					
 					<div class="flex gap-4 pt-2">
@@ -169,7 +165,7 @@ import FAQItem from '../components/FAQItem.astro';
 						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Proyectos Activos</h3>
 					</div>
 
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<div class="grid grid-cols-1 gap-6">
 						<ProjectCard 
 							title="Ciconia When They Cry Phase 1"
 							subtitle="Traducción al Español"
@@ -177,84 +173,10 @@ import FAQItem from '../components/FAQItem.astro';
 							status="En desarrollo"
 							link="#descargas"
 						/>
-						
-						<ProjectCard 
-							title="Wormguard"
-							subtitle="CLI Security Auditing Tool"
-							description="Auditor de seguridad offline-first y sin dependencias externas para cadenas de suministro de paquetes npm. Analiza archivos package-lock.json en busca de vulnerabilidades locales."
-							status="Completado"
-							link="https://github.com/ArisRhiannon/wormguard"
-						/>
-
-						<ProjectCard 
-							title="Vibecheck"
-							subtitle="SAST for AI Code"
-							description="Filtro estático rápido y seguro para auditar código autogenerado por inteligencia artificial. Utiliza un parser AST ligero para prevenir el despliegue de patrones inseguros."
-							status="Completado"
-							link="https://github.com/ArisRhiannon/vibecheck"
-						/>
-
-						<ProjectCard 
-							title="Calculadora-ZZZ"
-							subtitle="Private / Collaborative Utility"
-							description="Módulo de cálculo especializado desarrollado en Python en conjunto con colaboradores para el procesamiento y modelado de datos estadísticos locales."
-							status="Completado"
-							link="https://github.com/ErikGallardo/Calculadora-ZZZ"
-						/>
 					</div>
 				</section>
 
-				{/* DECORATIVE LINE */}
-				<div class="h-[1px] bg-gradient-to-r from-[#e6dec9] via-transparent to-transparent"></div>
 
-				{/* BITÁCORA / DEVELOPMENT LOGS */}
-				<section id="noticias" class="scroll-mt-24 space-y-8">
-					<div class="space-y-1">
-						<span class="font-mono text-[10px] text-[#b58b4c] uppercase tracking-widest">Bitácora</span>
-						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Diario de Desarrollo</h3>
-					</div>
-
-					<div class="space-y-8">
-						<div class="space-y-2 relative pl-6 border-l border-[#e6dec9]">
-							<div class="absolute -left-1 top-2 w-2 h-2 rounded-full bg-[#b58b4c]"></div>
-							<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-								<h4 class="font-display text-sm sm:text-base text-[#2c241e] tracking-wide font-semibold">
-									Ajustes Generales del Glosario (Ciconia)
-								</h4>
-								<span class="font-mono text-[9px] text-[#7c6e62]">11 de junio, 2026</span>
-							</div>
-							<p class="text-sm text-[#4a3e37] leading-relaxed">
-								Comenzamos con la fase de revisión del estilo y coherencia de las siglas del glosario técnico y militar de la traducción (incluyendo Gauntlets, facciones y el HUD tridimensional). Se están adaptando los rótulos gráficos de batalla.
-							</p>
-						</div>
-
-						<div class="space-y-2 relative pl-6 border-l border-[#e6dec9]">
-							<div class="absolute -left-1 top-2 w-2 h-2 rounded-full bg-[#e6dec9]"></div>
-							<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-								<h4 class="font-display text-sm sm:text-base text-[#2c241e] tracking-wide font-semibold">
-									Compilación de la Build Técnica v1.0.4
-								</h4>
-								<span class="font-mono text-[9px] text-[#7c6e62]">28 de mayo, 2026</span>
-							</div>
-							<p class="text-sm text-[#4a3e37] leading-relaxed">
-								Inyectamos un conjunto tipográfico modificado en el motor del juego para asegurar la correcta renderización de vocales con acento, signos de interrogación y otros caracteres exclusivos del español.
-							</p>
-						</div>
-
-						<div class="space-y-2 relative pl-6 border-l border-[#e6dec9]">
-							<div class="absolute -left-1 top-2 w-2 h-2 rounded-full bg-[#e6dec9]"></div>
-							<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-								<h4 class="font-display text-sm sm:text-base text-[#2c241e] tracking-wide font-semibold">
-									Edición y Reemplazo Gráfico de Texturas
-								</h4>
-								<span class="font-mono text-[9px] text-[#7c6e62]">15 de mayo, 2026</span>
-							</div>
-							<p class="text-sm text-[#4a3e37] leading-relaxed">
-								Finalizó el rediseño de las texturas de imágenes del entorno del juego. Carteles, anuncios de batalla y rótulos secundarios se reemplazaron localmente por sus equivalentes gráficos en español.
-							</p>
-						</div>
-					</div>
-				</section>
 
 				{/* DECORATIVE LINE */}
 				<div class="h-[1px] bg-gradient-to-r from-[#e6dec9] via-transparent to-transparent"></div>
@@ -285,22 +207,6 @@ import FAQItem from '../components/FAQItem.astro';
 										<span class="font-mono text-[9px] text-[#a09082] uppercase tracking-wider">Próximamente</span>
 									</td>
 								</tr>
-								<tr class="hover:bg-[#fdfcf7]/40 transition-colors">
-									<td class="py-4 px-2 font-display text-xs sm:text-sm text-[#2c241e] tracking-wide">Wormguard CLI Utility</td>
-									<td class="py-4 px-2 font-mono text-xs text-[#7c6e62]">v1.2.0</td>
-									<td class="py-4 px-2 text-xs">Herramienta npm CLI</td>
-									<td class="py-4 px-2 text-right">
-										<a href="https://github.com/ArisRhiannon/wormguard" class="font-mono text-[10px] text-[#b58b4c] hover:text-[#997236] transition-colors uppercase tracking-wider border-b border-dashed border-[#b58b4c]/50 hover:border-[#997236]">GitHub</a>
-									</td>
-								</tr>
-								<tr class="hover:bg-[#fdfcf7]/40 transition-colors">
-									<td class="py-4 px-2 font-display text-xs sm:text-sm text-[#2c241e] tracking-wide">Vibecheck SAST Gate</td>
-									<td class="py-4 px-2 font-mono text-xs text-[#7c6e62]">v1.0.5</td>
-									<td class="py-4 px-2 text-xs">Herramienta AST CLI</td>
-									<td class="py-4 px-2 text-right">
-										<a href="https://github.com/ArisRhiannon/vibecheck" class="font-mono text-[10px] text-[#b58b4c] hover:text-[#997236] transition-colors uppercase tracking-wider border-b border-dashed border-[#b58b4c]/50 hover:border-[#997236]">GitHub</a>
-									</td>
-								</tr>
 							</tbody>
 						</table>
 					</div>
@@ -324,25 +230,20 @@ import FAQItem from '../components/FAQItem.astro';
 						/>
 						<FAQItem 
 							id="2"
-							question="¿Cómo aplico las herramientas de seguridad Wormguard y Vibecheck?" 
-							answer="Wormguard y Vibecheck se instalan fácilmente como comandos globales de npm en la consola. Puedes instalarlos ejecutando 'npm install -g wormguard' y 'npm install -g vibecheck'. Las instrucciones detalladas de uso y flags locales están disponibles en sus respectivos README en GitHub." 
-						/>
-						<FAQItem 
-							id="3"
 							question="¿Cómo se instala el parche de Ciconia?" 
 							answer="Una vez lanzado el parche de traducción, se distribuirá como un paquete comprimido. Solo deberás arrastrar y soltar los archivos del parche dentro del directorio principal de instalación de Ciconia en Steam para jugar inmediatamente en español." 
 						/>
 						<FAQItem 
-							id="4"
+							id="3"
 							question="¿Cómo puedo ponerme en contacto o reportar errores?" 
-							answer="Para cualquier reporte de bugs en Wormguard, Vibecheck o para sugerir correcciones en el parche de traducción de Ciconia, puedes abrir un Issue directamente en mi perfil de GitHub o escribirme por Discord." 
+							answer="Para cualquier reporte de bugs o para sugerir correcciones en el parche de traducción de Ciconia, puedes abrir un Issue directamente en mi perfil de GitHub o escribirme por Discord." 
 						/>
 					</div>
 				</section>
 
 				{/* MOBILE ONLY FOOTER */}
 				<footer class="lg:hidden border-t border-[#e6dec9]/40 pt-8 font-mono text-[9px] text-[#a09082] text-center space-y-2 uppercase tracking-widest">
-					<p>© 2026. Aris Rhiannon. Sin fines de lucro.</p>
+					<p>© 2026. Aris Rhiannon.</p>
 					<p class="font-serif lowercase italic text-[#b58b4c]">Higurashi, Umineko y Ciconia pertenecen a 07th Expansion y MangaGamer.</p>
 				</footer>
 
