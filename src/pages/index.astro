@@ -10,231 +10,403 @@ import FAQItem from '../components/FAQItem.astro';
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>La Corte de las Ilusiones — Traducciones de 07th Expansion</title>
-		<meta name="description" content="Portal de traducciones al español de las novelas visuales de 07th Expansion: Umineko, Higurashi y Ciconia When They Cry." />
+		<title>Aris Rhiannon — Proyectos y Desarrollo</title>
+		<meta name="description" content="Sitio web personal de Aris Rhiannon. Auditoría de seguridad npm, SAST para código generado por IA y parches de traducción." />
 		
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 	</head>
-	<body class="bg-[#050507] text-[#e2e8f0] font-serif selection:bg-amber-500/20 selection:text-amber-200 min-h-screen relative overflow-x-hidden pb-24">
+	<body class="bg-[#faf7f2] text-[#2c241e] font-serif selection:bg-[#b58b4c]/20 selection:text-[#5c4018] min-h-screen relative overflow-x-hidden">
 		
-		{/* Subtle gold ambient glow in the background */}
-		<div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[500px] bg-[radial-gradient(circle_at_top,rgba(207,162,64,0.04)_0%,transparent_60%)] pointer-events-none z-0"></div>
+		{/* Subtle top background gold glow */}
+		<div class="absolute top-0 right-0 w-full lg:w-[calc(100%-280px)] h-[400px] bg-[radial-gradient(circle_at_top_right,rgba(181,139,76,0.06)_0%,transparent_60%)] pointer-events-none z-0"></div>
 
-		{/* Simple Elegant Divider line */}
-		<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-slate-900/50 pointer-events-none hidden md:block z-0"></div>
-
-		<header class="relative z-10 border-b border-slate-900/60 backdrop-blur-md bg-[#050507]/90 py-6 px-6">
-			<div class="max-w-3xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-				<a href="/" class="flex flex-col items-center sm:items-start group">
-					<span class="font-display text-base tracking-[0.2em] font-semibold text-gray-100 group-hover:text-amber-400 transition-colors">
-						LA CORTE DE LAS ILUSIONES
-					</span>
-					<span class="font-mono text-[9px] text-amber-500/60 uppercase tracking-[0.25em] mt-0.5">07th Expansion Translation</span>
-				</a>
-				<nav class="font-mono text-[11px] flex gap-5 text-gray-400 uppercase tracking-widest">
-					<a href="#proyectos" class="hover:text-amber-400 transition-colors">Proyectos</a>
-					<a href="#noticias" class="hover:text-amber-400 transition-colors">Bitácora</a>
-					<a href="#descargas" class="hover:text-amber-400 transition-colors">Descargas</a>
-					<a href="#faq" class="hover:text-amber-400 transition-colors">FAQ</a>
-				</nav>
-			</div>
-		</header>
-
-		<main class="relative z-10 max-w-3xl mx-auto px-6 pt-16 sm:pt-24 space-y-24">
+		{/* Responsive Layout Grid */}
+		<div class="lg:grid lg:grid-cols-[280px_1fr] min-h-screen relative z-10">
 			
-			{/* HERO SECTION */}
-			<section class="space-y-8 text-center sm:text-left py-4">
-				<div class="space-y-4">
-					<p class="font-serif italic text-lg sm:text-xl text-gray-400 max-w-xl leading-relaxed border-l-0 sm:border-l sm:border-amber-500/30 sm:pl-6">
-						«No existe la verdad absoluta, solo las hermosas y trágicas ilusiones que creamos para poder seguir adelante».
-					</p>
-					
-					<h2 class="font-display text-3xl sm:text-5xl tracking-wide uppercase font-medium leading-tight text-white pt-4">
-						La Ilusión de las Palabras
-					</h2>
-					
-					<p class="font-serif text-base text-gray-400 leading-relaxed max-w-2xl pt-2">
-						Somos un colectivo independiente dedicado a la traducción y preservación al español de las novelas visuales de 07th Expansion. Nos enfocamos en la fidelidad literaria, la adaptación estética de la interfaz y la integración técnica de parches completos para las versiones modernas.
-					</p>
-				</div>
-			</section>
+			{/* MOBILE HEADER */}
+			<header class="lg:hidden sticky top-0 z-50 bg-[#faf7f2]/95 border-b border-[#e6dec9]/60 backdrop-blur-md px-6 py-4 flex justify-between items-center">
+				<a href="/" class="flex flex-col">
+					<span class="font-display text-sm tracking-[0.15em] font-semibold text-[#2c241e]">
+						ARIS RHIANNON
+					</span>
+					<span class="font-mono text-[8px] text-[#b58b4c] uppercase tracking-wider mt-0.5">Development Portfolio</span>
+				</a>
+				<button 
+					id="menu-toggle"
+					class="p-2 border border-[#e6dec9] rounded bg-[#faf7f2]/50 hover:bg-[#faf7f2] hover:border-[#b58b4c] transition-colors focus:outline-none"
+					aria-label="Toggle menu"
+				>
+					<svg class="w-5 h-5 text-[#2c241e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+					</svg>
+				</button>
+			</header>
 
-			{/* DECORATIVE SEPARATOR */}
-			<div class="flex justify-center items-center gap-4 py-2 opacity-30 select-none">
-				<span class="w-2 h-2 rounded-full border border-amber-500"></span>
-				<span class="w-16 h-[1px] bg-amber-500"></span>
-				<span class="w-2 h-2 rounded-full border border-amber-500"></span>
-			</div>
-
-			{/* PROJECTS SECTION */}
-			<section id="proyectos" class="scroll-mt-20 space-y-8">
-				<div class="space-y-1">
-					<h3 class="font-display text-xl font-semibold uppercase tracking-wider text-gray-200">Catálogo de Proyectos</h3>
-					<p class="font-mono text-[10px] text-amber-500/60 uppercase tracking-widest">Active translation and patch index</p>
-				</div>
-
-				<div class="grid grid-cols-1 gap-6">
-					<ProjectCard 
-						title="Ciconia When They Cry — Phase 1"
-						subtitle="For You, the Replaceable Ones"
-						description="Traducción íntegra en curso. Incluye la adaptación literaria de la terminología militar y de ciencia ficción, inyección de fuentes originales y traducción de rótulos gráficos de interfaz."
-						status="En desarrollo"
-						link="#descargas"
-					/>
-					
-					<ProjectCard 
-						title="Umineko When They Cry — Saku"
-						subtitle="Symphony of Catastrophic Truths"
-						description="Proyecto finalizado que unifica la totalidad del juego con gráficos de alta definición, doblaje completo al japonés (procedente de las versiones de consola) y textos refinados en español."
-						status="Completado"
-						link="https://github.com/ArisRhiannon"
-					/>
-
-					<ProjectCard 
-						title="Higurashi When They Cry — Hou"
-						subtitle="When the Cicadas Cry"
-						description="Parches de traducción para los capítulos principales y de consola. Compatibilidad directa con mods que restauran voces y gráficos rediseñados."
-						status="Completado"
-						link="https://github.com/ArisRhiannon"
-					/>
-				</div>
-			</section>
-
-			{/* BITÁCORA SECTION */}
-			<section id="noticias" class="scroll-mt-20 space-y-8">
-				<div class="space-y-1">
-					<h3 class="font-display text-xl font-semibold uppercase tracking-wider text-gray-200">Diario de Desarrollo</h3>
-					<p class="font-mono text-[10px] text-amber-500/60 uppercase tracking-widest">Translation logs & status updates</p>
-				</div>
-
-				<div class="space-y-6 font-serif">
-					<div class="border-b border-slate-900/60 pb-5 space-y-2">
-						<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-							<h4 class="font-display text-base text-gray-200 tracking-wide">Comienzo de Revisión General (Ciconia)</h4>
-							<span class="font-mono text-[10px] text-gray-500">11 de junio, 2026</span>
-						</div>
-						<p class="text-sm text-gray-400 leading-relaxed">
-							Comenzamos el proceso de revisión de estilo y control de coherencia del glosario técnico para la primera mitad de los archivos de texto de Ciconia. Se están adaptando los rótulos gráficos principales de la interfaz.
-						</p>
-					</div>
-
-					<div class="border-b border-slate-900/60 pb-5 space-y-2">
-						<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-							<h4 class="font-display text-base text-gray-200 tracking-wide">Compilación de la Build de Pruebas v1.0.4</h4>
-							<span class="font-mono text-[10px] text-gray-500">28 de mayo, 2026</span>
-						</div>
-						<p class="text-sm text-gray-400 leading-relaxed">
-							Finalizada la inyección de tipos tipográficos compatibles con acentos y caracteres especiales del español dentro del motor. Iniciamos pruebas técnicas internas en Windows.
-						</p>
-					</div>
-
-					<div class="pb-2 space-y-2">
-						<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-							<h4 class="font-display text-base text-gray-200 tracking-wide">Traducción de Texturas e Interfaz</h4>
-							<span class="font-mono text-[10px] text-gray-500">15 de mayo, 2026</span>
-						</div>
-						<p class="text-sm text-gray-400 leading-relaxed">
-							Completado el primer lote de edición de imágenes que sustituye los anuncios y carteles tácticos dentro del juego por versiones localizadas al español.
-						</p>
-					</div>
-				</div>
-			</section>
-
-			{/* DOWNLOADS SECTION */}
-			<section id="descargas" class="scroll-mt-20 space-y-8">
-				<div class="space-y-1">
-					<h3 class="font-display text-xl font-semibold uppercase tracking-wider text-gray-200">Centro de Descargas</h3>
-					<p class="font-mono text-[10px] text-amber-500/60 uppercase tracking-widest">Parches de traducción e instaladores</p>
-				</div>
-
-				<div class="overflow-x-auto">
-					<table class="w-full text-left font-serif text-sm border-collapse">
-						<thead>
-							<tr class="border-b border-slate-800 text-gray-400 font-mono text-[10px] uppercase tracking-wider">
-								<th class="py-3 px-2">Proyecto</th>
-								<th class="py-3 px-2">Versión</th>
-								<th class="py-3 px-2">Tipo</th>
-								<th class="py-3 px-2 text-right">Enlace</th>
-							</tr>
-						</thead>
-						<tbody class="divide-y divide-slate-900/60 text-gray-300">
-							<tr>
-								<td class="py-4 px-2 font-display text-xs tracking-wide">Ciconia When They Cry Phase 1</td>
-								<td class="py-4 px-2 font-mono text-xs text-gray-500">v1.0.0-alpha</td>
-								<td class="py-4 px-2 text-xs text-amber-500">Pruebas cerradas</td>
-								<td class="py-4 px-2 text-right">
-									<span class="font-mono text-[10px] text-gray-600 uppercase tracking-wider">Próximamente</span>
-								</td>
-							</tr>
-							<tr>
-								<td class="py-4 px-2 font-display text-xs tracking-wide">Umineko no Naku Koro ni Saku</td>
-								<td class="py-4 px-2 font-mono text-xs text-gray-500">v2.4.0</td>
-								<td class="py-4 px-2 text-xs text-gray-400">Parche de voces + HD</td>
-								<td class="py-4 px-2 text-right">
-									<a href="https://github.com/ArisRhiannon" class="font-mono text-[10px] text-amber-500 hover:text-white transition-colors uppercase tracking-wider border-b border-dashed border-amber-600/50 hover:border-white">Descargar</a>
-								</td>
-							</tr>
-							<tr>
-								<td class="py-4 px-2 font-display text-xs tracking-wide">Higurashi no Naku Koro ni Hou</td>
-								<td class="py-4 px-2 font-mono text-xs text-gray-500">v3.2.1</td>
-								<td class="py-4 px-2 text-xs text-gray-400">Instalador Automático</td>
-								<td class="py-4 px-2 text-right">
-									<a href="https://github.com/ArisRhiannon" class="font-mono text-[10px] text-amber-500 hover:text-white transition-colors uppercase tracking-wider border-b border-dashed border-amber-600/50 hover:border-white">Descargar</a>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</section>
-
-			{/* FAQ SECTION */}
-			<section id="faq" class="scroll-mt-20 space-y-8">
-				<div class="space-y-1">
-					<h3 class="font-display text-xl font-semibold uppercase tracking-wider text-gray-200">Preguntas Frecuentes</h3>
-					<p class="font-mono text-[10px] text-amber-500/60 uppercase tracking-widest">Frequently asked questions</p>
-				</div>
-
-				<div class="space-y-4">
-					<FAQItem 
-						id="1"
-						question="¿Son gratuitos estos parches?" 
-						answer="Sí. Todo nuestro trabajo se distribuye de manera absolutamente gratuita. Está hecho por fans para preservar y facilitar el acceso a la literatura visual en nuestro idioma. Te instamos a comprar las copias originales en tiendas oficiales de distribución (como Steam) para apoyar a 07th Expansion." 
-					/>
-					<FAQItem 
-						id="2"
-						question="¿Cómo aplico las traducciones a mis juegos?" 
-						answer="Para los parches finalizados como Higurashi y Umineko, proporcionamos instaladores o paquetes listos para descomprimir en la carpeta raíz del juego. En cada enlace de descarga encontrarás una guía detallada en español paso a paso." 
-					/>
-					<FAQItem 
-						id="3"
-						question="¿Qué versión de Ciconia será necesaria para el parche?" 
-						answer="El parche de Ciconia When They Cry Phase 1 estará diseñado inicialmente para ser compatible con la versión oficial distribuida en Steam para PC." 
-					/>
-					<FAQItem 
-						id="4"
-						question="¿Puedo ayudar con el testeo o la traducción?" 
-						answer="¡Claro! La corrección y revisión literaria siempre requiere manos dispuestas. Si deseas colaborar con el testeo de builds de Ciconia o en futuros capítulos de traducción, puedes ponerte en contacto con nosotros en el repositorio de GitHub de ArisRhiannon." 
-					/>
-				</div>
-			</section>
-
-		</main>
-
-		<footer class="relative z-10 border-t border-slate-950 bg-[#050507] pt-16 px-6">
-			<div class="max-w-3xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-6 font-mono text-[10px] text-gray-600 uppercase tracking-widest">
-				<div class="text-center sm:text-left space-y-1">
-					<p class="text-gray-400">La Corte de las Ilusiones — Proyectos de Traducción</p>
-					<p>© 2026. Creado por Aris Rhiannon. Sin fines de lucro.</p>
-					<p class="text-gray-600 font-serif lowercase italic">07th Expansion y MangaGamer poseen todos los derechos sobre Higurashi, Umineko y Ciconia.</p>
-				</div>
-				<div class="flex gap-6">
-					<a href="https://github.com/ArisRhiannon" class="hover:text-amber-400 transition-colors">GitHub</a>
-					<a href="#" class="hover:text-amber-400 transition-colors">Discord</a>
+			{/* MOBILE NAVIGATION OVERLAY */}
+			<div 
+				id="mobile-menu"
+				class="hidden fixed inset-0 z-40 bg-[#faf7f2] pt-20 px-8 flex flex-col justify-between pb-12 animate-fade-in"
+			>
+				<nav class="flex flex-col gap-6 text-center font-display text-xl tracking-wider text-[#2c241e]">
+					<a href="#presentacion" class="mobile-nav-link hover:text-[#b58b4c] transition-colors">Sobre Mí</a>
+					<a href="#proyectos" class="mobile-nav-link hover:text-[#b58b4c] transition-colors">Proyectos</a>
+					<a href="#noticias" class="mobile-nav-link hover:text-[#b58b4c] transition-colors">Bitácora</a>
+					<a href="#descargas" class="mobile-nav-link hover:text-[#b58b4c] transition-colors">Descargas</a>
+					<a href="#faq" class="mobile-nav-link hover:text-[#b58b4c] transition-colors">FAQ</a>
+				</nav>
+				
+				<div class="flex justify-center gap-6 font-mono text-[10px] text-[#7c6e62] uppercase tracking-widest">
+					<a href="https://github.com/ArisRhiannon" class="hover:text-[#b58b4c]">GitHub</a>
+					<a href="#" class="hover:text-[#b58b4c]">Discord</a>
+					<a href="https://store.steampowered.com/app/1162560" class="hover:text-[#b58b4c]">Steam</a>
 				</div>
 			</div>
-		</footer>
 
+			{/* DESKTOP STICKY SIDEBAR */}
+			<aside class="hidden lg:flex flex-col justify-between sticky top-0 h-screen bg-[#faf7f2] border-r border-[#e6dec9]/60 p-8 z-30 select-none">
+				<div class="space-y-10">
+					{/* Profile / Branding */}
+					<div class="space-y-4">
+						<div class="w-16 h-16 rounded-full border border-[#b58b4c]/30 p-1 flex items-center justify-center bg-[#faf7f2] relative group">
+							<img 
+								src="https://avatars.githubusercontent.com/u/220097246?v=4" 
+								alt="Aris Rhiannon" 
+								class="w-full h-full rounded-full object-cover filter saturate-75 contrast-110 shadow-inner group-hover:scale-105 transition-transform" 
+							/>
+							<div class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-[#faf7f2] border border-[#e6dec9] flex items-center justify-center">
+								<span class="w-1.5 h-1.5 rounded-full bg-[#b58b4c] animate-pulse"></span>
+							</div>
+						</div>
+						<div>
+							<h1 class="font-display text-lg tracking-[0.1em] font-semibold text-[#2c241e] leading-tight">
+								ARIS RHIANNON
+							</h1>
+							<span class="font-mono text-[9px] text-[#b58b4c] uppercase tracking-widest block mt-0.5">
+								@ArisRhiannon
+							</span>
+						</div>
+					</div>
+
+					{/* Navigation */}
+					<nav class="flex flex-col gap-3 font-mono text-[11px] uppercase tracking-widest text-[#7c6e62]">
+						<a href="#presentacion" class="nav-link hover:text-[#2c241e] flex items-center gap-2 py-1 transition-colors">
+							<span class="w-1.5 h-1.5 rounded-full bg-[#b58b4c] opacity-0 transition-opacity"></span>
+							Sobre Mí
+						</a>
+						<a href="#proyectos" class="nav-link hover:text-[#2c241e] flex items-center gap-2 py-1 transition-colors">
+							<span class="w-1.5 h-1.5 rounded-full bg-[#b58b4c] opacity-0 transition-opacity"></span>
+							Proyectos
+						</a>
+						<a href="#noticias" class="nav-link hover:text-[#2c241e] flex items-center gap-2 py-1 transition-colors">
+							<span class="w-1.5 h-1.5 rounded-full bg-[#b58b4c] opacity-0 transition-opacity"></span>
+							Bitácora
+						</a>
+						<a href="#descargas" class="nav-link hover:text-[#2c241e] flex items-center gap-2 py-1 transition-colors">
+							<span class="w-1.5 h-1.5 rounded-full bg-[#b58b4c] opacity-0 transition-opacity"></span>
+							Descargas
+						</a>
+						<a href="#faq" class="nav-link hover:text-[#2c241e] flex items-center gap-2 py-1 transition-colors">
+							<span class="w-1.5 h-1.5 rounded-full bg-[#b58b4c] opacity-0 transition-opacity"></span>
+							FAQ
+						</a>
+					</nav>
+				</div>
+
+				{/* Footer/Social Links */}
+				<div class="space-y-4 font-mono text-[10px] text-[#7c6e62] tracking-widest">
+					<div class="flex gap-4">
+						<a href="https://github.com/ArisRhiannon" class="hover:text-[#2c241e] transition-colors">GitHub</a>
+						<a href="#" class="hover:text-[#2c241e] transition-colors">Discord</a>
+						<a href="https://store.steampowered.com/app/1162560" class="hover:text-[#2c241e] transition-colors">Steam</a>
+					</div>
+					<p class="text-[9px] text-[#a09082] leading-relaxed uppercase">
+						© 2026. Aris Rhiannon. <br/>Sin fines de lucro.
+					</p>
+				</div>
+			</aside>
+
+			{/* MAIN CONTENT COLUMN */}
+			<main class="max-w-4xl px-6 py-12 md:px-12 md:py-20 space-y-24">
+				
+				{/* WELCOME / PRESENTATION */}
+				<section id="presentacion" class="scroll-mt-24 space-y-6">
+					<div class="space-y-2">
+						<span class="font-mono text-[10px] text-[#b58b4c] uppercase tracking-widest">Introducción</span>
+						<h2 class="font-display text-2xl sm:text-4xl text-[#2c241e] uppercase tracking-wide">
+							Sobre Mí
+						</h2>
+					</div>
+					
+					<p class="text-base sm:text-lg text-[#4a3e37] leading-relaxed max-w-2xl">
+						Hola, soy Aris Rhiannon. Me dedico al desarrollo de utilidades y herramientas de seguridad enfocadas en diseño offline-first y sin dependencias externas. Combino la programación técnica con la traducción literaria de novelas visuales complejas, buscando ofrecer experiencias de juego inmersivas en español.
+					</p>
+					
+					<div class="flex gap-4 pt-2">
+						<a 
+							href="#proyectos" 
+							class="px-5 py-2.5 font-mono text-[10px] uppercase tracking-widest text-white bg-[#b58b4c] hover:bg-[#997236] rounded-sm transition-colors shadow-sm"
+						>
+							Proyectos
+						</a>
+						<a 
+							href="#descargas" 
+							class="px-5 py-2.5 font-mono text-[10px] uppercase tracking-widest text-[#b58b4c] border border-[#e6dec9] hover:bg-[#b58b4c]/5 rounded-sm transition-colors"
+						>
+							Descargas
+						</a>
+					</div>
+				</section>
+
+				{/* DECORATIVE LINE */}
+				<div class="h-[1px] bg-gradient-to-r from-[#e6dec9] via-transparent to-transparent"></div>
+
+				{/* PROJECTS SECTION */}
+				<section id="proyectos" class="scroll-mt-24 space-y-8">
+					<div class="space-y-1">
+						<span class="font-mono text-[10px] text-[#b58b4c] uppercase tracking-widest">Catálogo</span>
+						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Proyectos Activos</h3>
+					</div>
+
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<ProjectCard 
+							title="Ciconia When They Cry Phase 1"
+							subtitle="Traducción al Español"
+							description="Adaptación literaria y técnica no oficial de 'For You, the Replaceable Ones' de 07th Expansion. Localización completa de textos de diálogo, rótulos de interfaz de batalla y glosario terminológico."
+							status="En desarrollo"
+							link="#descargas"
+						/>
+						
+						<ProjectCard 
+							title="Wormguard"
+							subtitle="CLI Security Auditing Tool"
+							description="Auditor de seguridad offline-first y sin dependencias externas para cadenas de suministro de paquetes npm. Analiza archivos package-lock.json en busca de vulnerabilidades locales."
+							status="Completado"
+							link="https://github.com/ArisRhiannon/wormguard"
+						/>
+
+						<ProjectCard 
+							title="Vibecheck"
+							subtitle="SAST for AI Code"
+							description="Filtro estático rápido y seguro para auditar código autogenerado por inteligencia artificial. Utiliza un parser AST ligero para prevenir el despliegue de patrones inseguros."
+							status="Completado"
+							link="https://github.com/ArisRhiannon/vibecheck"
+						/>
+
+						<ProjectCard 
+							title="Calculadora-ZZZ"
+							subtitle="Private / Collaborative Utility"
+							description="Módulo de cálculo especializado desarrollado en Python en conjunto con colaboradores para el procesamiento y modelado de datos estadísticos locales."
+							status="Completado"
+							link="https://github.com/ErikGallardo/Calculadora-ZZZ"
+						/>
+					</div>
+				</section>
+
+				{/* DECORATIVE LINE */}
+				<div class="h-[1px] bg-gradient-to-r from-[#e6dec9] via-transparent to-transparent"></div>
+
+				{/* BITÁCORA / DEVELOPMENT LOGS */}
+				<section id="noticias" class="scroll-mt-24 space-y-8">
+					<div class="space-y-1">
+						<span class="font-mono text-[10px] text-[#b58b4c] uppercase tracking-widest">Bitácora</span>
+						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Diario de Desarrollo</h3>
+					</div>
+
+					<div class="space-y-8">
+						<div class="space-y-2 relative pl-6 border-l border-[#e6dec9]">
+							<div class="absolute -left-1 top-2 w-2 h-2 rounded-full bg-[#b58b4c]"></div>
+							<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+								<h4 class="font-display text-sm sm:text-base text-[#2c241e] tracking-wide font-semibold">
+									Ajustes Generales del Glosario (Ciconia)
+								</h4>
+								<span class="font-mono text-[9px] text-[#7c6e62]">11 de junio, 2026</span>
+							</div>
+							<p class="text-sm text-[#4a3e37] leading-relaxed">
+								Comenzamos con la fase de revisión del estilo y coherencia de las siglas del glosario técnico y militar de la traducción (incluyendo Gauntlets, facciones y el HUD tridimensional). Se están adaptando los rótulos gráficos de batalla.
+							</p>
+						</div>
+
+						<div class="space-y-2 relative pl-6 border-l border-[#e6dec9]">
+							<div class="absolute -left-1 top-2 w-2 h-2 rounded-full bg-[#e6dec9]"></div>
+							<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+								<h4 class="font-display text-sm sm:text-base text-[#2c241e] tracking-wide font-semibold">
+									Compilación de la Build Técnica v1.0.4
+								</h4>
+								<span class="font-mono text-[9px] text-[#7c6e62]">28 de mayo, 2026</span>
+							</div>
+							<p class="text-sm text-[#4a3e37] leading-relaxed">
+								Inyectamos un conjunto tipográfico modificado en el motor del juego para asegurar la correcta renderización de vocales con acento, signos de interrogación y otros caracteres exclusivos del español.
+							</p>
+						</div>
+
+						<div class="space-y-2 relative pl-6 border-l border-[#e6dec9]">
+							<div class="absolute -left-1 top-2 w-2 h-2 rounded-full bg-[#e6dec9]"></div>
+							<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+								<h4 class="font-display text-sm sm:text-base text-[#2c241e] tracking-wide font-semibold">
+									Edición y Reemplazo Gráfico de Texturas
+								</h4>
+								<span class="font-mono text-[9px] text-[#7c6e62]">15 de mayo, 2026</span>
+							</div>
+							<p class="text-sm text-[#4a3e37] leading-relaxed">
+								Finalizó el rediseño de las texturas de imágenes del entorno del juego. Carteles, anuncios de batalla y rótulos secundarios se reemplazaron localmente por sus equivalentes gráficos en español.
+							</p>
+						</div>
+					</div>
+				</section>
+
+				{/* DECORATIVE LINE */}
+				<div class="h-[1px] bg-gradient-to-r from-[#e6dec9] via-transparent to-transparent"></div>
+
+				{/* DOWNLOADS SECTION */}
+				<section id="descargas" class="scroll-mt-24 space-y-8">
+					<div class="space-y-1">
+						<span class="font-mono text-[10px] text-[#b58b4c] uppercase tracking-widest">Repositorio</span>
+						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Centro de Descargas</h3>
+					</div>
+
+					<div class="overflow-x-auto">
+						<table class="w-full text-left font-serif text-sm border-collapse">
+							<thead>
+								<tr class="border-b border-[#e6dec9] text-[#7c6e62] font-mono text-[9px] sm:text-[10px] uppercase tracking-wider">
+									<th class="py-3 px-2">Proyecto</th>
+									<th class="py-3 px-2">Versión</th>
+									<th class="py-3 px-2">Tipo de Archivo</th>
+									<th class="py-3 px-2 text-right">Enlace</th>
+								</tr>
+							</thead>
+							<tbody class="divide-y divide-[#e6dec9]/40 text-[#4a3e37]">
+								<tr class="hover:bg-[#fdfcf7]/40 transition-colors">
+									<td class="py-4 px-2 font-display text-xs sm:text-sm text-[#2c241e] tracking-wide">Ciconia Phase 1 Patch ES</td>
+									<td class="py-4 px-2 font-mono text-xs text-[#7c6e62]">v1.0.0-alpha</td>
+									<td class="py-4 px-2 text-xs">Parche local de traducción</td>
+									<td class="py-4 px-2 text-right">
+										<span class="font-mono text-[9px] text-[#a09082] uppercase tracking-wider">Próximamente</span>
+									</td>
+								</tr>
+								<tr class="hover:bg-[#fdfcf7]/40 transition-colors">
+									<td class="py-4 px-2 font-display text-xs sm:text-sm text-[#2c241e] tracking-wide">Wormguard CLI Utility</td>
+									<td class="py-4 px-2 font-mono text-xs text-[#7c6e62]">v1.2.0</td>
+									<td class="py-4 px-2 text-xs">Herramienta npm CLI</td>
+									<td class="py-4 px-2 text-right">
+										<a href="https://github.com/ArisRhiannon/wormguard" class="font-mono text-[10px] text-[#b58b4c] hover:text-[#997236] transition-colors uppercase tracking-wider border-b border-dashed border-[#b58b4c]/50 hover:border-[#997236]">GitHub</a>
+									</td>
+								</tr>
+								<tr class="hover:bg-[#fdfcf7]/40 transition-colors">
+									<td class="py-4 px-2 font-display text-xs sm:text-sm text-[#2c241e] tracking-wide">Vibecheck SAST Gate</td>
+									<td class="py-4 px-2 font-mono text-xs text-[#7c6e62]">v1.0.5</td>
+									<td class="py-4 px-2 text-xs">Herramienta AST CLI</td>
+									<td class="py-4 px-2 text-right">
+										<a href="https://github.com/ArisRhiannon/vibecheck" class="font-mono text-[10px] text-[#b58b4c] hover:text-[#997236] transition-colors uppercase tracking-wider border-b border-dashed border-[#b58b4c]/50 hover:border-[#997236]">GitHub</a>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</section>
+
+				{/* DECORATIVE LINE */}
+				<div class="h-[1px] bg-gradient-to-r from-[#e6dec9] via-transparent to-transparent"></div>
+
+				{/* FAQ SECTION */}
+				<section id="faq" class="scroll-mt-24 space-y-8">
+					<div class="space-y-1">
+						<span class="font-mono text-[10px] text-[#b58b4c] uppercase tracking-widest">Ayuda</span>
+						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Preguntas Frecuentes</h3>
+					</div>
+
+					<div class="space-y-4">
+						<FAQItem 
+							id="1"
+							question="¿Son gratuitos los parches de traducción?" 
+							answer="Sí. Todo el trabajo de traducción y herramientas de localización al español se distribuye de forma 100% gratuita. Por favor, apoya al creador oficial Ryukishi07 comprando la versión legítima del juego en Steam." 
+						/>
+						<FAQItem 
+							id="2"
+							question="¿Cómo aplico las herramientas de seguridad Wormguard y Vibecheck?" 
+							answer="Wormguard y Vibecheck se instalan fácilmente como comandos globales de npm en la consola. Puedes instalarlos ejecutando 'npm install -g wormguard' y 'npm install -g vibecheck'. Las instrucciones detalladas de uso y flags locales están disponibles en sus respectivos README en GitHub." 
+						/>
+						<FAQItem 
+							id="3"
+							question="¿Cómo se instala el parche de Ciconia?" 
+							answer="Una vez lanzado el parche de traducción, se distribuirá como un paquete comprimido. Solo deberás arrastrar y soltar los archivos del parche dentro del directorio principal de instalación de Ciconia en Steam para jugar inmediatamente en español." 
+						/>
+						<FAQItem 
+							id="4"
+							question="¿Cómo puedo ponerme en contacto o reportar errores?" 
+							answer="Para cualquier reporte de bugs en Wormguard, Vibecheck o para sugerir correcciones en el parche de traducción de Ciconia, puedes abrir un Issue directamente en mi perfil de GitHub o escribirme por Discord." 
+						/>
+					</div>
+				</section>
+
+				{/* MOBILE ONLY FOOTER */}
+				<footer class="lg:hidden border-t border-[#e6dec9]/40 pt-8 font-mono text-[9px] text-[#a09082] text-center space-y-2 uppercase tracking-widest">
+					<p>© 2026. Aris Rhiannon. Sin fines de lucro.</p>
+					<p class="font-serif lowercase italic text-[#b58b4c]">Higurashi, Umineko y Ciconia pertenecen a 07th Expansion y MangaGamer.</p>
+				</footer>
+
+			</main>
+		</div>
+
+		{/* JavaScript for Responsive Navigation menu */}
+		<script>
+			const toggle = document.getElementById('menu-toggle');
+			const menu = document.getElementById('mobile-menu');
+			
+			if (toggle && menu) {
+				toggle.addEventListener('click', () => {
+					menu.classList.toggle('hidden');
+					document.body.classList.toggle('overflow-hidden');
+				});
+
+				// Close menu when clicking navigation links
+				const links = menu.querySelectorAll('.mobile-nav-link');
+				links.forEach(link => {
+					link.addEventListener('click', () => {
+						menu.classList.add('hidden');
+						document.body.classList.remove('overflow-hidden');
+					});
+				});
+			}
+
+			// Active link styling on Desktop scroll
+			const sections = document.querySelectorAll('section');
+			const navLinks = document.querySelectorAll('.nav-link');
+
+			window.addEventListener('scroll', () => {
+				let current = '';
+				sections.forEach(section => {
+					const sectionTop = section.offsetTop;
+					if (window.scrollY >= sectionTop - 150) {
+						current = section.getAttribute('id') || '';
+					}
+				});
+
+				navLinks.forEach(link => {
+					const href = link.getAttribute('href');
+					const marker = link.querySelector('span');
+					if (href === `#${current}`) {
+						link.classList.add('text-[#2c241e]', 'font-semibold');
+						link.classList.remove('text-[#7c6e62]');
+						if (marker) marker.classList.remove('opacity-0');
+					} else {
+						link.classList.remove('text-[#2c241e]', 'font-semibold');
+						link.classList.add('text-[#7c6e62]');
+						if (marker) marker.classList.add('opacity-0');
+					}
+				});
+			});
+		</script>
+
+		<style>
+			@keyframes fade-in {
+				from { opacity: 0; transform: translateY(-10px); }
+				to { opacity: 1; transform: translateY(0); }
+			}
+			.animate-fade-in {
+				animation: fade-in 0.25s ease-out forwards;
+			}
+		</style>
 	</body>
 </html>

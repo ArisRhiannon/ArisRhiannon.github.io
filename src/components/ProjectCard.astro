@@ -10,28 +10,28 @@ interface Props {
 const { title, subtitle, description, status, link } = Astro.props;
 
 const statusColors = {
-  'Completado': 'border-emerald-500/30 text-emerald-400 bg-emerald-950/10',
-  'En desarrollo': 'border-amber-500/30 text-amber-400 bg-amber-950/10',
-  'Planificado': 'border-slate-800 text-slate-500 bg-slate-950/10'
+  'Completado': 'border-emerald-600/20 text-emerald-700 bg-emerald-50',
+  'En desarrollo': 'border-amber-600/30 text-amber-800 bg-amber-50',
+  'Planificado': 'border-slate-300 text-slate-500 bg-slate-50'
 }[status];
 ---
 
-<div class="border border-slate-900 bg-slate-950/10 p-6 rounded-md hover:border-amber-500/20 transition-all duration-300 relative group flex flex-col justify-between min-h-[200px]">
+<div class="border border-[#e6dec9] bg-[#fdfcf7]/60 p-6 rounded-md hover:border-[#b58b4c] transition-all duration-300 relative group flex flex-col justify-between min-h-[190px] shadow-sm hover:shadow-md">
   <div class="space-y-3">
     <div class="flex justify-between items-start gap-4">
       <div>
-        <h4 class="font-display text-lg text-gray-200 tracking-wide group-hover:text-amber-400 transition-colors">
+        <h4 class="font-display text-base sm:text-lg text-[#2c241e] tracking-wide group-hover:text-[#b58b4c] transition-colors">
           {title}
         </h4>
-        <span class="font-mono text-[10px] text-gray-500 uppercase tracking-widest block mt-0.5">
+        <span class="font-mono text-[9px] text-[#7c6e62] uppercase tracking-widest block mt-0.5">
           {subtitle}
         </span>
       </div>
-      <span class={`font-mono text-[9px] uppercase tracking-wider px-2 py-0.5 border rounded-sm ${statusColors}`}>
+      <span class={`font-mono text-[8px] sm:text-[9px] uppercase tracking-wider px-2 py-0.5 border rounded-sm ${statusColors}`}>
         {status}
       </span>
     </div>
-    <p class="font-serif text-sm text-gray-400 leading-relaxed">
+    <p class="font-serif text-sm text-[#4a3e37] leading-relaxed">
       {description}
     </p>
   </div>
@@ -40,7 +40,7 @@ const statusColors = {
     <div class="pt-4 mt-auto">
       <a 
         href={link} 
-        class="inline-flex items-center gap-1.5 font-mono text-[11px] text-gray-400 hover:text-white border-b border-dashed border-gray-600 hover:border-white transition-all"
+        class="inline-flex items-center gap-1.5 font-mono text-[10px] text-[#8b5a2b] hover:text-[#b58b4c] border-b border-dashed border-[#8b5a2b]/40 hover:border-[#b58b4c] transition-all"
       >
         <span>Detalles del proyecto</span>
         <span class="text-xs">→</span>
