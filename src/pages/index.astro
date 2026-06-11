@@ -19,6 +19,10 @@ import FAQItem from '../components/FAQItem.astro';
 	</head>
 	<body class="bg-[#faf7f2] text-[#2c241e] font-serif selection:bg-[#b58b4c]/20 selection:text-[#5c4018] min-h-screen relative overflow-x-hidden">
 		
+		{/* Vintage Double-Line Viewport Border Frame */}
+		<div class="fixed inset-2 sm:inset-4 pointer-events-none border border-[#e6dec9]/60 z-50 rounded-sm"></div>
+		<div class="fixed inset-3 sm:inset-[18px] pointer-events-none border border-[#b58b4c]/10 z-50 rounded-sm"></div>
+
 		{/* Subtle top background gold glow */}
 		<div class="absolute top-0 right-0 w-full lg:w-[calc(100%-280px)] h-[400px] bg-[radial-gradient(circle_at_top_right,rgba(181,139,76,0.06)_0%,transparent_60%)] pointer-events-none z-0"></div>
 
@@ -71,22 +75,27 @@ import FAQItem from '../components/FAQItem.astro';
 						</div>
 						
 						{/* Naked Social Links List (Mobile) */}
-						<div class="flex flex-col gap-2.5 pt-2 border-t border-[#e6dec9]/20 font-mono text-[9px] text-[#7c6e62] tracking-wide">
-							<a href="https://github.com/ArisRhiannon" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
-								<span>github.com/ArisRhiannon</span>
+						<div class="bg-[#fdfcf7]/60 border border-[#e6dec9]/60 rounded-md p-3.5 space-y-2.5 font-mono text-[9px] text-[#7c6e62] select-text">
+							<span class="block text-[8px] text-[#b58b4c] uppercase tracking-[0.15em] font-bold border-b border-[#e6dec9]/40 pb-1 mb-1.5">Canales y Contacto</span>
+							
+							<a href="https://github.com/ArisRhiannon" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
+								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+								<span class="truncate group-hover:underline">github.com/ArisRhiannon</span>
 							</a>
-							<a href="https://x.com/goddamnBern" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-								<span>x.com/goddamnBern</span>
+							
+							<a href="https://x.com/goddamnBern" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
+								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+								<span class="truncate group-hover:underline">x.com/goddamnBern</span>
 							</a>
-							<a href="https://www.youtube.com/@GoddamnBernkastel" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12.07a29 29 0 0 0 .46 5.65 2.78 2.78 0 0 0 1.95 1.96c1.71.46 8.59.46 8.59.46s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96 29 29 0 0 0 .46-5.65 29 29 0 0 0-.46-5.65z"></path><polygon points="9.75 15.02 15.5 12.07 9.75 9.13 9.75 15.02"></polygon></svg>
-								<span>youtube.com/@GoddamnBernkastel</span>
+							
+							<a href="https://www.youtube.com/@GoddamnBernkastel" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
+								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12.07a29 29 0 0 0 .46 5.65 2.78 2.78 0 0 0 1.95 1.96c1.71.46 8.59.46 8.59.46s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96 29 29 0 0 0 .46-5.65 29 29 0 0 0-.46-5.65z"></path><polygon points="9.75 15.02 15.5 12.07 9.75 9.13 9.75 15.02"></polygon></svg>
+								<span class="truncate group-hover:underline">youtube.com/@GoddamnBernkastel</span>
 							</a>
-							<a href="https://discord.com/users/aris_rhiannon" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c] flex-shrink-0" viewBox="0 0 127.14 96.36" fill="currentColor"><path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a77.7,77.7,0,0,0,6.63-10.85,68.43,68.43,0,0,1-10.5-5c.89-.65,1.76-1.34,2.58-2.07a75.48,75.48,0,0,0,72.9,0c.82.73,1.69,1.42,2.58,2.07a68.43,68.43,0,0,1-10.5,5,77.7,77.7,0,0,0,6.63,10.85,105.73,105.73,0,0,0,31.06-18.83C129,54.65,123.5,31.58,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/></svg>
-								<span>discord.com/users/aris_rhiannon</span>
+							
+							<a href="https://discord.com/users/aris_rhiannon" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
+								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 127.14 96.36" fill="currentColor"><path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a77.7,77.7,0,0,0,6.63-10.85,68.43,68.43,0,0,1-10.5-5c.89-.65,1.76-1.34,2.58-2.07a75.48,75.48,0,0,0,72.9,0c.82.73,1.69,1.42,2.58,2.07a68.43,68.43,0,0,1-10.5,5,77.7,77.7,0,0,0,6.63,10.85,105.73,105.73,0,0,0,31.06-18.83C129,54.65,123.5,31.58,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/></svg>
+								<span class="truncate group-hover:underline">discord.com/users/aris_rhiannon</span>
 							</a>
 						</div>
 					</div>
@@ -125,23 +134,28 @@ import FAQItem from '../components/FAQItem.astro';
 							</div>
 						</div>
 
-						{/* Naked Social Links List */}
-						<div class="flex flex-col gap-2.5 pt-2 border-t border-[#e6dec9]/40 font-mono text-[10px] text-[#7c6e62] tracking-wide select-text">
-							<a href="https://github.com/ArisRhiannon" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
-								<span>github.com/ArisRhiannon</span>
+						{/* Naked Social Links Container */}
+						<div class="bg-[#fdfcf7]/60 border border-[#e6dec9]/60 rounded-md p-3.5 space-y-2.5 font-mono text-[9px] text-[#7c6e62] select-text">
+							<span class="block text-[8px] text-[#b58b4c] uppercase tracking-[0.15em] font-bold border-b border-[#e6dec9]/40 pb-1 mb-1.5">Canales y Contacto</span>
+							
+							<a href="https://github.com/ArisRhiannon" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
+								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+								<span class="truncate group-hover:underline">github.com/ArisRhiannon</span>
 							</a>
-							<a href="https://x.com/goddamnBern" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-								<span>x.com/goddamnBern</span>
+							
+							<a href="https://x.com/goddamnBern" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
+								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+								<span class="truncate group-hover:underline">x.com/goddamnBern</span>
 							</a>
-							<a href="https://www.youtube.com/@GoddamnBernkastel" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12.07a29 29 0 0 0 .46 5.65 2.78 2.78 0 0 0 1.95 1.96c1.71.46 8.59.46 8.59.46s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96 29 29 0 0 0 .46-5.65 29 29 0 0 0-.46-5.65z"></path><polygon points="9.75 15.02 15.5 12.07 9.75 9.13 9.75 15.02"></polygon></svg>
-								<span>youtube.com/@GoddamnBernkastel</span>
+							
+							<a href="https://www.youtube.com/@GoddamnBernkastel" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
+								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12.07a29 29 0 0 0 .46 5.65 2.78 2.78 0 0 0 1.95 1.96c1.71.46 8.59.46 8.59.46s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96 29 29 0 0 0 .46-5.65 29 29 0 0 0-.46-5.65z"></path><polygon points="9.75 15.02 15.5 12.07 9.75 9.13 9.75 15.02"></polygon></svg>
+								<span class="truncate group-hover:underline">youtube.com/@GoddamnBernkastel</span>
 							</a>
-							<a href="https://discord.com/users/aris_rhiannon" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c] flex-shrink-0" viewBox="0 0 127.14 96.36" fill="currentColor"><path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a77.7,77.7,0,0,0,6.63-10.85,68.43,68.43,0,0,1-10.5-5c.89-.65,1.76-1.34,2.58-2.07a75.48,75.48,0,0,0,72.9,0c.82.73,1.69,1.42,2.58,2.07a68.43,68.43,0,0,1-10.5,5,77.7,77.7,0,0,0,6.63,10.85,105.73,105.73,0,0,0,31.06-18.83C129,54.65,123.5,31.58,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/></svg>
-								<span>discord.com/users/aris_rhiannon</span>
+							
+							<a href="https://discord.com/users/aris_rhiannon" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
+								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 127.14 96.36" fill="currentColor"><path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a77.7,77.7,0,0,0,6.63-10.85,68.43,68.43,0,0,1-10.5-5c.89-.65,1.76-1.34,2.58-2.07a75.48,75.48,0,0,0,72.9,0c.82.73,1.69,1.42,2.58,2.07a68.43,68.43,0,0,1-10.5,5,77.7,77.7,0,0,0,6.63,10.85,105.73,105.73,0,0,0,31.06-18.83C129,54.65,123.5,31.58,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/></svg>
+								<span class="truncate group-hover:underline">discord.com/users/aris_rhiannon</span>
 							</a>
 						</div>
 					</div>
@@ -174,13 +188,13 @@ import FAQItem from '../components/FAQItem.astro';
 			</aside>
 
 			{/* MAIN CONTENT COLUMN */}
-			<main class="max-w-4xl px-6 py-12 md:px-12 md:py-20 space-y-24">
+			<main class="max-w-4xl px-6 sm:px-12 py-10 sm:py-16 space-y-16 relative z-10">
 				
 				{/* WELCOME / PRESENTATION */}
 				<section id="presentacion" class="scroll-mt-24 space-y-6">
-					<div class="space-y-2">
-						<span class="font-mono text-[10px] text-[#b58b4c] uppercase tracking-widest">Introducción</span>
-						<h2 class="font-display text-2xl sm:text-4xl text-[#2c241e] uppercase tracking-wide">
+					<div class="space-y-2 border-b border-[#e6dec9]/60 pb-3">
+						<span class="font-mono text-[9px] text-[#b58b4c] uppercase tracking-[0.2em] font-semibold">01 / Introducción</span>
+						<h2 class="font-display text-2xl sm:text-3xl text-[#2c241e] uppercase tracking-wide">
 							Sobre Mí
 						</h2>
 					</div>
@@ -188,7 +202,7 @@ import FAQItem from '../components/FAQItem.astro';
 					<div class="bg-gradient-to-br from-[#fdfcf7] to-[#f7f3e8] border border-[#e6dec9] p-6 sm:p-8 rounded-md relative shadow-sm max-w-2xl">
 						<span class="font-display text-4xl text-[#b58b4c] leading-none absolute top-4 left-4 opacity-20 select-none">“</span>
 						<p class="text-base sm:text-lg text-[#4a3e37] italic leading-relaxed pl-4 relative z-10">
-							«¡Paimon no es comida de emergencia!»
+							«El cerebro de Paimon está lleno de preguntas. Como... ¿cuál es el significado de la vida? Y... ¿qué hay de comer?»
 						</p>
 						<span class="block text-right text-xs text-[#7c6e62] font-mono not-italic mt-4 relative z-10">
 							— Paimon, Genshin Impact
@@ -212,16 +226,16 @@ import FAQItem from '../components/FAQItem.astro';
 				</section>
 
 				{/* DECORATIVE DIVIDER */}
-				<div class="flex items-center justify-center gap-4 py-4 select-none max-w-2xl" aria-hidden="true">
-					<div class="h-[1px] w-full bg-gradient-to-r from-transparent to-[#e6dec9]"></div>
-					<span class="text-[#b58b4c] font-mono text-[9px] tracking-widest">◇</span>
-					<div class="h-[1px] w-full bg-gradient-to-l from-transparent to-[#e6dec9]"></div>
+				<div class="flex items-center justify-center gap-4 py-2 select-none max-w-2xl" aria-hidden="true">
+					<div class="h-[1px] w-full bg-gradient-to-r from-transparent to-[#e6dec9]/60"></div>
+					<span class="text-[#b58b4c]/70 font-mono text-[8px] tracking-widest">◇</span>
+					<div class="h-[1px] w-full bg-gradient-to-l from-transparent to-[#e6dec9]/60"></div>
 				</div>
 
 				{/* PROJECTS SECTION */}
-				<section id="proyectos" class="scroll-mt-24 space-y-8">
-					<div class="space-y-1">
-						<span class="font-mono text-[10px] text-[#b58b4c] uppercase tracking-widest">Catálogo</span>
+				<section id="proyectos" class="scroll-mt-24 space-y-6">
+					<div class="space-y-2 border-b border-[#e6dec9]/60 pb-3">
+						<span class="font-mono text-[9px] text-[#b58b4c] uppercase tracking-[0.2em] font-semibold">02 / Catálogo</span>
 						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Proyectos Activos</h3>
 					</div>
 
@@ -239,36 +253,36 @@ import FAQItem from '../components/FAQItem.astro';
 
 
 				{/* DECORATIVE DIVIDER */}
-				<div class="flex items-center justify-center gap-4 py-4 select-none max-w-2xl" aria-hidden="true">
-					<div class="h-[1px] w-full bg-gradient-to-r from-transparent to-[#e6dec9]"></div>
-					<span class="text-[#b58b4c] font-mono text-[9px] tracking-widest">◇</span>
-					<div class="h-[1px] w-full bg-gradient-to-l from-transparent to-[#e6dec9]"></div>
+				<div class="flex items-center justify-center gap-4 py-2 select-none max-w-2xl" aria-hidden="true">
+					<div class="h-[1px] w-full bg-gradient-to-r from-transparent to-[#e6dec9]/60"></div>
+					<span class="text-[#b58b4c]/70 font-mono text-[8px] tracking-widest">◇</span>
+					<div class="h-[1px] w-full bg-gradient-to-l from-transparent to-[#e6dec9]/60"></div>
 				</div>
 
 				{/* DOWNLOADS SECTION */}
-				<section id="descargas" class="scroll-mt-24 space-y-8">
-					<div class="space-y-1">
-						<span class="font-mono text-[10px] text-[#b58b4c] uppercase tracking-widest">Repositorio</span>
+				<section id="descargas" class="scroll-mt-24 space-y-6">
+					<div class="space-y-2 border-b border-[#e6dec9]/60 pb-3">
+						<span class="font-mono text-[9px] text-[#b58b4c] uppercase tracking-[0.2em] font-semibold">03 / Repositorio</span>
 						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Centro de Descargas</h3>
 					</div>
 
-					<div class="overflow-x-auto">
+					<div class="overflow-x-auto border border-[#e6dec9]/80 rounded-md bg-[#fdfcf7]/40 shadow-sm">
 						<table class="w-full text-left font-serif text-sm border-collapse">
 							<thead>
-								<tr class="border-b border-[#e6dec9] text-[#7c6e62] font-mono text-[9px] sm:text-[10px] uppercase tracking-wider">
-									<th class="py-3 px-2">Proyecto</th>
-									<th class="py-3 px-2">Versión</th>
-									<th class="py-3 px-2">Tipo de Archivo</th>
-									<th class="py-3 px-2 text-right">Enlace</th>
+								<tr class="border-b border-[#e6dec9] text-[#7c6e62] font-mono text-[9px] sm:text-[10px] uppercase tracking-wider bg-[#faf7f2]/80">
+									<th class="py-3 px-4">Proyecto</th>
+									<th class="py-3 px-4">Versión</th>
+									<th class="py-3 px-4">Tipo de Archivo</th>
+									<th class="py-3 px-4 text-right">Enlace</th>
 								</tr>
 							</thead>
 							<tbody class="divide-y divide-[#e6dec9]/40 text-[#4a3e37]">
-								<tr class="hover:bg-[#fdfcf7]/40 transition-colors">
-									<td class="py-4 px-2 font-display text-xs sm:text-sm text-[#2c241e] tracking-wide">Ciconia Phase 1 Patch ES</td>
-									<td class="py-4 px-2 font-mono text-xs text-[#7c6e62]">v1.0.0-alpha</td>
-									<td class="py-4 px-2 text-xs">Parche local de traducción</td>
-									<td class="py-4 px-2 text-right">
-										<span class="font-mono text-[9px] text-[#a09082] uppercase tracking-wider">Próximamente</span>
+								<tr class="hover:bg-[#fdfcf7]/80 transition-colors">
+									<td class="py-4 px-4 font-display text-xs sm:text-sm text-[#2c241e] tracking-wide">Ciconia Phase 1 Patch ES</td>
+									<td class="py-4 px-4 font-mono text-xs text-[#7c6e62]">v1.0.0-alpha</td>
+									<td class="py-4 px-4 text-xs">Parche local de traducción</td>
+									<td class="py-4 px-4 text-right">
+										<span class="font-mono text-[9px] text-[#a09082] uppercase tracking-wider text-right block pr-2">Próximamente</span>
 									</td>
 								</tr>
 							</tbody>
@@ -277,16 +291,16 @@ import FAQItem from '../components/FAQItem.astro';
 				</section>
 
 				{/* DECORATIVE DIVIDER */}
-				<div class="flex items-center justify-center gap-4 py-4 select-none max-w-2xl" aria-hidden="true">
-					<div class="h-[1px] w-full bg-gradient-to-r from-transparent to-[#e6dec9]"></div>
-					<span class="text-[#b58b4c] font-mono text-[9px] tracking-widest">◇</span>
-					<div class="h-[1px] w-full bg-gradient-to-l from-transparent to-[#e6dec9]"></div>
+				<div class="flex items-center justify-center gap-4 py-2 select-none max-w-2xl" aria-hidden="true">
+					<div class="h-[1px] w-full bg-gradient-to-r from-transparent to-[#e6dec9]/60"></div>
+					<span class="text-[#b58b4c]/70 font-mono text-[8px] tracking-widest">◇</span>
+					<div class="h-[1px] w-full bg-gradient-to-l from-transparent to-[#e6dec9]/60"></div>
 				</div>
 
 				{/* FAQ SECTION */}
-				<section id="faq" class="scroll-mt-24 space-y-8">
-					<div class="space-y-1">
-						<span class="font-mono text-[10px] text-[#b58b4c] uppercase tracking-widest">Ayuda</span>
+				<section id="faq" class="scroll-mt-24 space-y-6">
+					<div class="space-y-2 border-b border-[#e6dec9]/60 pb-3">
+						<span class="font-mono text-[9px] text-[#b58b4c] uppercase tracking-[0.2em] font-semibold">04 / Ayuda</span>
 						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Preguntas Frecuentes</h3>
 					</div>
 
