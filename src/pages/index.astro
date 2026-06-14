@@ -1,5 +1,4 @@
 ---
-import ProjectCard from '../components/ProjectCard.astro';
 import FAQItem from '../components/FAQItem.astro';
 ---
 
@@ -11,7 +10,7 @@ import FAQItem from '../components/FAQItem.astro';
 		<meta name="viewport" content="width=device-width" />
 		<meta name="google-site-verification" content="imK_jF_dOkcg7xB4k7Hx6BiKjvD_U-UTXiyOxYW_2Uk" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Aris Rhiannon — Proyectos y Desarrollo</title>
+		<title>Aris Rhiannon — Traducciones al español de 07th Expansion</title>
 		<meta name="description" content="Sitio web personal de Aris Rhiannon. Auditoría de seguridad npm y parches de traducción." />
 		<link rel="canonical" href="https://arisrhiannon.github.io/" />
 		
@@ -237,21 +236,58 @@ import FAQItem from '../components/FAQItem.astro';
 					<div class="h-[1px] w-full bg-gradient-to-l from-transparent to-[#e6dec9]/60"></div>
 				</div>
 
-				{/* PROJECTS SECTION */}
+				{/* PROJECTS SECTION — BENTO */}
 				<section id="proyectos" class="scroll-mt-24 space-y-6">
 					<div class="space-y-2 border-b border-[#e6dec9]/60 pb-3">
 						<span class="font-mono text-[9px] text-[#b58b4c] uppercase tracking-[0.2em] font-semibold">02 / Catálogo</span>
-						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Proyectos Activos</h3>
+						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Proyectos</h3>
+						<p class="text-sm text-[#7c6e62] leading-relaxed">Localizaciones al español de obras de 07th Expansion.</p>
 					</div>
 
-					<div class="grid grid-cols-1 gap-6">
-						<ProjectCard 
-							title="Ciconia When They Cry Phase 1"
-							subtitle="Traducción al Español"
-							description="Localización completa no oficial de 'For You, the Replaceable Ones' de 07th Expansion al español latinoamericano neutro. Más de 16,000 líneas de texto traducidas con adaptación literaria fiel al japonés."
-							status="Disponible"
-							link="/ciconia/"
-						/>
+					<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+
+						{/* Destacado — Ciconia */}
+						<a href="/ciconia/" class="group col-span-2 sm:col-span-3 border border-[#e6dec9] border-t-2 border-t-[#b58b4c] bg-gradient-to-br from-[#fdfcf7] to-[#f7f3e8] rounded-md p-4 sm:p-5 flex flex-col gap-2 hover:border-[#b58b4c] hover:shadow-sm transition-all">
+							<div class="flex justify-between items-start gap-3">
+								<div>
+									<h4 class="font-display text-base sm:text-lg text-[#2c241e] tracking-wide group-hover:text-[#b58b4c] transition-colors">Ciconia When They Cry: Phase 1</h4>
+									<span class="font-mono text-[9px] text-[#7c6e62] uppercase tracking-widest block mt-0.5">Parche al Español · es-419</span>
+								</div>
+								<span class="font-mono text-[8px] sm:text-[9px] uppercase tracking-wider px-2 py-0.5 border rounded-sm border-emerald-600/20 text-emerald-700 bg-emerald-50 flex-shrink-0">Disponible</span>
+							</div>
+							<span class="font-mono text-[10px] text-[#8b5a2b] group-hover:text-[#b58b4c] inline-flex items-center gap-1.5 mt-1">Ver el parche <span class="text-xs">→</span></span>
+						</a>
+
+						{/* Rose Guns Days */}
+						<a href="https://23rddistrict.wordpress.com/2014/12/20/rose-guns-days-season-1-version-final-al-espanol/" target="_blank" rel="noopener noreferrer" class="group border border-[#e6dec9] border-t-2 border-t-[#b58b4c]/40 bg-gradient-to-br from-[#fdfcf7]/80 to-[#fcfaf2]/60 rounded-md p-3.5 flex flex-col justify-between gap-3 min-h-[96px] hover:border-[#b58b4c] hover:shadow-sm transition-all">
+							<h4 class="font-display text-sm text-[#2c241e] leading-snug group-hover:text-[#b58b4c] transition-colors">Rose Guns Days — Temporada 1</h4>
+							<span class="font-mono text-[8px] text-[#a09082] uppercase tracking-wider self-end">2014 ↗</span>
+						</a>
+
+						{/* Umineko Hane */}
+						<a href="https://23rddistrict.wordpress.com/umineko-hane/" target="_blank" rel="noopener noreferrer" class="group border border-[#e6dec9] border-t-2 border-t-[#b58b4c]/40 bg-gradient-to-br from-[#fdfcf7]/80 to-[#fcfaf2]/60 rounded-md p-3.5 flex flex-col justify-between gap-3 min-h-[96px] hover:border-[#b58b4c] hover:shadow-sm transition-all">
+							<h4 class="font-display text-sm text-[#2c241e] leading-snug group-hover:text-[#b58b4c] transition-colors">Umineko: Hane</h4>
+							<span class="font-mono text-[8px] text-[#a09082] uppercase tracking-wider self-end">2014 ↗</span>
+						</a>
+
+						{/* Higanbana */}
+						<a href="https://utopiaclassroom.blogspot.com/p/primera-noche_13.html" target="_blank" rel="noopener noreferrer" class="group border border-[#e6dec9] border-t-2 border-t-[#b58b4c]/40 bg-gradient-to-br from-[#fdfcf7]/80 to-[#fcfaf2]/60 rounded-md p-3.5 flex flex-col justify-between gap-3 min-h-[96px] hover:border-[#b58b4c] hover:shadow-sm transition-all">
+							<h4 class="font-display text-sm text-[#2c241e] leading-snug group-hover:text-[#b58b4c] transition-colors">Higanbana — Primera Noche</h4>
+							<span class="font-mono text-[8px] text-[#a09082] uppercase tracking-wider self-end">↗</span>
+						</a>
+
+						{/* Umineko Tsubasa */}
+						<a href="https://www.youtube.com/watch?v=kyk1_C-pLuA" target="_blank" rel="noopener noreferrer" class="group border border-[#e6dec9] border-t-2 border-t-[#b58b4c]/40 bg-gradient-to-br from-[#fdfcf7]/80 to-[#fcfaf2]/60 rounded-md p-3.5 flex flex-col justify-between gap-3 min-h-[96px] hover:border-[#b58b4c] hover:shadow-sm transition-all">
+							<h4 class="font-display text-sm text-[#2c241e] leading-snug group-hover:text-[#b58b4c] transition-colors">Umineko Tsubasa — Carta de Bernkastel</h4>
+							<span class="font-mono text-[8px] text-[#a09082] uppercase tracking-wider self-end">2016 ↗</span>
+						</a>
+
+						{/* Higurashi Kizuna */}
+						<a href="https://youtu.be/7lJav3O3v_g" target="_blank" rel="noopener noreferrer" class="group border border-[#e6dec9] border-t-2 border-t-[#b58b4c]/40 bg-gradient-to-br from-[#fdfcf7]/80 to-[#fcfaf2]/60 rounded-md p-3.5 flex flex-col justify-between gap-3 min-h-[96px] hover:border-[#b58b4c] hover:shadow-sm transition-all">
+							<h4 class="font-display text-sm text-[#2c241e] leading-snug group-hover:text-[#b58b4c] transition-colors">Higurashi: Kizuna</h4>
+							<span class="font-mono text-[8px] text-[#a09082] uppercase tracking-wider self-end">2018 ↗</span>
+						</a>
+
 					</div>
 				</section>
 
