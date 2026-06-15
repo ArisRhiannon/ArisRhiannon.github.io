@@ -1,0 +1,510 @@
+---
+// src/pages/zzz-dibujos/index.astro
+
+const drawings = [
+  {
+    id: 1,
+    artist: "Lau",
+    title: "Seth — salaryman japonés",
+    image: "/zzz-dibujos/lau.jpg",
+    reviewBlocks: [
+      {
+        type: "p",
+        text: "Podrá no parecer un dibujo muy interesante si no conocen el contexto de Lau. Es un Seth con ropa de salaryman japonés. La primera vez que lo vi, sin leer el contexto, pensé que era de HAND, un trabajador de HAND… Para ser de Victoria Services, le falta más ese estilo gótico, victoriano elegante…"
+      },
+      {
+        type: "p",
+        text: "Pero, dejando eso de lado, el dibujo es el resultado del reciente esfuerzo que Lau ha estado poniendo para desarrollar su habilidad para ilustrar, y eso se aprecia. Aunque la creatividad pudo ser mayor, añadiendo un par de detalles del estilo que mencioné antes, se nota que Lau está dispuesto a mejorar cada día con el dibujo; hace unas semanas ni siquiera podía hacer una cara."
+      }
+    ],
+    verdict: "Sigue así, Lau. A todos nos sorprende cómo has estado mejorando en estas pocas semanas. Ver cómo mejoras dibujo a dibujo es fantástico."
+  },
+  {
+    id: 2,
+    artist: "Xoft",
+    title: "Spookshack en Belobog inc.",
+    image: "/zzz-dibujos/Xoft.png",
+    reviewBlocks: [
+      {
+        type: "p",
+        text: "Lo primero que notas al ver esta ilustración es el estilo de Xoft: no puedes confundirlo. Y también se notan los gustos de Xoft: Manato en primer plano con ropa de Anton."
+      },
+      {
+        type: "p",
+        text: "Aunque la técnica de Xoft todavía es joven, tiene muy buena intuición para manejar la composición y la fluidez en una obra de esta clase."
+      },
+      {
+        type: "p",
+        text: "Ahora, cada personaje:"
+      },
+      {
+        type: "list",
+        items: [
+          "<strong>Manato con ropa de Anton:</strong> ¿La ropa de Anton fue adaptada para seguir un poco más el estilo de Manato, dejando ver su cuerpo y todo eso? Tiene una pose muy natural y fluida.",
+          "<strong>Yidhari como Grace:</strong> La ropa también recibió un par de modificaciones para ajustarse mejor a ella. Me gustan sus ojos; en realidad, todo su rostro personifica bien a Yidhari.",
+          "<strong>Lucia, atrás de todo:</strong> Imagino que esa ropa que lleva es una adaptación de la ropa de Koleda. Es muy simple por estar en segundo plano, pero eso no la hace menos bonita."
+        ]
+      },
+      {
+        type: "p",
+        text: "En síntesis, los 3 personajes realmente llevan el alma de los personajes y las adaptaciones a los trajes son funcionales."
+      }
+    ],
+    verdict: "Xoft, cuando sigas madurando tu técnica de dibujo, llegarás lejos. Eres quien tiene el estilo más soul (o, al menos, quien lo ha hecho notar) de los que han participado en el evento, en mi opinión. Ese es tu punto fuerte; si lo combinaras con estudio y práctica más \"académica\", llegarías lejos muy pronto."
+  },
+  {
+    id: 3,
+    artist: "Mikao",
+    title: "Remielle AoD · Harumasa en Mockingbird",
+    isMultiple: true,
+    works: [
+      {
+        subTitle: "Remielle AoD",
+        image: "/zzz-dibujos/Mikao Remielle.png",
+        reviewBlocks: [
+          {
+            type: "p",
+            text: "Bien podrían haber pagado por el dibujo de Remielle -AoD-. Sientes que en cualquier momento empezaría a moverse y a hablar en el stream de alguna vtuber."
+          },
+          {
+            type: "p",
+            text: "La calidad de este dibujo es outstanding. La anatomía completa y las proporciones son muy acertadas para el estándar actual de ilustraciones de monas chinas."
+          },
+          {
+            type: "p",
+            text: "Vaya, los detalles también son increíbles. Mikao dio el paso extra y creó un traje nuevo para Remielle. Realmente parece una Idol de AoD. Y esa calceta que lleva en el pie derecho se parece a la de Sunna. ¿Será intencional? El halo, el motivo de alas (quizás por ello eligió justamente a Remielle-AoD), que sea rosadita… Ella encaja muy bien y la adaptación lo eleva al siguiente nivel."
+          }
+        ],
+        verdict: "Bastantes personas pagarían por una skin con este concepto ingame."
+      },
+      {
+        subTitle: "Harumasa en Mockingbird",
+        image: "/zzz-dibujos/Mikao Harumasa.png",
+        reviewBlocks: [
+          {
+            type: "p",
+            text: "Esta ropa me recuerda a los diseños góticos que tenía la squad de Miyabi hace unos cuantos parches. Totalmente lo vería al lado de Hugo siendo su beta boytoy con esa ropa de femboy gótico… El renderizado de la ropa es increíble; se ve como lo que intenta ser. Me dan ganas de quitarle esa ropa, a pesar de que sea increíble."
+          }
+        ],
+        verdict: "Mikao probablemente es la persona con más skill técnica para dibujar de Familia Proxy. Su mejora constante la hará una artista muy popular en poco tiempo si se lo propone."
+      }
+    ]
+  },
+  {
+    id: 4,
+    artist: "Zero Rata",
+    title: "Zhao Policía",
+    image: "/zzz-dibujos/ZeroRat.jpg",
+    reviewBlocks: [
+      {
+        type: "p",
+        text: "Un diseño simple pero funcional. Se vería muy cute como una skin mod de Zhao: una Zhao con un sombrerito ridículo moe y un traje de NEPS todo formal."
+      }
+    ],
+    verdict: "Creo que se perdieron un par de oportunidades al adaptar el diseño a Zhao, o al poder mostrar el cuerpo completo para crear esa oportunidad… Hubiera sido interesante verlo."
+  },
+  {
+    id: 5,
+    artist: "Aris Rhiannon",
+    title: "Miyabi de Victoria Services",
+    image: "/zzz-dibujos/Aris Miyabi.png",
+    reviewBlocks: [
+      {
+        type: "p",
+        text: "Aah, un dibujo que parece hecho en 2 minutos para el Gartic Phone. Está muy moe, pero básicamente es Miyabi con ropa de maid victoriana. Aunque me parece adorable verle esa expresión, también pierde oportunidades al poder mostrar a Miyabi con la ropa. ¿Quizás una diadema de maid adaptada para sus enormes orejas? Hubiera sido divertido de ver. Al igual que con ZeroRata, perdió la oportunidad de mostrar más creatividad al hacer solo un busto del personaje."
+      }
+    ]
+  },
+  {
+    id: 6,
+    artist: "Haruto",
+    title: "Curi",
+    image: "/zzz-dibujos/Haruto.png",
+    reviewBlocks: [
+      {
+        type: "p",
+        text: "Buen curi, supongo. Creo que es del arco en que Walre intentaba besuquearse con Aragami (Fumiya). Espero que esa época fuera buena para él."
+      },
+      {
+        type: "p",
+        text: "La creatividad de Haru en este curi es increíble. Pero quizás uno donde se besuquea con la representación de Aragami hubiera estado mejor. Papu es 1:1 con el real, y eso suma puntos. Con todo, creo que a Haru le llegó el panfleto incorrecto esta vez: no era un concurso de curis uwu."
+      }
+    ],
+    verdict: "Vuelve a dibujar, Haru."
+  },
+  {
+    id: 7,
+    artist: "Meltbrine",
+    title: "Jufufu HSO6",
+    image: "/zzz-dibujos/Meltbrine.png",
+    reviewBlocks: [
+      {
+        type: "p",
+        text: "Ni siquiera tenía idea de que Meltbrine pudiera garabatear así. Está muy linda la cara de Jufufu."
+      },
+      {
+        type: "p",
+        text: "Parece el traje estándar de Miyabi; es como si le hubieran cortado la cabeza a Miyabi y Jufufu hubiera decidido tomar su cuerpo degollado. ¿Por qué haría esto Jufufu? Quizás pensó que así finalmente obtendría el poder suficiente para que la vieran como realmente intimidante. A saber."
+      }
+    ],
+    verdict: "Pero muy bien, Melt. Es muy moe el dibujo :3 Quizás podrías intentar dibujar también como un hobby más serio; tienes buena intuición."
+  },
+  {
+    id: 8,
+    artist: "Faulty32",
+    title: "Cissia en Obolos",
+    image: "/zzz-dibujos/Faulty.jpg",
+    reviewBlocks: [
+      {
+        type: "p",
+        text: "Este dibujo me hace reír por alguna razón siempre que lo veo. Me hace mucha gracia la pose y la expresión de Cissia. El estilo me recuerda a las Chicas Superpoderosas. Es Cissia con la ropa de Trigger, básicamente. Es muy moe."
+      },
+      {
+        type: "p",
+        text: "Dios, me sigue provocando risa con solo verla. Y encima ni se molestó en rotar la fotografía. Ahora mismo estoy girando la cabeza para poder verla mejor. Espero que estés feliz, Faulty."
+      },
+      {
+        type: "p",
+        text: "Pero el dibujo en sí es limpio y se nota que sabe cómo funcionan un par de cosas de la ropa. Tal y como en otros dibujos, solo tomó la ropa de Trigger sin hacer adaptaciones muy notorias para ajustarla a Cissia. De igual manera, es un muy buen dibujo."
+      }
+    ],
+    verdict: "Por favor, la próxima vez gira la fotografía con alguna herramienta :c"
+  },
+  {
+    id: 9,
+    artist: "iAndre",
+    title: "Sin título",
+    image: "/zzz-dibujos/iAndre.png",
+    reviewBlocks: [
+      {
+        type: "p",
+        text: "Ni siquiera sé por dónde empezar. Creo que es un dibujo machista: una poronga con lentes. ¿Qué se supone que sea? Y encima es una hoja toda doblada sin cuidado, como si la hubiese hallado en un vertedero… Esa sonrisa me recuerda a Papu; quizás lo estaba dibujando."
+      }
+    ],
+    verdict: "No sigas dibujando, mano."
+  },
+  {
+    id: 10,
+    artist: "Deivid",
+    title: "Zhu Yuan en Sons of Calydon",
+    image: "/zzz-dibujos/DEivid.jpg",
+    reviewBlocks: [
+      {
+        type: "p",
+        text: "No conozco al segundo personaje, así que solo hablaré de Zhu."
+      },
+      {
+        type: "p",
+        text: "Uno de los diseños más creativos. Toma el diseño de Zhu y lo transfiere a los Sons of Calydon: esa chaqueta con el estilo de los Sons of Calydon, el cambio del arma, la clase de munición… En el aspecto creativo, es muy interesante. Ciertamente se lo pensó y tuvo esa creatividad."
+      },
+      {
+        type: "p",
+        text: "El fondo es un poco más abstracto y simple, pero es (además del de Xoft) el único dibujo que tuvo un background con sentido. (Por cierto, revisando el dibujo de Xoft, parece que hay una de esas máquinas de Belobog atrás, la naranja.)"
+      },
+      {
+        type: "p",
+        text: "La chaqueta de Zhu incluso tiene partes de armadura. Eso es atención al detalle."
+      }
+    ],
+    verdict: "Si Deivid siguiera dibujando, probablemente llegaría a niveles interesantes."
+  }
+];
+
+// Flat list of all images for the lightbox carousel
+const allImages = drawings.flatMap(d => {
+  if (d.isMultiple && d.works) {
+    return d.works.map(w => ({
+      src: w.image,
+      title: `${d.artist} — ${w.subTitle}`,
+      artist: d.artist
+    }));
+  }
+  return [{
+    src: d.image || '',
+    title: `${d.artist} — ${d.title}`,
+    artist: d.artist
+  }];
+});
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Galería de Dibujos — ZZZ Latam</title>
+    <meta name="description" content="Exposición de dibujos del evento de Zenless Zone Zero Latam y reseñas honestas del staff." />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-[#faf7f2] text-[#2c241e] font-serif selection:bg-[#b58b4c]/20 selection:text-[#5c4018] min-h-screen relative overflow-x-hidden pb-24">
+    
+    {/* Frame decorativo */}
+    <div class="fixed inset-2 sm:inset-4 pointer-events-none border border-[#e6dec9]/60 z-50 rounded-sm"></div>
+    <div class="fixed inset-3 sm:inset-[18px] pointer-events-none border border-[#b58b4c]/10 z-50 rounded-sm"></div>
+
+    {/* Botón Volver */}
+    <div class="max-w-4xl mx-auto px-6 pt-12 md:pt-16 relative z-10">
+      <a href="/" class="inline-flex items-center gap-2 text-[#b58b4c] hover:text-[#2c241e] font-mono text-xs tracking-widest uppercase transition-colors duration-300 group">
+        <span class="transform group-hover:-translate-x-1 transition-transform duration-300">←</span> Volver al portafolio
+      </a>
+    </div>
+
+    {/* Cabecera de la Exposición */}
+    <header class="max-w-3xl mx-auto px-6 text-center pt-8 pb-16 md:pb-24 relative z-10">
+      <span class="font-mono text-xs tracking-[0.2em] text-[#b58b4c] uppercase block mb-3">Exposición Temporal</span>
+      <h1 class="font-display font-semibold text-3xl md:text-5xl tracking-[0.08em] text-[#2c241e] uppercase mb-6" style="font-family: 'Cinzel', serif;">
+        Reseñas del Evento de Dibujos
+      </h1>
+      <div class="w-16 h-[1px] bg-[#b58b4c]/40 mx-auto mb-8"></div>
+      <p class="font-serif italic text-lg md:text-xl text-[#7c6e62] max-w-xl mx-auto leading-relaxed">
+        “Chicos, les prometemos que no usamos AI para escribir esto, sob.”
+      </p>
+    </header>
+
+    {/* Feed de Obras */}
+    <main class="max-w-4xl mx-auto px-6 space-y-24 md:space-y-36 relative z-10">
+      {drawings.map((d, index) => (
+        <article class="space-y-8 md:space-y-12">
+          {/* Cabecera del participante */}
+          <div class="flex items-center gap-4 border-b border-[#e6dec9]/60 pb-3">
+            <span class="font-mono text-sm text-[#b58b4c]">0{index + 1}</span>
+            <h2 class="font-display text-2xl tracking-[0.05em] font-semibold text-[#2c241e] uppercase" style="font-family: 'Cinzel', serif;">
+              {d.artist}
+            </h2>
+          </div>
+
+          {!d.isMultiple ? (
+            /* Layout para dibujos individuales */
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start">
+              {/* Contenedor de la Imagen */}
+              <div class="md:col-span-5 space-y-2">
+                <div class="border border-[#e6dec9]/60 p-2.5 bg-white shadow-sm hover:shadow-md transition-shadow duration-300 rounded-sm">
+                  <img 
+                    src={d.image} 
+                    alt={`Dibujo de ${d.artist} — ${d.title}`} 
+                    class="w-full h-auto object-contain cursor-zoom-in hover:opacity-95 transition-opacity duration-300 max-h-[480px] bg-neutral-50 rounded-xs"
+                    data-gallery-img
+                    data-src={d.image}
+                  />
+                </div>
+                <div class="text-center md:text-left px-1">
+                  <span class="font-serif italic text-sm text-[#7c6e62]">{d.title}</span>
+                </div>
+              </div>
+
+              {/* Contenedor de la Reseña */}
+              <div class="md:col-span-7 space-y-6">
+                <div class="prose prose-stone font-serif text-base md:text-[17px] leading-relaxed text-[#2c241e]/90 space-y-4">
+                  {d.reviewBlocks.map((block) => (
+                    block.type === "list" ? (
+                      <ul class="list-disc pl-5 space-y-3 my-4">
+                        {block.items?.map((item) => (
+                          <li class="pl-1" set:html={item} />
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>{block.text}</p>
+                    )
+                  ))}
+                </div>
+
+                {d.verdict && (
+                  <div class="bg-[#f7f4ec] border-l-2 border-[#b58b4c] p-4 md:p-5 rounded-r-sm">
+                    <p class="font-serif italic text-base md:text-[17px] text-[#5c4018] leading-relaxed">
+                      {d.verdict}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* Layout para participantes con múltiples obras (ej. Mikao) */
+            <div class="space-y-16">
+              {d.works?.map((work, subIndex) => (
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start pt-4">
+                  {/* Contenedor de la Imagen */}
+                  <div class="md:col-span-5 space-y-2">
+                    <div class="border border-[#e6dec9]/60 p-2.5 bg-white shadow-sm hover:shadow-md transition-shadow duration-300 rounded-sm">
+                      <img 
+                        src={work.image} 
+                        alt={`Dibujo de ${d.artist} — ${work.subTitle}`} 
+                        class="w-full h-auto object-contain cursor-zoom-in hover:opacity-95 transition-opacity duration-300 max-h-[480px] bg-neutral-50 rounded-xs"
+                        data-gallery-img
+                        data-src={work.image}
+                      />
+                    </div>
+                    <div class="text-center md:text-left px-1">
+                      <span class="font-serif italic text-sm text-[#7c6e62]">{work.subTitle}</span>
+                    </div>
+                  </div>
+
+                  {/* Contenedor de la Reseña */}
+                  <div class="md:col-span-7 space-y-6">
+                    <div class="prose prose-stone font-serif text-base md:text-[17px] leading-relaxed text-[#2c241e]/90 space-y-4">
+                      {work.reviewBlocks.map((block) => (
+                        <p>{block.text}</p>
+                      ))}
+                    </div>
+
+                    {work.verdict && (
+                      <div class="bg-[#f7f4ec] border-l-2 border-[#b58b4c] p-4 md:p-5 rounded-r-sm">
+                        <p class="font-serif italic text-base md:text-[17px] text-[#5c4018] leading-relaxed">
+                          {work.verdict}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </article>
+      ))}
+    </main>
+
+    {/* Visor Lightbox Modal */}
+    <div 
+      id="lightbox" 
+      class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-between p-4 opacity-0 pointer-events-none transition-all duration-300"
+      role="dialog"
+      aria-label="Visor de dibujos"
+    >
+      {/* Botón cerrar arriba derecha */}
+      <button 
+        id="lightbox-close" 
+        class="absolute top-4 right-4 md:top-6 md:right-6 text-white/70 hover:text-white text-3xl font-light w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors focus:outline-none z-55"
+        aria-label="Cerrar visor"
+      >
+        &times;
+      </button>
+
+      {/* Botón Anterior */}
+      <button 
+        id="lightbox-prev" 
+        class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 text-white/50 hover:text-white text-4xl font-light w-14 h-14 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors focus:outline-none z-55"
+        aria-label="Imagen anterior"
+      >
+        &#8249;
+      </button>
+
+      {/* Imagen Principal */}
+      <div class="w-full h-full max-w-4xl flex items-center justify-center px-8 py-16">
+        <img 
+          id="lightbox-img" 
+          src="" 
+          alt="" 
+          class="max-w-full max-h-full object-contain select-none transition-transform duration-300"
+        />
+      </div>
+
+      {/* Botón Siguiente */}
+      <button 
+        id="lightbox-next" 
+        class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 text-white/50 hover:text-white text-4xl font-light w-14 h-14 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors focus:outline-none z-55"
+        aria-label="Siguiente imagen"
+      >
+        &#8250;
+      </button>
+
+      {/* Pie de página con información e índice */}
+      <div class="w-full text-center pb-6 md:pb-8 text-white px-6">
+        <p id="lightbox-title" class="font-serif text-lg md:text-xl font-medium tracking-wide mb-1"></p>
+        <p id="lightbox-index" class="font-mono text-xs text-white/60"></p>
+      </div>
+    </div>
+
+    {/* Script para interactividad del Lightbox */}
+    <script define:vars={{ allImages }}>
+      let currentIdx = 0;
+      
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = document.getElementById('lightbox-img');
+      const lightboxTitle = document.getElementById('lightbox-title');
+      const lightboxIndex = document.getElementById('lightbox-index');
+      
+      const closeBtn = document.getElementById('lightbox-close');
+      const prevBtn = document.getElementById('lightbox-prev');
+      const nextBtn = document.getElementById('lightbox-next');
+
+      // Open Lightbox
+      function openLightbox(src) {
+        // Find matching image index
+        const idx = allImages.findIndex(img => img.src === src);
+        if (idx !== -1) {
+          currentIdx = idx;
+          updateLightbox();
+          lightbox.classList.remove('opacity-0', 'pointer-events-none');
+          document.body.classList.add('overflow-hidden');
+        }
+      }
+
+      // Close Lightbox
+      function closeLightbox() {
+        lightbox.classList.add('opacity-0', 'pointer-events-none');
+        document.body.classList.remove('overflow-hidden');
+      }
+
+      // Navigate Lightbox
+      function showPrev() {
+        currentIdx = (currentIdx - 1 + allImages.length) % allImages.length;
+        updateLightbox();
+      }
+
+      // Navigate Lightbox Next
+      function showNext() {
+        currentIdx = (currentIdx + 1) % allImages.length;
+        updateLightbox();
+      }
+
+      // Update Lightbox contents
+      function updateLightbox() {
+        const item = allImages[currentIdx];
+        if (item) {
+          lightboxImg.src = item.src;
+          lightboxImg.alt = item.title;
+          lightboxTitle.textContent = item.title;
+          lightboxIndex.textContent = `${currentIdx + 1} / ${allImages.length}`;
+        }
+      }
+
+      // Event Listeners
+      document.querySelectorAll('[data-gallery-img]').forEach(el => {
+        el.addEventListener('click', (e) => {
+          const src = e.target.getAttribute('data-src');
+          openLightbox(src);
+        });
+      });
+
+      closeBtn.addEventListener('click', closeLightbox);
+      prevBtn.addEventListener('click', showPrev);
+      nextBtn.addEventListener('click', showNext);
+
+      // Close on clicking backdrop (except image or controls)
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox || e.target.id === 'lightbox-img' || e.target.tagName === 'DIV') {
+          if (e.target.id === 'lightbox' || e.target.closest('#lightbox') && !e.target.closest('button') && !e.target.closest('img')) {
+            closeLightbox();
+          }
+        }
+      });
+
+      // Keyboard Controls
+      document.addEventListener('keydown', (e) => {
+        if (lightbox.classList.contains('opacity-0')) return;
+        
+        if (e.key === 'Escape') {
+          closeLightbox();
+        } else if (e.key === 'ArrowLeft') {
+          showPrev();
+        } else if (e.key === 'ArrowRight') {
+          showNext();
+        }
+      });
+    </script>
+  </body>
+</html>
