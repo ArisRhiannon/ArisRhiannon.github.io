@@ -436,7 +436,7 @@ const allImages = drawings.flatMap(d => {
     >
       <div id="sparkle-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
 
-      <div id="winner-content" class="max-w-4xl w-full flex flex-col items-center gap-6 text-center transform scale-95 opacity-0 transition-all duration-500">
+      <div id="winner-content" class="max-w-4xl w-full flex flex-col items-center gap-6 text-center transform scale-95 opacity-0 transition-all duration-700">
         <h3 class="text-[#ffd166] text-2xl md:text-3xl font-bold tracking-widest uppercase">
           Mikao, pe
         </h3>
@@ -469,9 +469,9 @@ const allImages = drawings.flatMap(d => {
       </div>
     </div>
 
-    {/* Estilo para los destellos mágicos */}
+    {/* Estilo para los destellos mágicos multi-fase */}
     <style is:global>
-      @keyframes sparkle-burst {
+      @keyframes fast-burst {
         0% {
           transform: translate(-50%, -50%) translate(0, 0) scale(0) rotate(0deg);
           opacity: 1;
@@ -481,7 +481,25 @@ const allImages = drawings.flatMap(d => {
           opacity: 0;
         }
       }
-      .sparkle {
+
+      @keyframes slow-drift {
+        0% {
+          transform: translate(-50%, -50%) translate(0, 0) scale(0) rotate(0deg);
+          opacity: 0;
+        }
+        15% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.8;
+        }
+        100% {
+          transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(var(--scale)) rotate(var(--rot));
+          opacity: 0;
+        }
+      }
+
+      .sparkle-fast {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -489,7 +507,20 @@ const allImages = drawings.flatMap(d => {
         height: var(--size);
         background-color: var(--color);
         clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%);
-        animation: sparkle-burst var(--duration) cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        animation: fast-burst var(--duration) cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        pointer-events: none;
+        z-index: 120;
+      }
+
+      .sparkle-slow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: var(--size);
+        height: var(--size);
+        background-color: var(--color);
+        clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%);
+        animation: slow-drift var(--duration) cubic-bezier(0.2, 0.5, 0.3, 1) forwards;
         pointer-events: none;
         z-index: 120;
       }
@@ -582,7 +613,7 @@ const allImages = drawings.flatMap(d => {
       });
     </script>
 
-    {/* Script para el modal de Ganador y efectos de destellos */}
+    {/* Script para el modal de Ganador y efectos de destellos multi-fase */}
     <script>
       const winnerBtn = document.getElementById('winner-btn');
       const winnerModal = document.getElementById('winner-modal');
@@ -590,56 +621,98 @@ const allImages = drawings.flatMap(d => {
       const winnerClose = document.getElementById('winner-close');
       const sparkleContainer = document.getElementById('sparkle-container');
 
-      function spawnSparkles() {
+      // FASE 1: INICIO (Instant, high-speed mini particles)
+      function spawnFastBurst() {
         if (!sparkleContainer) return;
-        sparkleContainer.innerHTML = '';
         
-        const colors = ['#ffd166', '#fefae0', '#facc15', '#d9a05b', '#ffffff', '#a78bfa'];
+        const colors = ['#ffffff', '#facc15', '#ffd166', '#a78bfa', '#60a5fa'];
+        const count = 40;
+        
+        for (let i = 0; i < count; i++) {
+          const s = document.createElement('div');
+          s.classList.add('sparkle-fast');
+          
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 50 + Math.random() * 120;
+          const tx = Math.cos(angle) * dist;
+          const ty = Math.sin(angle) * dist;
+          
+          const size = 6 + Math.random() * 10;
+          const duration = 0.4 + Math.random() * 0.4;
+          const scale = 0.5 + Math.random() * 1.0;
+          const rot = -180 + Math.random() * 360;
+          const color = colors[Math.floor(Math.random() * colors.length)];
+
+          s.style.setProperty('--tx', `${tx}px`);
+          s.style.setProperty('--ty', `${ty}px`);
+          s.style.setProperty('--size', `${size}px`);
+          s.style.setProperty('--duration', `${duration}s`);
+          s.style.setProperty('--scale', `${scale}`);
+          s.style.setProperty('--rot', `${rot}deg`);
+          s.style.setProperty('--color', color);
+
+          sparkleContainer.appendChild(s);
+          setTimeout(() => s.remove(), duration * 1000);
+        }
+      }
+
+      // FASE 2: CLÍMAX (Slower, floating, spinning large particles + gravity drift)
+      function spawnSlowDrift() {
+        if (!sparkleContainer) return;
+        
+        const colors = ['#ffd166', '#fefae0', '#facc15', '#d9a05b', '#ffffff', '#fb7185', '#818cf8'];
         const count = 70;
         
         for (let i = 0; i < count; i++) {
-          const sparkle = document.createElement('div');
-          sparkle.classList.add('sparkle');
+          const s = document.createElement('div');
+          s.classList.add('sparkle-slow');
           
           const angle = Math.random() * Math.PI * 2;
-          const distance = 80 + Math.random() * 280;
-          const tx = Math.cos(angle) * distance;
-          const ty = Math.sin(angle) * distance;
+          const dist = 100 + Math.random() * 340;
+          const tx = Math.cos(angle) * dist;
+          // Slight downward shift simulating magical weight
+          const ty = Math.sin(angle) * dist + (30 + Math.random() * 60);
           
-          const size = 8 + Math.random() * 18;
-          const duration = 0.6 + Math.random() * 0.9;
-          const scale = 0.5 + Math.random() * 1.2;
-          const rot = -180 + Math.random() * 360;
+          const size = 10 + Math.random() * 18;
+          const duration = 1.8 + Math.random() * 1.2; // Long drift duration
+          const scale = 0.6 + Math.random() * 1.4;
+          const rot = -360 + Math.random() * 720;
           const color = colors[Math.floor(Math.random() * colors.length)];
-          
-          sparkle.style.setProperty('--tx', `${tx}px`);
-          sparkle.style.setProperty('--ty', `${ty}px`);
-          sparkle.style.setProperty('--size', `${size}px`);
-          sparkle.style.setProperty('--duration', `${duration}s`);
-          sparkle.style.setProperty('--scale', `${scale}`);
-          sparkle.style.setProperty('--rot', `${rot}deg`);
-          sparkle.style.setProperty('--color', color);
-          
-          sparkleContainer.appendChild(sparkle);
-          
-          setTimeout(() => {
-            sparkle.remove();
-          }, duration * 1000);
+
+          s.style.setProperty('--tx', `${tx}px`);
+          s.style.setProperty('--ty', `${ty}px`);
+          s.style.setProperty('--size', `${size}px`);
+          s.style.setProperty('--duration', `${duration}s`);
+          s.style.setProperty('--scale', `${scale}`);
+          s.style.setProperty('--rot', `${rot}deg`);
+          s.style.setProperty('--color', color);
+
+          sparkleContainer.appendChild(s);
+          setTimeout(() => s.remove(), duration * 1000);
         }
       }
 
       winnerBtn?.addEventListener('click', () => {
-        // Open modal
+        // Reset particles
+        if (sparkleContainer) sparkleContainer.innerHTML = '';
+        winnerContent?.classList.add('opacity-0', 'scale-95');
+        
+        // Open modal backdrop
         winnerModal?.classList.remove('opacity-0', 'pointer-events-none');
         document.body.classList.add('overflow-hidden');
         
-        // Spawn magic sparkles
-        spawnSparkles();
+        // 1. INICIO: Estallido inicial rápido
+        spawnFastBurst();
         
-        // Fade in winner drawings/content after delay
+        // 2. CLÍMAX: Lluvia y deriva de destellos lentos y grandes
+        setTimeout(() => {
+          spawnSlowDrift();
+        }, 200); // Trigger just as the fast burst peaks
+        
+        // 3. DESENLACE: Los dibujos se revelan mientras los destellos se disuelven lentamente
         setTimeout(() => {
           winnerContent?.classList.remove('opacity-0', 'scale-95');
-        }, 500);
+        }, 1200); // Fades in smoothly at 1.2s
       });
 
       function closeWinner() {
