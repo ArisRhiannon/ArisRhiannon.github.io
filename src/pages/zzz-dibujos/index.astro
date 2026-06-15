@@ -366,6 +366,16 @@ const allImages = drawings.flatMap(d => {
       ))}
     </main>
 
+    {/* Botón Ganador */}
+    <div class="max-w-4xl mx-auto px-6 pt-20 pb-8 text-center relative z-10">
+      <button 
+        id="winner-btn" 
+        class="border border-[#b58b4c] text-[#b58b4c] hover:bg-[#b58b4c]/10 active:scale-95 px-10 py-4 rounded font-mono text-sm uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-[#b58b4c]/15"
+      >
+        [ Ver Ganador ]
+      </button>
+    </div>
+
     {/* Visor Lightbox Modal */}
     <div 
       id="lightbox" 
@@ -416,6 +426,74 @@ const allImages = drawings.flatMap(d => {
         <p id="lightbox-index" class="text-xs text-white/40"></p>
       </div>
     </div>
+
+    {/* Modal de Ganador */}
+    <div 
+      id="winner-modal" 
+      class="fixed inset-0 z-[110] bg-[#14161b]/96 backdrop-blur-md flex flex-col items-center justify-center p-6 opacity-0 pointer-events-none transition-opacity duration-500"
+      role="dialog"
+      aria-label="Ganador del evento"
+    >
+      <div id="sparkle-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+
+      <div id="winner-content" class="max-w-4xl w-full flex flex-col items-center gap-6 text-center transform scale-95 opacity-0 transition-all duration-500">
+        <h3 class="text-[#ffd166] text-2xl md:text-3xl font-bold tracking-widest uppercase">
+          Mikao, pe
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+          <div class="border border-[#374151]/60 p-2.5 bg-[#282d37] rounded-sm">
+            <img 
+              src="/zzz-dibujos/Mikao Remielle.png" 
+              alt="Mikao — Remielle AoD" 
+              class="w-full h-auto max-h-[380px] object-contain rounded-xs bg-[#1f232a]"
+            />
+            <p class="text-xs text-[#94a3b8] mt-2 font-mono">// Remielle AoD</p>
+          </div>
+          <div class="border border-[#374151]/60 p-2.5 bg-[#282d37] rounded-sm">
+            <img 
+              src="/zzz-dibujos/Mikao Harumasa.png" 
+              alt="Mikao — Harumasa en Mockingbird" 
+              class="w-full h-auto max-h-[380px] object-contain rounded-xs bg-[#1f232a]"
+            />
+            <p class="text-xs text-[#94a3b8] mt-2 font-mono">// Harumasa en Mockingbird</p>
+          </div>
+        </div>
+
+        <button 
+          id="winner-close" 
+          class="border border-[#cbd5e1]/30 hover:border-white px-8 py-2.5 rounded font-mono text-xs text-[#cbd5e1] hover:text-white transition-all uppercase tracking-widest bg-white/5 active:scale-95"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+
+    {/* Estilo para los destellos mágicos */}
+    <style is:global>
+      @keyframes sparkle-burst {
+        0% {
+          transform: translate(-50%, -50%) translate(0, 0) scale(0) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(var(--scale)) rotate(var(--rot));
+          opacity: 0;
+        }
+      }
+      .sparkle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: var(--size);
+        height: var(--size);
+        background-color: var(--color);
+        clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%);
+        animation: sparkle-burst var(--duration) cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        pointer-events: none;
+        z-index: 120;
+      }
+    </style>
 
     {/* Script para interactividad del Lightbox */}
     <script define:vars={{ allImages }}>
@@ -500,6 +578,82 @@ const allImages = drawings.flatMap(d => {
           showPrev();
         } else if (e.key === 'ArrowRight') {
           showNext();
+        }
+      });
+    </script>
+
+    {/* Script para el modal de Ganador y efectos de destellos */}
+    <script>
+      const winnerBtn = document.getElementById('winner-btn');
+      const winnerModal = document.getElementById('winner-modal');
+      const winnerContent = document.getElementById('winner-content');
+      const winnerClose = document.getElementById('winner-close');
+      const sparkleContainer = document.getElementById('sparkle-container');
+
+      function spawnSparkles() {
+        if (!sparkleContainer) return;
+        sparkleContainer.innerHTML = '';
+        
+        const colors = ['#ffd166', '#fefae0', '#facc15', '#d9a05b', '#ffffff', '#a78bfa'];
+        const count = 70;
+        
+        for (let i = 0; i < count; i++) {
+          const sparkle = document.createElement('div');
+          sparkle.classList.add('sparkle');
+          
+          const angle = Math.random() * Math.PI * 2;
+          const distance = 80 + Math.random() * 280;
+          const tx = Math.cos(angle) * distance;
+          const ty = Math.sin(angle) * distance;
+          
+          const size = 8 + Math.random() * 18;
+          const duration = 0.6 + Math.random() * 0.9;
+          const scale = 0.5 + Math.random() * 1.2;
+          const rot = -180 + Math.random() * 360;
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          
+          sparkle.style.setProperty('--tx', `${tx}px`);
+          sparkle.style.setProperty('--ty', `${ty}px`);
+          sparkle.style.setProperty('--size', `${size}px`);
+          sparkle.style.setProperty('--duration', `${duration}s`);
+          sparkle.style.setProperty('--scale', `${scale}`);
+          sparkle.style.setProperty('--rot', `${rot}deg`);
+          sparkle.style.setProperty('--color', color);
+          
+          sparkleContainer.appendChild(sparkle);
+          
+          setTimeout(() => {
+            sparkle.remove();
+          }, duration * 1000);
+        }
+      }
+
+      winnerBtn?.addEventListener('click', () => {
+        // Open modal
+        winnerModal?.classList.remove('opacity-0', 'pointer-events-none');
+        document.body.classList.add('overflow-hidden');
+        
+        // Spawn magic sparkles
+        spawnSparkles();
+        
+        // Fade in winner drawings/content after delay
+        setTimeout(() => {
+          winnerContent?.classList.remove('opacity-0', 'scale-95');
+        }, 500);
+      });
+
+      function closeWinner() {
+        winnerContent?.classList.add('opacity-0', 'scale-95');
+        winnerModal?.classList.add('opacity-0', 'pointer-events-none');
+        document.body.classList.remove('overflow-hidden');
+      }
+
+      winnerClose?.addEventListener('click', closeWinner);
+      
+      // Close on clicking backdrop
+      winnerModal?.addEventListener('click', (e) => {
+        if (e.target === winnerModal) {
+          closeWinner();
         }
       });
     </script>
