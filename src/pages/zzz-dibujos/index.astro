@@ -10,7 +10,7 @@ const drawings = [
     reviewBlocks: [
       {
         type: "p",
-        text: "Podrá no parecer un dibujo muy interesante si no conocen el contexto of Lau. Es un Seth con ropa de salaryman japonés. La primera vez que lo vi, sin leer el contexto, pensé que era de HAND, un trabajador de HAND… Para ser de Victoria Services, le falta más ese estilo gótico, victoriano elegante…"
+        text: "Podrá no parecer un dibujo muy interesante si no conocen el contexto de Lau. Es un Seth con ropa de salaryman japonés. La primera vez que lo vi, sin leer el contexto, pensé que era de HAND, un trabajador de HAND… Para ser de Victoria Services, le falta más ese estilo gótico, victoriano elegante…"
       },
       {
         type: "p",
@@ -434,6 +434,13 @@ const allImages = drawings.flatMap(d => {
       role="dialog"
       aria-label="Ganador del evento"
     >
+      {/* Bandera de Perú - transparente y borrosa en el fondo */}
+      <div 
+        id="peru-flag" 
+        class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-[1500ms] z-5"
+        style="background: linear-gradient(to right, rgba(217, 30, 54, 0.16) 0%, rgba(217, 30, 54, 0.16) 33%, rgba(255, 255, 255, 0.04) 33%, rgba(255, 255, 255, 0.04) 67%, rgba(217, 30, 54, 0.16) 67%, rgba(217, 30, 54, 0.16) 100%); filter: blur(65px);"
+      ></div>
+
       <canvas id="magic-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
 
       <div id="winner-content" class="max-w-4xl w-full flex flex-col items-center gap-6 text-center transform scale-95 opacity-0 transition-all duration-1000 z-20">
@@ -468,6 +475,63 @@ const allImages = drawings.flatMap(d => {
         </button>
       </div>
     </div>
+
+    {/* Estilo para los destellos mágicos multi-fase */}
+    <style is:global>
+      @keyframes fast-burst {
+        0% {
+          transform: translate(-50%, -50%) translate(0, 0) scale(0) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(var(--scale)) rotate(var(--rot));
+          opacity: 0;
+        }
+      }
+
+      @keyframes slow-drift {
+        0% {
+          transform: translate(-50%, -50%) translate(0, 0) scale(0) rotate(0deg);
+          opacity: 0;
+        }
+        15% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.8;
+        }
+        100% {
+          transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(var(--scale)) rotate(var(--rot));
+          opacity: 0;
+        }
+      }
+
+      .sparkle-fast {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: var(--size);
+        height: var(--size);
+        background-color: var(--color);
+        clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%);
+        animation: fast-burst var(--duration) cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        pointer-events: none;
+        z-index: 120;
+      }
+
+      .sparkle-slow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: var(--size);
+        height: var(--size);
+        background-color: var(--color);
+        clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%);
+        animation: slow-drift var(--duration) cubic-bezier(0.2, 0.5, 0.3, 1) forwards;
+        pointer-events: none;
+        z-index: 120;
+      }
+    </style>
 
     {/* Script para interactividad del Lightbox */}
     <script define:vars={{ allImages }}>
@@ -505,6 +569,7 @@ const allImages = drawings.flatMap(d => {
         updateLightbox();
       }
 
+      // Navigate Lightbox Next
       function showNext() {
         currentIdx = (currentIdx + 1) % allImages.length;
         updateLightbox();
@@ -556,13 +621,14 @@ const allImages = drawings.flatMap(d => {
       });
     </script>
 
-    {/* Script para el modal de Ganador y efectos de destellos multi-fase en Canvas (12 segundos) */}
+    {/* Script para el modal de Ganador y efectos de destellos en Canvas (12 segundos) */}
     <script>
       const winnerBtn = document.getElementById('winner-btn');
       const winnerModal = document.getElementById('winner-modal');
       const winnerContent = document.getElementById('winner-content');
       const winnerClose = document.getElementById('winner-close');
       const canvas = document.getElementById('magic-canvas');
+      const peruFlag = document.getElementById('peru-flag');
       
       let animationFrameId;
       let particles = [];
@@ -626,7 +692,6 @@ const allImages = drawings.flatMap(d => {
           } else if (timeElapsed < 5000) {
             // FASE 2: CLÍMAX PARTE 1 (Vórtice)
             this.currentAngle += this.spinSpeed;
-            // Slowly drag radius to center
             this.vortexRadius = Math.max(5, this.vortexRadius - 4);
             
             const targetX = centerX + Math.cos(this.currentAngle) * this.vortexRadius;
@@ -648,8 +713,8 @@ const allImages = drawings.flatMap(d => {
             this.x += this.vx;
             this.y += this.vy;
             this.vx *= 0.96;
-            this.vy = this.vy * 0.96 + 0.12; // slow fall
-            this.x += Math.sin(timeElapsed / 150 + this.angleOffset) * 0.4; // sway
+            this.vy = this.vy * 0.96 + 0.12;
+            this.x += Math.sin(timeElapsed / 150 + this.angleOffset) * 0.4;
           } else {
             // FASE 4: DESENLACE (Polvo estelar flotando)
             if (this.phase !== 'dust') {
@@ -676,7 +741,6 @@ const allImages = drawings.flatMap(d => {
           const size = this.size * this.life;
           const innerSize = size * 0.28;
           
-          // Draw a beautiful 4-point star
           ctx.moveTo(0, -size);
           ctx.quadraticCurveTo(0, -innerSize, innerSize, -innerSize);
           ctx.lineTo(size, 0);
@@ -688,7 +752,6 @@ const allImages = drawings.flatMap(d => {
           ctx.closePath();
           ctx.fill();
           
-          // Inner core glow
           ctx.beginPath();
           ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha * 0.7})`;
           ctx.arc(0, 0, innerSize * 0.8, 0, Math.PI * 2);
@@ -715,12 +778,9 @@ const allImages = drawings.flatMap(d => {
         if (!ctx) return;
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
         const timeElapsed = Date.now() - startTime;
         
-        // Spawn active particles depending on phase
         if (timeElapsed > 2000 && timeElapsed < 5000) {
-          // Vortex active phase: feed sparkles in from outer boundaries
           if (Math.random() < 0.4) {
             const boundaryX = Math.random() * canvas.width;
             const boundaryY = Math.random() * canvas.height;
@@ -728,7 +788,6 @@ const allImages = drawings.flatMap(d => {
           }
         }
 
-        // Trigger cosmic expansion burst at 5s
         if (timeElapsed >= 5000 && !cosmicTriggered) {
           cosmicTriggered = true;
           const centerX = canvas.width / 2;
@@ -738,7 +797,6 @@ const allImages = drawings.flatMap(d => {
           }
         }
         
-        // Continuous subtle ambient stardust
         if (timeElapsed >= 8000 && timeElapsed < 12000) {
           if (Math.random() < 0.15) {
             const rx = Math.random() * canvas.width;
@@ -747,18 +805,16 @@ const allImages = drawings.flatMap(d => {
           }
         }
 
-        // Keep a very tiny passive ambient glow even after 12s
         if (timeElapsed >= 12000) {
           if (particles.length < 15 && Math.random() < 0.03) {
             const rx = Math.random() * canvas.width;
             const ry = Math.random() * (canvas.height * 0.6);
             const p = new Particle(rx, ry, 'dust');
-            p.decay = 0.002 + Math.random() * 0.004; // live longer
+            p.decay = 0.002 + Math.random() * 0.004;
             particles.push(p);
           }
         }
         
-        // Update and draw particles
         particles = particles.filter(p => p.life > 0);
         particles.forEach(p => {
           p.update(timeElapsed, canvas.width, canvas.height);
@@ -777,10 +833,10 @@ const allImages = drawings.flatMap(d => {
         resizeCanvas();
         
         winnerContent?.classList.add('opacity-0', 'scale-95');
+        peruFlag?.classList.add('opacity-0');
         winnerModal?.classList.remove('opacity-0', 'pointer-events-none');
         document.body.classList.add('overflow-hidden');
         
-        // Populate initial burst
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
         for (let i = 0; i < 70; i++) {
@@ -789,18 +845,20 @@ const allImages = drawings.flatMap(d => {
         
         animate();
         
-        // FASE 3 DELAY: Revelar contenido a los 7 segundos (después del clímax de expansión)
+        // Revelar contenido y bandera transparente difuminada de Perú al unísono (a los 6.5s)
         setTimeout(() => {
           if (active) {
             winnerContent?.classList.remove('opacity-0', 'scale-95');
+            peruFlag?.classList.remove('opacity-0');
           }
-        }, 6500); // 6.5s delay to fit perfectly with the vortex-cosmic burst
+        }, 6500);
       });
 
       function closeWinner() {
         active = false;
         cancelAnimationFrame(animationFrameId);
         winnerContent?.classList.add('opacity-0', 'scale-95');
+        peruFlag?.classList.add('opacity-0');
         winnerModal?.classList.add('opacity-0', 'pointer-events-none');
         document.body.classList.remove('overflow-hidden');
       }
