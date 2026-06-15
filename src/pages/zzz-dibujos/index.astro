@@ -241,11 +241,11 @@ const allImages = drawings.flatMap(d => {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-[#0b0c10] text-[#cbd5e1] font-mono antialiased selection:bg-[#b58b4c]/30 selection:text-white min-h-screen relative overflow-x-hidden pb-24">
+  <body class="bg-[#1f232a] text-[#cbd5e1] font-mono antialiased selection:bg-[#b58b4c]/30 selection:text-white min-h-screen relative overflow-x-hidden pb-24">
     
-    {/* Frame decorativo - versión oscura */}
-    <div class="fixed inset-2 sm:inset-4 pointer-events-none border border-[#1e293b]/40 z-50 rounded-sm"></div>
-    <div class="fixed inset-3 sm:inset-[18px] pointer-events-none border border-[#b58b4c]/10 z-50 rounded-sm"></div>
+    {/* Frame decorativo - versión oscura suavizada */}
+    <div class="fixed inset-2 sm:inset-4 pointer-events-none border border-[#374151]/30 z-50 rounded-sm"></div>
+    <div class="fixed inset-3 sm:inset-[18px] pointer-events-none border border-[#b58b4c]/15 z-50 rounded-sm"></div>
 
     {/* Botón Volver */}
     <div class="max-w-4xl mx-auto px-6 pt-12 md:pt-16 relative z-10">
@@ -261,8 +261,8 @@ const allImages = drawings.flatMap(d => {
         Reseñas del Evento de Dibujos
       </h1>
       <div class="w-16 h-[2px] bg-[#b58b4c]/40 mx-auto mb-8"></div>
-      <p class="italic text-base md:text-lg text-[#94a3b8] max-w-xl mx-auto leading-relaxed">
-        “Chicos, les prometo que no usé AI para escribir esto, sob.”
+      <p class="text-base md:text-lg text-[#94a3b8] max-w-xl mx-auto leading-relaxed">
+        Chicos, les prometo que no usé AI para escribir esto, sob.
       </p>
     </header>
 
@@ -271,7 +271,7 @@ const allImages = drawings.flatMap(d => {
       {drawings.map((d, index) => (
         <article class="space-y-8 md:space-y-12">
           {/* Cabecera del participante */}
-          <div class="flex items-center gap-4 border-b border-[#1e293b] pb-3">
+          <div class="flex items-center gap-4 border-b border-[#374151]/60 pb-3">
             <span class="text-sm text-[#b58b4c] font-bold">[{index + 1}]</span>
             <h2 class="text-xl md:text-2xl tracking-wide font-bold text-[#f1f5f9] uppercase">
               {d.artist}
@@ -283,11 +283,11 @@ const allImages = drawings.flatMap(d => {
             <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start">
               {/* Contenedor de la Imagen */}
               <div class="md:col-span-5 space-y-3">
-                <div class="border border-[#1e293b] p-2.5 bg-[#14171e] shadow-lg hover:shadow-[#b58b4c]/5 transition-shadow duration-300 rounded-sm">
+                <div class="border border-[#374151]/60 p-2.5 bg-[#282d37] shadow-lg hover:shadow-[#b58b4c]/5 transition-all duration-300 rounded-sm">
                   <img 
                     src={d.image} 
                     alt={`Dibujo de ${d.artist} — ${d.title}`} 
-                    class="w-full h-auto object-contain cursor-zoom-in hover:opacity-90 transition-opacity duration-300 max-h-[480px] bg-[#0c0d10] rounded-xs"
+                    class="w-full h-auto object-contain cursor-zoom-in hover:opacity-90 transition-opacity duration-300 max-h-[480px] bg-[#1f232a] rounded-xs"
                     data-gallery-img
                     data-src={d.image}
                   />
@@ -304,7 +304,7 @@ const allImages = drawings.flatMap(d => {
                     block.type === "list" ? (
                       <ul class="list-none pl-0 space-y-3 my-4">
                         {block.items?.map((item) => (
-                          <li class="pl-4 border-l-2 border-[#1e293b]" set:html={item} />
+                          <li class="pl-4 border-l-2 border-[#374151]" set:html={item} />
                         ))}
                       </ul>
                     ) : (
@@ -314,9 +314,9 @@ const allImages = drawings.flatMap(d => {
                 </div>
 
                 {d.verdict && (
-                  <div class="bg-[#181d26] border-l-2 border-[#b58b4c] p-4 md:p-5 rounded-r-xs">
-                    <p class="italic text-[14px] md:text-[15px] text-[#e9c46a] leading-relaxed">
-                      &gt; {d.verdict}
+                  <div class="bg-[#282d37] border-l-2 border-[#b58b4c] p-4 md:p-5 rounded-r-xs shadow-sm">
+                    <p class="text-[14px] md:text-[15px] text-[#ffd166] leading-relaxed">
+                      {d.verdict}
                     </p>
                   </div>
                 )}
@@ -329,11 +329,11 @@ const allImages = drawings.flatMap(d => {
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start pt-4">
                   {/* Contenedor de la Imagen */}
                   <div class="md:col-span-5 space-y-3">
-                    <div class="border border-[#1e293b] p-2.5 bg-[#14171e] shadow-lg hover:shadow-[#b58b4c]/5 transition-shadow duration-300 rounded-sm">
+                    <div class="border border-[#374151]/60 p-2.5 bg-[#282d37] shadow-lg hover:shadow-[#b58b4c]/5 transition-all duration-300 rounded-sm">
                       <img 
                         src={work.image} 
                         alt={`Dibujo de ${d.artist} — ${work.subTitle}`} 
-                        class="w-full h-auto object-contain cursor-zoom-in hover:opacity-90 transition-opacity duration-300 max-h-[480px] bg-[#0c0d10] rounded-xs"
+                        class="w-full h-auto object-contain cursor-zoom-in hover:opacity-90 transition-opacity duration-300 max-h-[480px] bg-[#1f232a] rounded-xs"
                         data-gallery-img
                         data-src={work.image}
                       />
@@ -352,9 +352,9 @@ const allImages = drawings.flatMap(d => {
                     </div>
 
                     {work.verdict && (
-                      <div class="bg-[#181d26] border-l-2 border-[#b58b4c] p-4 md:p-5 rounded-r-xs">
-                        <p class="italic text-[14px] md:text-[15px] text-[#e9c46a] leading-relaxed">
-                          &gt; {work.verdict}
+                      <div class="bg-[#282d37] border-l-2 border-[#b58b4c] p-4 md:p-5 rounded-r-xs shadow-sm">
+                        <p class="text-[14px] md:text-[15px] text-[#ffd166] leading-relaxed">
+                          {work.verdict}
                         </p>
                       </div>
                     )}
@@ -370,14 +370,14 @@ const allImages = drawings.flatMap(d => {
     {/* Visor Lightbox Modal */}
     <div 
       id="lightbox" 
-      class="fixed inset-0 z-[100] bg-[#07080b]/95 backdrop-blur-md flex flex-col items-center justify-between p-4 opacity-0 pointer-events-none transition-all duration-300"
+      class="fixed inset-0 z-[100] bg-[#14161b]/96 backdrop-blur-md flex flex-col items-center justify-between p-4 opacity-0 pointer-events-none transition-all duration-300"
       role="dialog"
       aria-label="Visor de dibujos"
     >
       {/* Botón cerrar arriba derecha */}
       <button 
         id="lightbox-close" 
-        class="absolute top-4 right-4 md:top-6 md:right-6 text-white/50 hover:text-white text-3xl font-light w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors focus:outline-none z-55"
+        class="absolute top-4 right-4 md:top-6 md:right-6 text-[#cbd5e1]/65 hover:text-white text-3xl font-light w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors focus:outline-none z-55"
         aria-label="Cerrar visor"
       >
         &times;
@@ -386,7 +386,7 @@ const allImages = drawings.flatMap(d => {
       {/* Botón Anterior */}
       <button 
         id="lightbox-prev" 
-        class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 text-white/40 hover:text-white text-4xl font-light w-14 h-14 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors focus:outline-none z-55"
+        class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 text-[#cbd5e1]/50 hover:text-white text-4xl font-light w-14 h-14 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors focus:outline-none z-55"
         aria-label="Imagen anterior"
       >
         &#8249;
@@ -405,7 +405,7 @@ const allImages = drawings.flatMap(d => {
       {/* Botón Siguiente */}
       <button 
         id="lightbox-next" 
-        class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 text-white/40 hover:text-white text-4xl font-light w-14 h-14 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors focus:outline-none z-55"
+        class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 text-[#cbd5e1]/50 hover:text-white text-4xl font-light w-14 h-14 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors focus:outline-none z-55"
         aria-label="Siguiente imagen"
       >
         &#8250;
