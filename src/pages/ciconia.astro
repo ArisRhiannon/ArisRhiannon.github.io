@@ -1,4 +1,19 @@
 ---
+const jsonLd = {
+	"@context": "https://schema.org",
+	"@type": "SoftwareApplication",
+	"name": "Ciconia When They Cry Phase 1 - Parche al Español",
+	"operatingSystem": "Windows",
+	"applicationCategory": "GameApplication",
+	"url": "https://arisrhiannon.github.io/ciconia/",
+	"offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+	"author": { "@type": "Person", "name": "Aris Rhiannon", "url": "https://arisrhiannon.github.io" },
+	"description": "Parche de traducción al español latinoamericano de Ciconia no Naku Koro ni Phase 1 de 07th Expansion.",
+	"downloadUrl": "https://github.com/ArisRhiannon/ciconia-es/releases/latest/download/Instalar-Parche-Ciconia-Phase1.exe",
+	"screenshot": "https://raw.githubusercontent.com/ArisRhiannon/ciconia-es/main/assets/screenshot.jpg",
+	"softwareVersion": "1.0.0",
+	"inLanguage": "es-419"
+};
 ---
 
 <html lang="es">
@@ -30,23 +45,7 @@
 		<meta name="twitter:image" content="https://raw.githubusercontent.com/ArisRhiannon/ciconia-es/main/assets/screenshot.jpg" />
 
 		{/* Structured Data */}
-		<script type="application/ld+json">
-		{JSON.stringify({
-			"@context": "https://schema.org",
-			"@type": "SoftwareApplication",
-			"name": "Ciconia When They Cry Phase 1 - Parche al Español",
-			"operatingSystem": "Windows",
-			"applicationCategory": "GameApplication",
-			"url": "https://arisrhiannon.github.io/ciconia/",
-			"offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-			"author": { "@type": "Person", "name": "Aris Rhiannon", "url": "https://arisrhiannon.github.io" },
-			"description": "Parche de traducción al español latinoamericano de Ciconia no Naku Koro ni Phase 1 de 07th Expansion.",
-			"downloadUrl": "https://github.com/ArisRhiannon/ciconia-es/releases/latest/download/Instalar-Parche-Ciconia-Phase1.exe",
-			"screenshot": "https://raw.githubusercontent.com/ArisRhiannon/ciconia-es/main/assets/screenshot.jpg",
-			"softwareVersion": "1.0.0",
-			"inLanguage": "es-419"
-		})}
-		</script>
+		<script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
 
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
