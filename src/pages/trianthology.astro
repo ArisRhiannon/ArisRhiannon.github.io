@@ -1,0 +1,151 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+---
+
+<SiteLayout
+  title="TrianThology en español — Proyecto de traducción | Aris Rhiannon"
+  description="Página provisional del parche al español latinoamericano de TrianThology: Alice of the Three-Sided Mirror."
+  canonical="https://arisrhiannon.github.io/trianthology/"
+>
+  <div class="page">
+    <section class="hero" aria-labelledby="titulo-trianthology">
+      <div class="hero-grid">
+        <div>
+          <span class="eyebrow">Parche al español · es-419</span>
+          <h1 id="titulo-trianthology" class="hero-title project-title">TrianThology</h1>
+          <p class="hero-lede">
+            <cite>Alice of the Three-Sided Mirror</cite>, traducido al español latinoamericano
+            con sus tres relatos, su historia marco y la presentación propia del juego.
+          </p>
+          <div class="hero-actions">
+            <a class="button button--primary" href="#estado">Consultar el estado</a>
+            <a class="button" href="/">Volver al inicio</a>
+          </div>
+        </div>
+
+        <aside class="brief" aria-label="Ficha del proyecto">
+          <span class="status status--progress">En preparación</span>
+          <dl>
+            <dt>Idioma</dt>
+            <dd>Español latinoamericano</dd>
+            <dt>Plataforma</dt>
+            <dd>Windows</dd>
+            <dt>Formato</dt>
+            <dd>Parche instalable</dd>
+            <dt>Descarga</dt>
+            <dd>Aún no disponible</dd>
+          </dl>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="titulo-obra">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">01 / La obra</span>
+          <h2 id="titulo-obra">Tres autores, tres historias</h2>
+        </div>
+        <p>
+          Una antología de 07th Expansion enlazada por Alice y Usagi, que observan
+          tres fragmentos con voces, géneros y reglas visuales distintas.
+        </p>
+      </div>
+
+      <div class="story-grid">
+        <article class="story-card">
+          <span class="eyebrow">Tanaka Romeo</span>
+          <h3>Country Girl</h3>
+          <p>
+            Un relato rural sobre Keiko, Mikihiko y los vínculos que permanecen
+            cuando el tiempo y la distancia cambian la forma de mirarse.
+          </p>
+        </article>
+        <article class="story-card">
+          <span class="eyebrow">Tonokawa Yūto</span>
+          <h3>Academy Love Adventure</h3>
+          <p>
+            Una comedia escolar metaficcional protagonizada por Amahara Ibito,
+            donde las convenciones del género forman parte del propio conflicto.
+          </p>
+        </article>
+        <article class="story-card">
+          <span class="eyebrow">Ryukishi07</span>
+          <h3>Vespio 2438</h3>
+          <p>
+            Ciencia ficción militar sobre el escuadrón Fox, una guerra futura
+            y las consecuencias de aquello que sus integrantes deciden proteger.
+          </p>
+        </article>
+        <article class="story-card">
+          <span class="eyebrow">Historia marco</span>
+          <h3>Alice y Usagi</h3>
+          <p>
+            El salón desde el que ambas recorren los fragmentos y construyen
+            una lectura común de historias muy diferentes entre sí.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="estado" class="section" aria-labelledby="titulo-estado">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">02 / Estado</span>
+          <h2 id="titulo-estado">Preparando la versión pública</h2>
+        </div>
+        <p>
+          La traducción está en fase de empaquetado y comprobación. Esta página
+          permanecerá como referencia estable hasta que se habilite la descarga.
+        </p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature">
+          <h3>Texto</h3>
+          <p>Traducción completa de los relatos y del marco, con terminología compartida y voces diferenciadas.</p>
+        </article>
+        <article class="feature">
+          <h3>Motor y tipografía</h3>
+          <p>Ajustes para caracteres españoles, cajas de diálogo, saltos de línea y distintas geometrías de texto.</p>
+        </article>
+        <article class="feature">
+          <h3>Imágenes</h3>
+          <p>Flujo preparado para sustituir gráficos con texto por versiones localizadas sin alterar otros recursos.</p>
+        </article>
+        <article class="feature">
+          <h3>Instalador</h3>
+          <p>Distribución pensada para una instalación sencilla, verificable y reversible en otros equipos.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="titulo-disponibilidad">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">03 / Disponibilidad</span>
+          <h2 id="titulo-disponibilidad">Todavía sin descarga pública</h2>
+        </div>
+        <p>
+          No se publicará un enlace provisional ni una redirección al repositorio.
+          El botón de descarga aparecerá aquí cuando el paquete esté listo para instalarse.
+        </p>
+      </div>
+
+      <div class="notice">
+        <span class="status status--progress">Próximamente</span>
+        <h3>Parche al español por Aris Rhiannon</h3>
+        <p>
+          La descarga incluirá únicamente la traducción y los componentes necesarios
+          para aplicarla. Será necesaria una copia propia del juego original.
+        </p>
+      </div>
+    </section>
+  </div>
+</SiteLayout>
+
+<style>
+  .project-title {
+    max-width: none;
+    font-size: clamp(3.2rem, 9vw, 7rem);
+  }
+</style>
