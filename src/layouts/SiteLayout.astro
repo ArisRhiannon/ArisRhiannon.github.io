@@ -17,11 +17,11 @@ const {
 
 const currentPath = Astro.url.pathname;
 const navItems = [
-  { href: '/', label: 'Inicio' },
-  { href: '/#proyectos', label: 'Proyectos' },
-  { href: '/trianthology/', label: 'TrianThology' },
-  { href: '/ciconia/', label: 'Ciconia' },
-  { href: '/zzz-dibujos/', label: 'Archivo ZZZ' },
+  { href: '/', label: 'Inicio', short: 'Inicio' },
+  { href: '/#proyectos', label: 'Proyectos', short: 'Proy.' },
+  { href: '/#archivo', label: 'Archivo', short: 'Archivo' },
+  { href: '/trianthology/', label: 'TrianThology', short: 'Trian' },
+  { href: '/ciconia/', label: 'Ciconia', short: 'Ciconia' },
 ];
 ---
 
@@ -33,7 +33,7 @@ const navItems = [
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content={theme === 'night' ? '#14191f' : '#1b2430'} />
+    <meta name="theme-color" content="#120f17" />
     <meta name="google-site-verification" content="imK_jF_dOkcg7xB4k7Hx6BiKjvD_U-UTXiyOxYW_2Uk" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/png" href="/favicon.png" />
@@ -59,8 +59,17 @@ const navItems = [
     <header class="site-header">
       <div class="site-header__inner">
         <a class="brand" href="/" aria-label="Aris Rhiannon, inicio">
-          <span class="brand__name">Aris Rhiannon</span>
-          <span class="brand__descriptor">Localización · es-419</span>
+          <img
+            class="brand__avatar"
+            src="https://github.com/ArisRhiannon.png?size=160"
+            width="80"
+            height="80"
+            alt=""
+          />
+          <span class="brand__copy">
+            <span class="brand__name">Aris Rhiannon</span>
+            <span class="brand__descriptor">Traducciones · es-419</span>
+          </span>
         </a>
 
         <nav aria-label="Navegación principal">
@@ -69,13 +78,22 @@ const navItems = [
               <li>
                 <a
                   href={item.href}
+                  aria-label={item.label}
                   aria-current={currentPath === item.href ? 'page' : undefined}
                 >
-                  {item.label}
+                  <span class="nav-label">{item.label}</span>
+                  <span class="nav-label nav-label--short" aria-hidden="true">{item.short}</span>
                 </a>
               </li>
             ))}
           </ul>
+        </nav>
+
+        <nav class="sidebar-contact" aria-label="Contacto">
+          <a href="https://github.com/ArisRhiannon">GitHub</a>
+          <a href="https://x.com/goddamnBern">X</a>
+          <a href="https://www.youtube.com/@GoddamnBernkastel">YouTube</a>
+          <a href="https://discord.com/users/aris_rhiannon">Discord</a>
         </nav>
       </div>
     </header>
@@ -86,18 +104,6 @@ const navItems = [
 
     <footer class="site-footer">
       <div class="site-footer__inner">
-        <div>
-          <p class="site-footer__name">Aris Rhiannon</p>
-          <p>Traducciones y archivos independientes en español latinoamericano.</p>
-        </div>
-        <nav aria-label="Enlaces de contacto">
-          <ul class="footer-links">
-            <li><a href="https://github.com/ArisRhiannon">GitHub</a></li>
-            <li><a href="https://x.com/goddamnBern">X / Twitter</a></li>
-            <li><a href="https://www.youtube.com/@GoddamnBernkastel">YouTube</a></li>
-            <li><a href="https://discord.com/users/aris_rhiannon">Discord</a></li>
-          </ul>
-        </nav>
         <p class="site-footer__legal">
           © 2026 Aris Rhiannon. Los títulos y marcas citados pertenecen a sus respectivos propietarios.
         </p>
@@ -108,53 +114,40 @@ const navItems = [
 
 <style is:global>
   :root {
-    color-scheme: light;
-    --paper: #edf0f3;
-    --surface: #f7f8fa;
-    --surface-strong: #ffffff;
-    --ink: #1b2430;
-    --muted: #596574;
-    --faint: #6f7b88;
-    --line: #ccd3db;
-    --line-strong: #8d99a7;
-    --accent: #7b315b;
-    --accent-strong: #5d2344;
-    --accent-soft: #eadbe5;
-    --positive: #26735b;
-    --warning: #9a5a25;
-    --header: #1b2430;
-    --header-ink: #f7f8fa;
-    --header-muted: #bdc6d0;
+    color-scheme: dark;
+    --paper: #120f17;
+    --surface: #19151f;
+    --surface-strong: #211b28;
+    --ink: #f0eaf3;
+    --muted: #b9afbf;
+    --faint: #8f8396;
+    --line: #3a3241;
+    --line-strong: #64566b;
+    --accent: #b96a9e;
+    --accent-strong: #e2a7ce;
+    --accent-soft: #3a2133;
+    --positive: #75b89a;
+    --warning: #c8a05d;
+    --gold: #c6a66a;
+    --header: #0d0a10;
+    --header-ink: #f4edf6;
+    --header-muted: #aa9daf;
     --focus: #f3cf4f;
     --focus-ink: #141414;
     --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
     --sans: Aptos, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     --mono: "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
     --measure: 70ch;
-    --page: 1160px;
-    --radius: 4px;
+    --page: 1380px;
+    --sidebar: 224px;
+    --radius: 2px;
   }
 
   [data-theme="night"] {
     color-scheme: dark;
-    --paper: #14191f;
-    --surface: #1c232b;
-    --surface-strong: #222a33;
-    --ink: #eef0ed;
-    --muted: #b3babd;
-    --faint: #929a9e;
-    --line: #3d4750;
-    --line-strong: #68737c;
-    --accent: #d6a657;
-    --accent-strong: #f0c875;
-    --accent-soft: #443923;
-    --positive: #8ec6a5;
-    --warning: #e4c472;
-    --header: #0f1419;
-    --header-ink: #f4f6f8;
-    --header-muted: #aeb8c2;
-    --focus: #f3cf4f;
-    --focus-ink: #101214;
+    --paper: #120f17;
+    --surface: #19151f;
+    --surface-strong: #211b28;
   }
 
   *,
@@ -165,7 +158,7 @@ const navItems = [
 
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 7.5rem;
+    scroll-padding-top: 1rem;
     background: var(--paper);
   }
 
@@ -219,9 +212,9 @@ const navItems = [
   h4 {
     margin: 0;
     color: var(--ink);
-    font-family: var(--sans);
-    font-weight: 750;
-    line-height: 1.12;
+    font-family: var(--serif);
+    font-weight: 600;
+    line-height: 1.08;
     text-wrap: balance;
   }
 
@@ -259,39 +252,53 @@ const navItems = [
   }
 
   .site-header {
-    position: sticky;
-    top: 0;
+    position: fixed;
+    inset: 0 auto 0 0;
     z-index: 40;
-    border-bottom: 1px solid color-mix(in srgb, var(--header-ink) 14%, transparent);
+    width: var(--sidebar);
+    border-right: 1px solid var(--line);
     background: var(--header);
     color: var(--header-ink);
   }
 
   .site-header__inner {
-    width: min(100% - 2rem, var(--page));
-    margin-inline: auto;
+    width: 100%;
+    height: 100%;
+    padding: 1.6rem 1.25rem 1.25rem;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-    min-height: 62px;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 1.4rem;
   }
 
   .brand {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
-    justify-content: center;
-    min-height: 48px;
+    align-items: flex-start;
+    gap: 0.8rem;
     color: var(--header-ink);
     text-decoration: none;
-    white-space: nowrap;
+  }
+
+  .brand__avatar {
+    width: 80px;
+    height: 80px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    object-fit: cover;
+    outline: 5px solid color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+
+  .brand__copy {
+    display: flex;
+    flex-direction: column;
   }
 
   .brand__name {
     font-family: var(--serif);
-    font-size: 1.06rem;
+    font-size: 1.18rem;
     font-weight: 700;
-    letter-spacing: 0.045em;
+    letter-spacing: 0.035em;
   }
 
   .brand__descriptor {
@@ -305,19 +312,25 @@ const navItems = [
   .site-nav,
   .footer-links {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.25rem 0.5rem;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.2rem;
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
+  .site-nav {
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+
   .site-nav a {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     min-height: 44px;
     padding: 0.45rem 0.65rem;
+    border-radius: var(--radius);
     color: var(--header-muted);
     font-size: 0.84rem;
     font-weight: 650;
@@ -327,79 +340,83 @@ const navItems = [
   .site-nav a:hover,
   .site-nav a[aria-current="page"] {
     color: var(--header-ink);
-    text-decoration: underline;
-    text-decoration-color: #d47a5c;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 0.42rem;
+    background: var(--accent-soft);
+  }
+
+  .nav-label--short {
+    display: none;
+  }
+
+  .sidebar-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.65rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .sidebar-contact a {
+    color: var(--header-muted);
+    font-family: var(--mono);
+    font-size: 0.67rem;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .sidebar-contact a:hover {
+    color: var(--accent-strong);
   }
 
   .site-footer {
+    margin-left: var(--sidebar);
     border-top: 1px solid var(--line);
-    background: var(--surface);
+    background: var(--paper);
   }
 
   .site-footer__inner {
-    width: min(100% - 2rem, var(--page));
+    width: min(calc(100% - 3rem), var(--page));
     margin-inline: auto;
-    padding-block: 2rem;
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-    gap: 1.5rem 3rem;
+    padding-block: 1rem;
     color: var(--muted);
-    font-size: 0.88rem;
-  }
-
-  .site-footer__name {
-    margin-bottom: 0.2rem;
-    color: var(--ink);
-    font-family: var(--serif);
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: 0.75rem;
   }
 
   .site-footer p {
     margin-bottom: 0;
   }
 
-  .footer-links {
-    justify-content: flex-end;
-  }
-
-  .footer-links a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    padding-inline: 0.35rem;
-  }
-
   .site-footer__legal {
-    grid-column: 1 / -1;
-    padding-top: 1rem;
-    border-top: 1px solid var(--line);
-    font-size: 0.76rem;
+    font-size: inherit;
+  }
+
+  main {
+    min-height: calc(100vh - 3rem);
+    margin-left: var(--sidebar);
   }
 
   .page {
-    width: min(100% - 2rem, var(--page));
+    width: min(calc(100% - 3rem), var(--page));
     margin-inline: auto;
   }
 
   .hero {
-    padding-block: clamp(2.75rem, 5vw, 4.75rem);
+    padding-block: clamp(1.8rem, 3vw, 3rem);
     border-bottom: 1px solid var(--line);
   }
 
   .hero-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(17rem, 0.75fr);
-    gap: clamp(2rem, 5vw, 4rem);
+    grid-template-columns: minmax(0, 1.45fr) minmax(17rem, 0.55fr);
+    gap: clamp(1.5rem, 4vw, 3.5rem);
     align-items: center;
   }
 
   .eyebrow {
     display: block;
     margin-bottom: 0.7rem;
-    color: var(--accent);
+    color: var(--gold);
     font-family: var(--mono);
     font-size: 0.74rem;
     font-weight: 700;
@@ -408,16 +425,16 @@ const navItems = [
   }
 
   .hero-title {
-    max-width: 18ch;
-    font-size: clamp(2.5rem, 5vw, 4.6rem);
-    letter-spacing: -0.04em;
+    max-width: 20ch;
+    font-size: clamp(2.35rem, 4vw, 4rem);
+    letter-spacing: -0.025em;
   }
 
   .hero-lede {
     max-width: 52ch;
     margin: 1rem 0 0;
     color: var(--muted);
-    font-size: clamp(1.02rem, 1.6vw, 1.2rem);
+    font-size: clamp(0.98rem, 1.4vw, 1.12rem);
     line-height: 1.5;
   }
 
@@ -453,23 +470,22 @@ const navItems = [
   }
 
   .button--primary {
-    border-color: var(--accent-strong);
-    background: var(--accent-strong);
-    color: #fff;
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #140f16;
   }
 
   .button--primary:hover {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--accent-strong);
+    background: var(--accent-strong);
+    color: #140f16;
   }
 
   .brief {
-    padding: 1.2rem 1.35rem;
+    padding: 1rem 1.15rem;
     border: 1px solid var(--line);
-    border-left: 4px solid var(--accent);
     border-radius: var(--radius);
-    background: var(--surface-strong);
+    background: var(--surface);
   }
 
   .brief dl {
@@ -494,7 +510,7 @@ const navItems = [
   }
 
   .section {
-    padding-block: clamp(2.75rem, 5vw, 4.5rem);
+    padding-block: clamp(2rem, 3.5vw, 3.5rem);
     border-bottom: 1px solid var(--line);
   }
 
@@ -503,7 +519,7 @@ const navItems = [
     grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
     gap: 2rem;
     align-items: end;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   .section-heading--compact {
@@ -511,8 +527,8 @@ const navItems = [
   }
 
   .section-heading h2 {
-    font-size: clamp(1.85rem, 3vw, 2.7rem);
-    letter-spacing: -0.03em;
+    font-size: clamp(1.65rem, 2.5vw, 2.35rem);
+    letter-spacing: -0.02em;
   }
 
   .section-heading p {
@@ -533,14 +549,13 @@ const navItems = [
   .feature,
   .story-card {
     border: 1px solid var(--line);
-    border-left: 4px solid var(--line-strong);
     border-radius: var(--radius);
-    background: var(--surface-strong);
-    padding: clamp(1.2rem, 2.5vw, 1.6rem);
+    background: var(--surface);
+    padding: clamp(1rem, 2vw, 1.35rem);
   }
 
   .project-card--featured {
-    border-left-color: var(--accent);
+    border-color: var(--line-strong);
   }
 
   .project-card h3,
@@ -725,48 +740,116 @@ const navItems = [
     border-top: 1px solid var(--line-strong);
   }
 
+  .home-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(19rem, 0.8fr);
+    gap: 1rem;
+    align-items: start;
+    padding-block: 1rem 1.5rem;
+  }
+
+  .home-grid .section {
+    padding: 1.15rem;
+    border: 1px solid var(--line);
+    background: var(--surface-strong);
+  }
+
+  .home-grid .project-grid {
+    gap: 0.75rem;
+  }
+
+  .home-grid .project-card {
+    display: flex;
+    min-height: 10.5rem;
+    flex-direction: column;
+  }
+
+  .home-grid .project-card__link {
+    margin-top: auto;
+  }
+
+  .home-grid .archive-list a {
+    min-height: 44px;
+    padding-block: 0.35rem;
+  }
+
+  @media (max-width: 1100px) {
+    :root {
+      --sidebar: 190px;
+    }
+
+    .home-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
   @media (max-width: 760px) {
-    html {
-      scroll-padding-top: 8.5rem;
+    :root {
+      --sidebar: 82px;
     }
 
     .site-header__inner {
-      align-items: flex-start;
-      flex-direction: column;
+      gap: 0.8rem;
+      padding: 0.8rem 0.45rem;
+    }
+
+    .brand {
+      align-items: center;
       gap: 0;
-      padding-block: 0.35rem;
+    }
+
+    .brand__avatar {
+      width: 48px;
+      height: 48px;
+      outline-width: 3px;
+    }
+
+    .brand__copy,
+    .sidebar-contact {
+      display: none;
     }
 
     .site-nav {
-      width: 100%;
-      flex-wrap: nowrap;
-      gap: 0 0.2rem;
-      overflow-x: auto;
-      scrollbar-width: thin;
+      padding-top: 0.65rem;
     }
 
     .site-nav a {
-      white-space: nowrap;
-      padding-inline: 0.48rem;
-      font-size: 0.78rem;
+      justify-content: center;
+      padding: 0.45rem 0.15rem;
+      font-size: 0.68rem;
+      line-height: 1.1;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+
+    .nav-label {
+      display: none;
+    }
+
+    .nav-label--short {
+      display: inline;
+    }
+
+    .page,
+    .site-footer__inner {
+      width: min(calc(100% - 1rem), var(--page));
     }
 
     .hero-grid,
-    .section-heading,
-    .site-footer__inner {
+    .section-heading {
       grid-template-columns: 1fr;
     }
 
     .hero {
-      padding-top: 2.5rem;
+      padding-block: 1.5rem;
     }
 
     .hero-title {
-      font-size: clamp(2.45rem, 12vw, 3.8rem);
+      font-size: clamp(2.15rem, 10vw, 3.25rem);
     }
 
     .brief {
-      max-width: 28rem;
+      max-width: none;
     }
 
     .project-grid,
@@ -775,36 +858,27 @@ const navItems = [
       grid-template-columns: 1fr;
     }
 
-    .footer-links {
-      justify-content: flex-start;
+    .button-row .button {
+      width: 100%;
     }
   }
 
   @media (max-width: 430px) {
-    .page,
-    .site-header__inner,
-    .site-footer__inner {
-      width: min(100% - 1.25rem, var(--page));
+    :root {
+      --sidebar: 72px;
+    }
+
+    .site-header__inner {
+      padding-inline: 0.3rem;
     }
 
     .site-nav a {
-      font-size: 0.74rem;
-    }
-
-    .brand {
-      min-height: 38px;
-    }
-
-    .brand__descriptor {
-      display: none;
+      min-height: 42px;
+      font-size: 0.63rem;
     }
 
     .hero-actions .button {
-      flex: 1 1 9.5rem;
-    }
-
-    .button-row .button {
-      width: 100%;
+      flex: 1 1 9rem;
     }
 
     .archive-list a {
