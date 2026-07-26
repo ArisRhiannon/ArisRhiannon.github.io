@@ -1,498 +1,229 @@
 ---
-import FAQItem from '../components/FAQItem.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+
+const archive = [
+  {
+    title: 'Rose Guns Days — Temporada 1',
+    meta: 'Traducción · 2014',
+    href: 'https://23rddistrict.wordpress.com/2014/12/20/rose-guns-days-season-1-version-final-al-espanol/',
+  },
+  {
+    title: 'Umineko no Naku Koro ni — Hane',
+    meta: 'Traducción · 2014',
+    href: 'https://23rddistrict.wordpress.com/umineko-hane/',
+  },
+  {
+    title: 'Higanbana no Saku Yoru ni — Primera Noche',
+    meta: 'Traducción',
+    href: 'https://utopiaclassroom.blogspot.com/p/primera-noche_13.html',
+  },
+  {
+    title: 'Umineko Tsubasa — Carta de Bernkastel',
+    meta: 'Video · 2016',
+    href: 'https://www.youtube.com/watch?v=kyk1_C-pLuA',
+  },
+  {
+    title: 'Higurashi no Naku Koro ni: Kizuna',
+    meta: 'Video · 2018',
+    href: 'https://youtu.be/7lJav3O3v_g',
+  },
+];
 ---
 
-<html lang="es">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/png" href="/favicon.png" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="google-site-verification" content="imK_jF_dOkcg7xB4k7Hx6BiKjvD_U-UTXiyOxYW_2Uk" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Aris Rhiannon — Traducciones al español de 07th Expansion</title>
-		<meta name="description" content="Sitio web personal de Aris Rhiannon. Auditoría de seguridad npm y parches de traducción." />
-		<link rel="canonical" href="https://arisrhiannon.github.io/" />
-		
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-	</head>
-	<body class="bg-[#faf7f2] text-[#2c241e] font-serif selection:bg-[#b58b4c]/20 selection:text-[#5c4018] min-h-screen relative overflow-x-hidden">
-		
-		{/* Vintage Double-Line Viewport Border Frame */}
-		<div class="fixed inset-2 sm:inset-4 pointer-events-none border border-[#e6dec9]/60 z-50 rounded-sm"></div>
-		<div class="fixed inset-3 sm:inset-[18px] pointer-events-none border border-[#b58b4c]/10 z-50 rounded-sm"></div>
+<SiteLayout
+  title="Aris Rhiannon — Traducciones al español de 07th Expansion"
+  description="Traducciones, parches y archivos independientes de obras de 07th Expansion en español latinoamericano."
+  canonical="https://arisrhiannon.github.io/"
+>
+  <div class="page">
+    <section class="hero" aria-labelledby="titulo-principal">
+      <div class="hero-grid">
+        <div>
+          <span class="eyebrow">Archivo independiente · español latinoamericano</span>
+          <h1 id="titulo-principal" class="hero-title">Historias que pueden leerse sin tropezar con la traducción.</h1>
+          <p class="hero-lede">
+            Localizaciones de novelas visuales con atención al tono, la coherencia y la instalación.
+            El objetivo es sencillo: que el español acompañe a la obra y no se interponga entre ella y quien la lee.
+          </p>
+          <div class="hero-actions">
+            <a class="button button--primary" href="#proyectos">Explorar proyectos</a>
+            <a class="button" href="/ciconia/">Descargar Ciconia</a>
+          </div>
+        </div>
 
-		{/* Subtle top background gold glow */}
-		<div class="absolute top-0 right-0 w-full lg:w-[calc(100%-280px)] h-[400px] bg-[radial-gradient(circle_at_top_right,rgba(181,139,76,0.06)_0%,transparent_60%)] pointer-events-none z-0"></div>
+        <aside class="brief" aria-label="Estado del archivo">
+          <span class="eyebrow">Estado actual</span>
+          <dl>
+            <dt>Ciconia</dt>
+            <dd>Disponible</dd>
+            <dt>TrianThology</dt>
+            <dd>En preparación</dd>
+            <dt>Variante</dt>
+            <dd>es-419</dd>
+            <dt>Licencia</dt>
+            <dd>Gratuito</dd>
+          </dl>
+        </aside>
+      </div>
+    </section>
 
-		{/* Responsive Layout Grid */}
-		<div class="lg:grid lg:grid-cols-[280px_1fr] min-h-screen relative z-10">
-			
-			{/* MOBILE HEADER */}
-			<header class="lg:hidden sticky top-0 z-50 bg-[#faf7f2]/95 border-b border-[#e6dec9]/60 backdrop-blur-md px-6 py-4 flex justify-between items-center">
-				<a href="/" class="flex flex-col">
-					<span class="font-display text-sm tracking-[0.15em] font-semibold text-[#2c241e]">
-						ARIS RHIANNON
-					</span>
-					<span class="font-mono text-[8px] text-[#b58b4c] uppercase tracking-wider mt-0.5">Development Portfolio</span>
-				</a>
-				<button 
-					id="menu-toggle"
-					class="p-2 border border-[#e6dec9] rounded bg-[#faf7f2]/50 hover:bg-[#faf7f2] hover:border-[#b58b4c] transition-colors focus:outline-none"
-					aria-label="Toggle menu"
-				>
-					<svg class="w-5 h-5 text-[#2c241e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-					</svg>
-				</button>
-			</header>
+    <section id="proyectos" class="section" aria-labelledby="titulo-proyectos">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">01 / Proyectos</span>
+          <h2 id="titulo-proyectos">Traducciones actuales</h2>
+        </div>
+        <p>
+          Cada página reúne el estado real del proyecto, su alcance y, cuando corresponde,
+          una descarga directa con instrucciones claras.
+        </p>
+      </div>
 
-			{/* MOBILE NAVIGATION OVERLAY */}
-			<div 
-				id="mobile-menu"
-				class="hidden fixed inset-0 z-40 bg-[#faf7f2] pt-24 px-8 flex flex-col justify-between pb-12 animate-fade-in"
-			>
-				<div class="space-y-10">
-					{/* Profile Header in Mobile Drawer */}
-					<div class="flex flex-col gap-4 border-b border-[#e6dec9]/40 pb-6">
-						<div class="flex items-center gap-4">
-							<div class="w-14 h-14 rounded-full border border-[#b58b4c]/30 p-1 flex items-center justify-center bg-[#faf7f2]">
-								<img 
-									src="https://avatars.githubusercontent.com/u/220097246?v=4" 
-									alt="Aris Rhiannon" 
-									class="w-full h-full rounded-full object-cover filter saturate-75 contrast-110" 
-								/>
-							</div>
-							<div>
-								<span class="font-display text-sm tracking-[0.05em] font-semibold text-[#2c241e] block">
-									ARIS RHIANNON
-								</span>
-								<span class="font-mono text-[8px] text-[#b58b4c] uppercase tracking-widest block">
-									@ArisRhiannon
-								</span>
-							</div>
-						</div>
-						
-						{/* Naked Social Links List (Mobile) */}
-						<div class="bg-[#fdfcf7]/60 border border-[#e6dec9]/60 rounded-md p-3.5 space-y-2.5 font-mono text-[9px] text-[#7c6e62] select-text">
-							<span class="block text-[8px] text-[#b58b4c] uppercase tracking-[0.15em] font-bold border-b border-[#e6dec9]/40 pb-1 mb-1.5">Canales y Contacto</span>
-							
-							<a href="https://github.com/ArisRhiannon" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
-								<span class="truncate group-hover:underline">github.com/ArisRhiannon</span>
-							</a>
-							
-							<a href="https://x.com/goddamnBern" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-								<span class="truncate group-hover:underline">x.com/goddamnBern</span>
-							</a>
-							
-							<a href="https://www.youtube.com/@GoddamnBernkastel" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12.07a29 29 0 0 0 .46 5.65 2.78 2.78 0 0 0 1.95 1.96c1.71.46 8.59.46 8.59.46s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96 29 29 0 0 0 .46-5.65 29 29 0 0 0-.46-5.65z"></path><polygon points="9.75 15.02 15.5 12.07 9.75 9.13 9.75 15.02"></polygon></svg>
-								<span class="truncate group-hover:underline">youtube.com/@GoddamnBernkastel</span>
-							</a>
-							
-							<a href="https://discord.com/users/aris_rhiannon" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 127.14 96.36" fill="currentColor"><path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a77.7,77.7,0,0,0,6.63-10.85,68.43,68.43,0,0,1-10.5-5c.89-.65,1.76-1.34,2.58-2.07a75.48,75.48,0,0,0,72.9,0c.82.73,1.69,1.42,2.58,2.07a68.43,68.43,0,0,1-10.5,5,77.7,77.7,0,0,0,6.63,10.85,105.73,105.73,0,0,0,31.06-18.83C129,54.65,123.5,31.58,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/></svg>
-								<span class="truncate group-hover:underline">discord.com/users/aris_rhiannon</span>
-							</a>
-						</div>
-					</div>
+      <div class="project-grid">
+        <article class="project-card project-card--featured">
+          <span class="status status--progress">En preparación</span>
+          <h3>TrianThology</h3>
+          <p>
+            Traducción al español de <cite>Alice in the Land of the Three-Sided Mirror</cite>:
+            tres relatos, un marco común y un parche diseñado para respetar la presentación del juego.
+          </p>
+          <a class="project-card__link" href="/trianthology/">Ver estado del proyecto →</a>
+        </article>
 
-					<nav class="flex flex-col gap-6 font-display text-lg tracking-wider text-[#2c241e]">
-						<a href="#presentacion" class="mobile-nav-link hover:text-[#b58b4c] transition-colors">Sobre Mí</a>
-						<a href="#proyectos" class="mobile-nav-link hover:text-[#b58b4c] transition-colors">Proyectos</a>
-						<a href="#descargas" class="mobile-nav-link hover:text-[#b58b4c] transition-colors">Descargas</a>
-						<a href="#faq" class="mobile-nav-link hover:text-[#b58b4c] transition-colors">FAQ</a>
-					</nav>
-				</div>
-			</div>
+        <article class="project-card project-card--featured">
+          <span class="status status--available">Disponible</span>
+          <h3>Ciconia When They Cry: Phase 1</h3>
+          <p>
+            Localización completa del texto a español latinoamericano, con instalador portátil
+            para Windows y desinstalación reversible.
+          </p>
+          <a class="project-card__link" href="/ciconia/">Descargar el parche →</a>
+        </article>
+      </div>
+    </section>
 
-			{/* DESKTOP STICKY SIDEBAR */}
-			<aside class="hidden lg:flex flex-col justify-between sticky top-0 h-screen bg-[#faf7f2] border-r border-[#e6dec9]/60 p-8 z-30 select-none">
-				<div class="space-y-10">
-					<div class="flex flex-col gap-4">
-						<div class="flex items-center gap-4">
-							<div class="w-16 h-16 rounded-full border border-[#b58b4c]/30 p-1 flex items-center justify-center bg-[#faf7f2] relative group flex-shrink-0">
-								<img 
-									src="https://avatars.githubusercontent.com/u/220097246?v=4" 
-									alt="Aris Rhiannon" 
-									class="w-full h-full rounded-full object-cover filter saturate-75 contrast-110 shadow-inner group-hover:scale-105 transition-transform" 
-								/>
-								<div class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-[#faf7f2] border border-[#e6dec9] flex items-center justify-center">
-									<span class="w-1.5 h-1.5 rounded-full bg-[#b58b4c] animate-pulse"></span>
-								</div>
-							</div>
-							<div>
-								<h1 class="font-display text-base tracking-[0.05em] font-semibold text-[#2c241e] leading-tight">
-									ARIS RHIANNON
-								</h1>
-								<span class="font-mono text-[9px] text-[#b58b4c] uppercase tracking-widest block">
-									@ArisRhiannon
-								</span>
-							</div>
-						</div>
+    <section class="section" aria-labelledby="titulo-archivo">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">02 / Archivo</span>
+          <h2 id="titulo-archivo">Trabajos anteriores</h2>
+        </div>
+        <p>
+          Traducciones y piezas publicadas a lo largo de los años. Los enlaces externos
+          abren el lugar donde se conserva cada trabajo.
+        </p>
+      </div>
 
-						{/* Naked Social Links Container */}
-						<div class="bg-[#fdfcf7]/60 border border-[#e6dec9]/60 rounded-md p-3.5 space-y-2.5 font-mono text-[9px] text-[#7c6e62] select-text">
-							<span class="block text-[8px] text-[#b58b4c] uppercase tracking-[0.15em] font-bold border-b border-[#e6dec9]/40 pb-1 mb-1.5">Canales y Contacto</span>
-							
-							<a href="https://github.com/ArisRhiannon" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
-								<span class="truncate group-hover:underline">github.com/ArisRhiannon</span>
-							</a>
-							
-							<a href="https://x.com/goddamnBern" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-								<span class="truncate group-hover:underline">x.com/goddamnBern</span>
-							</a>
-							
-							<a href="https://www.youtube.com/@GoddamnBernkastel" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12.07a29 29 0 0 0 .46 5.65 2.78 2.78 0 0 0 1.95 1.96c1.71.46 8.59.46 8.59.46s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96 29 29 0 0 0 .46-5.65 29 29 0 0 0-.46-5.65z"></path><polygon points="9.75 15.02 15.5 12.07 9.75 9.13 9.75 15.02"></polygon></svg>
-								<span class="truncate group-hover:underline">youtube.com/@GoddamnBernkastel</span>
-							</a>
-							
-							<a href="https://discord.com/users/aris_rhiannon" class="flex items-center gap-2 hover:text-[#2c241e] transition-colors py-0.5 group" target="_blank" rel="noopener noreferrer">
-								<svg class="w-3.5 h-3.5 text-[#b58b4c]/80 group-hover:text-[#b58b4c] flex-shrink-0" viewBox="0 0 127.14 96.36" fill="currentColor"><path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a77.7,77.7,0,0,0,6.63-10.85,68.43,68.43,0,0,1-10.5-5c.89-.65,1.76-1.34,2.58-2.07a75.48,75.48,0,0,0,72.9,0c.82.73,1.69,1.42,2.58,2.07a68.43,68.43,0,0,1-10.5,5,77.7,77.7,0,0,0,6.63,10.85,105.73,105.73,0,0,0,31.06-18.83C129,54.65,123.5,31.58,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/></svg>
-								<span class="truncate group-hover:underline">discord.com/users/aris_rhiannon</span>
-							</a>
-						</div>
-					</div>
+      <ul class="archive-list">
+        {archive.map((item) => (
+          <li>
+            <a href={item.href}>
+              <span class="archive-list__title">{item.title}</span>
+              <span class="archive-list__meta">{item.meta} ↗</span>
+            </a>
+          </li>
+        ))}
+        <li>
+          <a href="/zzz-dibujos/">
+            <span class="archive-list__title">Dibujitos ZZZ 2026</span>
+            <span class="archive-list__meta">Galería y reseñas</span>
+          </a>
+        </li>
+      </ul>
+    </section>
 
-					{/* Navigation */}
-					<nav class="flex flex-col gap-3 font-mono text-[11px] uppercase tracking-widest text-[#7c6e62]">
-						<a href="#presentacion" class="nav-link hover:text-[#2c241e] flex items-center gap-2 py-1 transition-colors">
-							<span class="w-1.5 h-1.5 rounded-full bg-[#b58b4c] opacity-0 transition-opacity"></span>
-							Sobre Mí
-						</a>
-						<a href="#proyectos" class="nav-link hover:text-[#2c241e] flex items-center gap-2 py-1 transition-colors">
-							<span class="w-1.5 h-1.5 rounded-full bg-[#b58b4c] opacity-0 transition-opacity"></span>
-							Proyectos
-						</a>
-						<a href="#descargas" class="nav-link hover:text-[#2c241e] flex items-center gap-2 py-1 transition-colors">
-							<span class="w-1.5 h-1.5 rounded-full bg-[#b58b4c] opacity-0 transition-opacity"></span>
-							Descargas
-						</a>
-						<a href="#faq" class="nav-link hover:text-[#2c241e] flex items-center gap-2 py-1 transition-colors">
-							<span class="w-1.5 h-1.5 rounded-full bg-[#b58b4c] opacity-0 transition-opacity"></span>
-							FAQ
-						</a>
-					</nav>
-				</div>
+    <section class="section" aria-labelledby="titulo-criterio">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">03 / Criterio</span>
+          <h2 id="titulo-criterio">Qué se cuida</h2>
+        </div>
+        <p>
+          Una traducción no termina al sustituir palabras. También debe sostener voces,
+          terminología, legibilidad y una experiencia de instalación confiable.
+        </p>
+      </div>
 
-				{/* Footer Copyright */}
-				<div class="font-mono text-[9px] text-[#a09082] tracking-widest uppercase space-y-2">
-					<p>© 2026. Aris Rhiannon.</p>
-					<div class="pt-1 opacity-70 hover:opacity-100 transition-opacity">
-						<img src="https://api.visitorbadge.io/api/VisitorHit?user=ArisRhiannon&repo=ArisRhiannon.github.io&label=visitas&labelColor=%237c6e62&countColor=%23b58b4c" alt="Contador de Visitas" class="h-4 select-none pointer-events-none" />
-					</div>
-				</div>
-			</aside>
+      <div class="feature-grid">
+        <article class="feature">
+          <h3>Lectura natural</h3>
+          <p>Español latinoamericano neutro, sin calcos innecesarios ni regionalismos que distraigan.</p>
+        </article>
+        <article class="feature">
+          <h3>Coherencia</h3>
+          <p>Nombres, tratamientos, género, número y términos narrativos revisados a través de toda la obra.</p>
+        </article>
+        <article class="feature">
+          <h3>Presentación</h3>
+          <p>Texto ajustado a las cajas y ritmos originales, con atención a fuentes, imágenes y saltos de página.</p>
+        </article>
+        <article class="feature">
+          <h3>Instalación reversible</h3>
+          <p>Parches distribuidos sin el juego original, con instrucciones directas y forma de restaurarlo.</p>
+        </article>
+      </div>
+    </section>
 
-			{/* MAIN CONTENT COLUMN */}
-			<main class="max-w-4xl px-6 sm:px-12 py-10 sm:py-16 space-y-16 relative z-10">
-				
-				{/* WELCOME / PRESENTATION */}
-				<section id="presentacion" class="scroll-mt-24 space-y-6">
-					<div class="space-y-2 border-b border-[#e6dec9]/60 pb-3">
-						<span class="font-mono text-[9px] text-[#b58b4c] uppercase tracking-[0.2em] font-semibold">01 / Introducción</span>
-						<h2 class="font-display text-2xl sm:text-3xl text-[#2c241e] uppercase tracking-wide">
-							Sobre Mí
-						</h2>
-					</div>
-					
-					<div class="bg-gradient-to-br from-[#fdfcf7] to-[#f7f3e8] border border-[#e6dec9] p-6 sm:p-8 rounded-md relative shadow-sm max-w-2xl">
-						<span class="font-display text-4xl text-[#b58b4c] leading-none absolute top-4 left-4 opacity-20 select-none">“</span>
-						<p class="text-base sm:text-lg text-[#4a3e37] italic leading-relaxed pl-4 relative z-10">
-							«El cerebro de Paimon está lleno de preguntas. Como... ¿cuál es el significado de la vida? Y... ¿qué hay de comer?»
-						</p>
-						<span class="block text-right text-xs text-[#7c6e62] font-mono not-italic mt-4 relative z-10">
-							— Paimon, Genshin Impact
-						</span>
-					</div>
-					
-					<div class="flex gap-4 pt-2">
-						<a 
-							href="#proyectos" 
-							class="px-5 py-2.5 font-mono text-[10px] uppercase tracking-widest text-white bg-[#b58b4c] hover:bg-[#997236] rounded-sm transition-colors shadow-sm"
-						>
-							Proyectos
-						</a>
-						<a 
-							href="#descargas" 
-							class="px-5 py-2.5 font-mono text-[10px] uppercase tracking-widest text-[#b58b4c] border border-[#e6dec9] hover:bg-[#b58b4c]/5 rounded-sm transition-colors"
-						>
-							Descargas
-						</a>
-					</div>
-				</section>
+    <section class="section" aria-labelledby="titulo-descarga">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">04 / Descargar</span>
+          <h2 id="titulo-descarga">Ciconia en español</h2>
+        </div>
+        <p>
+          El parche público disponible actualmente. TrianThology tendrá su propia descarga
+          cuando la versión de lanzamiento termine sus comprobaciones.
+        </p>
+      </div>
 
-				{/* DECORATIVE DIVIDER */}
-				<div class="flex items-center justify-center gap-4 py-2 select-none max-w-2xl" aria-hidden="true">
-					<div class="h-[1px] w-full bg-gradient-to-r from-transparent to-[#e6dec9]/60"></div>
-					<span class="text-[#b58b4c]/70 font-mono text-[8px] tracking-widest">◇</span>
-					<div class="h-[1px] w-full bg-gradient-to-l from-transparent to-[#e6dec9]/60"></div>
-				</div>
+      <div class="notice">
+        <span class="status status--available">Versión 1.0.0</span>
+        <h3>Ciconia When They Cry: Phase 1</h3>
+        <p>
+          Instalador portátil para Windows. Requiere una copia legal del juego y no sustituye
+          sus archivos originales.
+        </p>
+        <div class="button-row">
+          <a
+            class="button button--primary"
+            href="https://github.com/ArisRhiannon/ciconia-es/releases/latest/download/Instalar-Parche-Ciconia-Phase1.exe"
+          >
+            Descargar instalador (.exe)
+          </a>
+          <a class="button" href="/ciconia/">Instrucciones y detalles</a>
+        </div>
+      </div>
+    </section>
 
-				{/* PROJECTS SECTION — BENTO */}
-				<section id="proyectos" class="scroll-mt-24 space-y-6">
-					<div class="space-y-2 border-b border-[#e6dec9]/60 pb-3">
-						<span class="font-mono text-[9px] text-[#b58b4c] uppercase tracking-[0.2em] font-semibold">02 / Catálogo</span>
-						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Proyectos</h3>
-						<p class="text-sm text-[#7c6e62] leading-relaxed">Localizaciones al español de obras de 07th Expansion.</p>
-					</div>
+    <section class="section" aria-labelledby="titulo-preguntas">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">05 / Ayuda</span>
+          <h2 id="titulo-preguntas">Preguntas frecuentes</h2>
+        </div>
+        <p>Lo esencial antes de descargar o reportar un problema.</p>
+      </div>
 
-					<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-
-						{/* Destacado — Ciconia */}
-						<a href="/ciconia/" class="group col-span-2 sm:col-span-3 border border-[#e6dec9] border-t-2 border-t-[#b58b4c] bg-gradient-to-br from-[#fdfcf7] to-[#f7f3e8] rounded-md p-4 sm:p-5 flex flex-col gap-2 hover:border-[#b58b4c] hover:shadow-sm transition-all">
-							<div class="flex justify-between items-start gap-3">
-								<div>
-									<h4 class="font-display text-base sm:text-lg text-[#2c241e] tracking-wide group-hover:text-[#b58b4c] transition-colors">Ciconia When They Cry: Phase 1</h4>
-									<span class="font-mono text-[9px] text-[#7c6e62] uppercase tracking-widest block mt-0.5">Parche al Español · es-419</span>
-								</div>
-								<span class="font-mono text-[8px] sm:text-[9px] uppercase tracking-wider px-2 py-0.5 border rounded-sm border-emerald-600/20 text-emerald-700 bg-emerald-50 flex-shrink-0">Disponible</span>
-							</div>
-							<span class="font-mono text-[10px] text-[#8b5a2b] group-hover:text-[#b58b4c] inline-flex items-center gap-1.5 mt-1">Ver el parche <span class="text-xs">→</span></span>
-						</a>
-
-						{/* Rose Guns Days */}
-						<a href="https://23rddistrict.wordpress.com/2014/12/20/rose-guns-days-season-1-version-final-al-espanol/" target="_blank" rel="noopener noreferrer" class="group border border-[#e6dec9] border-t-2 border-t-[#b58b4c]/40 bg-gradient-to-br from-[#fdfcf7]/80 to-[#fcfaf2]/60 rounded-md p-3.5 flex flex-col justify-between gap-3 min-h-[96px] hover:border-[#b58b4c] hover:shadow-sm transition-all">
-							<h4 class="font-display text-sm text-[#2c241e] leading-snug group-hover:text-[#b58b4c] transition-colors">Rose Guns Days — Temporada 1</h4>
-							<span class="font-mono text-[8px] text-[#a09082] uppercase tracking-wider self-end">2014 ↗</span>
-						</a>
-
-						{/* Umineko Hane */}
-						<a href="https://23rddistrict.wordpress.com/umineko-hane/" target="_blank" rel="noopener noreferrer" class="group border border-[#e6dec9] border-t-2 border-t-[#b58b4c]/40 bg-gradient-to-br from-[#fdfcf7]/80 to-[#fcfaf2]/60 rounded-md p-3.5 flex flex-col justify-between gap-3 min-h-[96px] hover:border-[#b58b4c] hover:shadow-sm transition-all">
-							<h4 class="font-display text-sm text-[#2c241e] leading-snug group-hover:text-[#b58b4c] transition-colors">Umineko: Hane</h4>
-							<span class="font-mono text-[8px] text-[#a09082] uppercase tracking-wider self-end">2014 ↗</span>
-						</a>
-
-						{/* Higanbana */}
-						<a href="https://utopiaclassroom.blogspot.com/p/primera-noche_13.html" target="_blank" rel="noopener noreferrer" class="group border border-[#e6dec9] border-t-2 border-t-[#b58b4c]/40 bg-gradient-to-br from-[#fdfcf7]/80 to-[#fcfaf2]/60 rounded-md p-3.5 flex flex-col justify-between gap-3 min-h-[96px] hover:border-[#b58b4c] hover:shadow-sm transition-all">
-							<h4 class="font-display text-sm text-[#2c241e] leading-snug group-hover:text-[#b58b4c] transition-colors">Higanbana — Primera Noche</h4>
-							<span class="font-mono text-[8px] text-[#a09082] uppercase tracking-wider self-end">↗</span>
-						</a>
-
-						{/* Umineko Tsubasa */}
-						<a href="https://www.youtube.com/watch?v=kyk1_C-pLuA" target="_blank" rel="noopener noreferrer" class="group border border-[#e6dec9] border-t-2 border-t-[#b58b4c]/40 bg-gradient-to-br from-[#fdfcf7]/80 to-[#fcfaf2]/60 rounded-md p-3.5 flex flex-col justify-between gap-3 min-h-[96px] hover:border-[#b58b4c] hover:shadow-sm transition-all">
-							<h4 class="font-display text-sm text-[#2c241e] leading-snug group-hover:text-[#b58b4c] transition-colors">Umineko Tsubasa — Carta de Bernkastel</h4>
-							<span class="font-mono text-[8px] text-[#a09082] uppercase tracking-wider self-end">2016 ↗</span>
-						</a>
-
-						{/* Higurashi Kizuna */}
-						<a href="https://youtu.be/7lJav3O3v_g" target="_blank" rel="noopener noreferrer" class="group border border-[#e6dec9] border-t-2 border-t-[#b58b4c]/40 bg-gradient-to-br from-[#fdfcf7]/80 to-[#fcfaf2]/60 rounded-md p-3.5 flex flex-col justify-between gap-3 min-h-[96px] hover:border-[#b58b4c] hover:shadow-sm transition-all">
-							<h4 class="font-display text-sm text-[#2c241e] leading-snug group-hover:text-[#b58b4c] transition-colors">Higurashi: Kizuna</h4>
-							<span class="font-mono text-[8px] text-[#a09082] uppercase tracking-wider self-end">2018 ↗</span>
-						</a>
-
-					</div>
-				</section>
-
-
-
-				{/* DECORATIVE DIVIDER */}
-				<div class="flex items-center justify-center gap-4 py-2 select-none max-w-2xl" aria-hidden="true">
-					<div class="h-[1px] w-full bg-gradient-to-r from-transparent to-[#e6dec9]/60"></div>
-					<span class="text-[#b58b4c]/70 font-mono text-[8px] tracking-widest">◇</span>
-					<div class="h-[1px] w-full bg-gradient-to-l from-transparent to-[#e6dec9]/60"></div>
-				</div>
-
-				{/* DOWNLOADS SECTION */}
-				<section id="descargas" class="scroll-mt-24 space-y-8">
-					<div class="space-y-2 border-b border-[#e6dec9]/60 pb-3">
-						<span class="font-mono text-[9px] text-[#b58b4c] uppercase tracking-[0.2em] font-semibold">03 / Descargar</span>
-						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Ciconia Phase 1 — Parche al Español</h3>
-					</div>
-					<p class="text-sm text-[#7c6e62] leading-relaxed max-w-2xl">
-						Parche en español (es-419) para <strong class="text-[#4a3e37]">Ciconia When They Cry: Phase 1</strong> de 07th Expansion. Traducción completa al español latinoamericano neutro, con instalador para Windows y guía de instalación. <a href="/ciconia/" class="text-[#b58b4c] hover:underline font-medium">Ver la página completa del parche →</a>
-					</p>
-
-					{/* HERO DOWNLOAD */}
-					<div class="rounded-md overflow-hidden border border-[#e6dec9] shadow-sm mb-6">
-						<img 
-							src="https://raw.githubusercontent.com/ArisRhiannon/ciconia-es/main/assets/screenshot.jpg" 
-							alt="Ciconia When They Cry: Phase 1 en español" 
-							class="w-full h-auto"
-						/>
-					</div>
-					<div class="bg-gradient-to-br from-[#fdfcf7] to-[#f7f3e8] border border-[#e6dec9] p-8 sm:p-10 rounded-md text-center space-y-5 shadow-sm">
-						<p class="font-display text-lg sm:text-xl text-[#2c241e] tracking-wide">Traducción completa al español · 99% de cobertura</p>
-						<a 
-							href="https://github.com/ArisRhiannon/ciconia-es/releases/latest/download/Instalar-Parche-Ciconia-Phase1.exe"
-							class="inline-flex items-center gap-2.5 px-7 py-3 font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.15em] text-[#b58b4c] border border-[#b58b4c]/60 hover:bg-[#b58b4c]/5 hover:border-[#b58b4c] rounded-sm transition-colors"
-						>
-							<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
-							Descargar instalador — Windows (.exe)
-						</a>
-						<p class="font-mono text-[9px] text-[#a09082] uppercase tracking-wider">v0.1.0 · ~10 MB · No requiere Python</p>
-					</div>
-
-					{/* INSTALL GUIDE */}
-					<div class="space-y-4 max-w-2xl">
-						<h4 class="font-display text-base text-[#2c241e] uppercase tracking-wider">Guía de instalación (3 pasos)</h4>
-						<ol class="list-decimal list-inside space-y-3 text-[#4a3e37] text-sm leading-relaxed pl-2">
-							<li><strong>Abre el archivo .exe</strong> que descargaste (doble clic). Si Windows muestra "protegió tu PC", pulsa <em>"Más información"</em> → <em>"Ejecutar de todas formas"</em>. Es código abierto y seguro.</li>
-							<li><strong>El programa busca tu juego automáticamente.</strong> Si no lo encuentra, pulsa «Buscar…» y elige la carpeta del juego (la que contiene <code>pscript.dat</code>).</li>
-							<li><strong>Pulsa el botón verde "Instalar parche al español".</strong> ¡Listo! Abre el juego normalmente.</li>
-						</ol>
-						<p class="text-xs text-[#7c6e62] italic">Para quitar el parche: abre el programa otra vez y pulsa «Restaurar original».</p>
-					</div>
-
-					{/* DETAILS TABLE */}
-					<div class="overflow-x-auto border border-[#e6dec9]/80 rounded-md bg-[#fdfcf7]/40 shadow-sm">
-						<table class="w-full text-left font-serif text-sm border-collapse">
-							<thead>
-								<tr class="border-b border-[#e6dec9] text-[#7c6e62] font-mono text-[9px] sm:text-[10px] uppercase tracking-wider bg-[#faf7f2]/80">
-									<th class="py-3 px-4">Archivo</th>
-									<th class="py-3 px-4">Versión</th>
-									<th class="py-3 px-4">Descripción</th>
-									<th class="py-3 px-4 text-right">Enlace</th>
-								</tr>
-							</thead>
-							<tbody class="divide-y divide-[#e6dec9]/40 text-[#4a3e37]">
-								<tr class="hover:bg-[#fdfcf7]/80 transition-colors">
-									<td class="py-4 px-4 font-mono text-xs text-[#2c241e]">Instalar-Parche-Ciconia-Phase1.exe</td>
-									<td class="py-4 px-4 font-mono text-xs text-[#7c6e62]">v0.1.0</td>
-									<td class="py-4 px-4 text-xs">Instalador gráfico (recomendado)</td>
-									<td class="py-4 px-4 text-right">
-										<a href="https://github.com/ArisRhiannon/ciconia-es/releases/latest/download/Instalar-Parche-Ciconia-Phase1.exe" class="font-mono text-[10px] text-[#b58b4c] hover:text-[#997236] uppercase tracking-wider hover:underline">Descargar</a>
-									</td>
-								</tr>
-								<tr class="hover:bg-[#fdfcf7]/80 transition-colors">
-									<td class="py-4 px-4 font-mono text-xs text-[#2c241e]">Ciconia-Phase1-ParcheES-v0.1.0.zip</td>
-									<td class="py-4 px-4 font-mono text-xs text-[#7c6e62]">v0.1.0</td>
-									<td class="py-4 px-4 text-xs">ZIP con instalador + licencias + README</td>
-									<td class="py-4 px-4 text-right">
-										<a href="https://github.com/ArisRhiannon/ciconia-es/releases/latest/download/Ciconia-Phase1-ParcheES-v0.1.0.zip" class="font-mono text-[10px] text-[#b58b4c] hover:text-[#997236] uppercase tracking-wider hover:underline">Descargar</a>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-
-					{/* IMPORTANT NOTES */}
-					<div class="bg-[#fdfcf7]/60 border border-[#e6dec9]/60 rounded-md p-5 space-y-2 text-xs text-[#7c6e62]">
-						<p><strong class="text-[#4a3e37]">Requisito:</strong> tu propia copia legal de Ciconia When They Cry - Phase 1 (Steam o GOG).</p>
-						<p><strong class="text-[#4a3e37]">Seguridad:</strong> el parche NO modifica los archivos originales del juego. Crea un archivo de traducción que el juego carga con prioridad y se puede revertir en cualquier momento.</p>
-						<p><strong class="text-[#4a3e37]">Código fuente:</strong> <a href="https://github.com/ArisRhiannon/ciconia-es" class="text-[#b58b4c] hover:underline" target="_blank" rel="noopener noreferrer">github.com/ArisRhiannon/ciconia-es</a></p>
-					</div>
-				</section>
-
-				{/* DECORATIVE DIVIDER */}
-				<div class="flex items-center justify-center gap-4 py-2 select-none max-w-2xl" aria-hidden="true">
-					<div class="h-[1px] w-full bg-gradient-to-r from-transparent to-[#e6dec9]/60"></div>
-					<span class="text-[#b58b4c]/70 font-mono text-[8px] tracking-widest">◇</span>
-					<div class="h-[1px] w-full bg-gradient-to-l from-transparent to-[#e6dec9]/60"></div>
-				</div>
-
-				{/* ACKNOWLEDGMENTS */}
-				<div class="bg-[#fdfcf7]/60 border border-[#e6dec9]/60 rounded-md p-5 space-y-2 text-sm text-[#4a3e37]">
-					<h4 class="font-display text-base text-[#2c241e] uppercase tracking-wider mb-2">Agradecimientos</h4>
-					<ul class="list-disc list-inside space-y-1 text-[#7c6e62]">
-						<li><a href="https://www.youtube.com/channel/UCCgK9pgiq0Bt73ESMjQfARg" target="_blank" rel="noopener noreferrer" class="text-[#b58b4c] hover:underline font-medium">Lambdadelto</a> — por el apoyo y la colaboración.</li>
-						<li><a href="https://23rddistrict.wordpress.com/" target="_blank" rel="noopener noreferrer" class="text-[#b58b4c] hover:underline font-medium">23rd District</a> — referencia invaluable para la comunidad de When They Cry en español.</li>
-					</ul>
-				</div>
-
-				{/* FAQ SECTION */}
-				<section id="faq" class="scroll-mt-24 space-y-6">
-					<div class="space-y-2 border-b border-[#e6dec9]/60 pb-3">
-						<span class="font-mono text-[9px] text-[#b58b4c] uppercase tracking-[0.2em] font-semibold">04 / Ayuda</span>
-						<h3 class="font-display text-xl sm:text-2xl text-[#2c241e] uppercase tracking-wider">Preguntas Frecuentes</h3>
-					</div>
-
-					<div class="space-y-4">
-						<FAQItem 
-							id="1"
-							question="¿Son gratuitos los parches de traducción?" 
-							answer="Sí. Todo el trabajo de traducción y herramientas de localización al español se distribuye de forma 100% gratuita. Por favor, apoya al creador oficial Ryukishi07 comprando la versión legítima del juego en Steam." 
-						/>
-						<FAQItem 
-							id="2"
-							question="¿Cómo se instala el parche de Ciconia?" 
-							answer="Descarga el archivo .exe desde la sección de Descargas de arriba (o desde GitHub Releases). Ábrelo con doble clic, el programa detecta tu juego automáticamente y con un solo botón instala el parche. No necesitas Python ni conocimientos técnicos. Para quitarlo, abre el programa otra vez y pulsa 'Restaurar original'." 
-						/>
-						<FAQItem 
-							id="3"
-							question="¿Cómo puedo ponerme en contacto o reportar errores?" 
-							answer="Para cualquier reporte de bugs o para sugerir correcciones en el parche de traducción de Ciconia, puedes abrir un Issue directamente en mi perfil de GitHub o escribirme por Discord (aris_rhiannon)." 
-						/>
-					</div>
-				</section>
-
-				{/* MOBILE ONLY FOOTER */}
-				<footer class="lg:hidden border-t border-[#e6dec9]/40 pt-8 font-mono text-[9px] text-[#a09082] text-center space-y-3 uppercase tracking-widest">
-					<p>© 2026. Aris Rhiannon.</p>
-					<div class="flex justify-center opacity-70 hover:opacity-100 transition-opacity">
-						<img src="https://api.visitorbadge.io/api/VisitorHit?user=ArisRhiannon&repo=ArisRhiannon.github.io&label=visitas&labelColor=%237c6e62&countColor=%23b58b4c" alt="Contador de Visitas" class="h-4 select-none pointer-events-none" />
-					</div>
-					<p class="font-serif lowercase italic text-[#b58b4c]">Higurashi, Umineko y Ciconia pertenecen a 07th Expansion y MangaGamer.</p>
-				</footer>
-
-			</main>
-		</div>
-
-		{/* JavaScript for Responsive Navigation menu */}
-		<script>
-			const toggle = document.getElementById('menu-toggle');
-			const menu = document.getElementById('mobile-menu');
-			
-			if (toggle && menu) {
-				toggle.addEventListener('click', () => {
-					menu.classList.toggle('hidden');
-					document.body.classList.toggle('overflow-hidden');
-				});
-
-				// Close menu when clicking navigation links
-				const links = menu.querySelectorAll('.mobile-nav-link');
-				links.forEach(link => {
-					link.addEventListener('click', () => {
-						menu.classList.add('hidden');
-						document.body.classList.remove('overflow-hidden');
-					});
-				});
-			}
-
-			// Active link styling on Desktop scroll
-			const sections = document.querySelectorAll('section');
-			const navLinks = document.querySelectorAll('.nav-link');
-
-			window.addEventListener('scroll', () => {
-				let current = '';
-				sections.forEach(section => {
-					const sectionTop = section.offsetTop;
-					if (window.scrollY >= sectionTop - 150) {
-						current = section.getAttribute('id') || '';
-					}
-				});
-
-				navLinks.forEach(link => {
-					const href = link.getAttribute('href');
-					const marker = link.querySelector('span');
-					if (href === `#${current}`) {
-						link.classList.add('text-[#2c241e]', 'font-semibold');
-						link.classList.remove('text-[#7c6e62]');
-						if (marker) marker.classList.remove('opacity-0');
-					} else {
-						link.classList.remove('text-[#2c241e]', 'font-semibold');
-						link.classList.add('text-[#7c6e62]');
-						if (marker) marker.classList.add('opacity-0');
-					}
-				});
-			});
-		</script>
-
-		<style>
-			@keyframes fade-in {
-				from { opacity: 0; transform: translateY(-10px); }
-				to { opacity: 1; transform: translateY(0); }
-			}
-			.animate-fade-in {
-				animation: fade-in 0.25s ease-out forwards;
-			}
-		</style>
-	</body>
-</html>
+      <details>
+        <summary>¿Los parches son gratuitos?</summary>
+        <div>
+          Sí. Se distribuyen gratuitamente y requieren que tengas tu propia copia legal del juego.
+        </div>
+      </details>
+      <details>
+        <summary>¿Los parches incluyen el juego original?</summary>
+        <div>
+          No. Las descargas contienen únicamente la traducción, las herramientas necesarias
+          para aplicarla y su documentación.
+        </div>
+      </details>
+      <details>
+        <summary>¿Dónde puedo reportar un error?</summary>
+        <div>
+          Puedes escribir a <a href="https://discord.com/users/aris_rhiannon">aris_rhiannon en Discord</a>
+          o comunicarte mediante <a href="https://github.com/ArisRhiannon">GitHub</a>.
+        </div>
+      </details>
+    </section>
+  </div>
+</SiteLayout>
