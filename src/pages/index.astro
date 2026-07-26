@@ -60,83 +60,51 @@ const archive = [
       </div>
     </section>
 
-    <section id="proyectos" class="section" aria-labelledby="titulo-proyectos">
-      <div class="section-heading section-heading--compact">
-        <div>
-          <span class="eyebrow">01 / Proyectos</span>
-          <h2 id="titulo-proyectos">Parches</h2>
+    <div class="home-grid">
+      <section id="proyectos" class="section" aria-labelledby="titulo-proyectos">
+        <div class="section-heading section-heading--compact">
+          <div>
+            <span class="eyebrow">Proyectos</span>
+            <h2 id="titulo-proyectos">Parches</h2>
+          </div>
         </div>
-      </div>
 
-      <div class="project-grid">
-        <article class="project-card project-card--featured">
-          <span class="status status--progress">En preparación</span>
-          <h3>TrianThology</h3>
-          <p>Parche en español latinoamericano para <cite>Alice of the Three-Sided Mirror</cite>.</p>
-          <a class="project-card__link" href="/trianthology/">Ver el proyecto →</a>
-        </article>
+        <div class="project-grid">
+          <article class="project-card project-card--featured">
+            <span class="status status--progress">En preparación</span>
+            <h3>TrianThology</h3>
+            <p>Parche en español latinoamericano para <cite>Alice of the Three-Sided Mirror</cite>.</p>
+            <a class="project-card__link" href="/trianthology/">Ver el proyecto →</a>
+          </article>
 
-        <article class="project-card project-card--featured">
-          <span class="status status--available">Disponible</span>
-          <h3>Ciconia When They Cry: Phase 1</h3>
-          <p>Traducción completa con instalador para Windows.</p>
-          <a class="project-card__link" href="/ciconia/">Descargar el parche →</a>
-        </article>
-      </div>
-    </section>
-
-    <section class="section" aria-labelledby="titulo-archivo">
-      <div class="section-heading section-heading--compact">
-        <div>
-          <span class="eyebrow">02 / Archivo</span>
-          <h2 id="titulo-archivo">Trabajos anteriores</h2>
+          <article class="project-card project-card--featured">
+            <span class="status status--available">Disponible</span>
+            <h3>Ciconia When They Cry: Phase 1</h3>
+            <p>Traducción completa con instalador para Windows.</p>
+            <a class="project-card__link" href="/ciconia/">Descargar el parche →</a>
+          </article>
         </div>
-      </div>
+      </section>
 
-      <ul class="archive-list">
-        {archive.map((item) => (
-          <li>
-            <a href={item.href}>
-              <span class="archive-list__title">{item.title}</span>
-              <span class="archive-list__meta">{item.meta} ↗</span>
-            </a>
-          </li>
-        ))}
-        <li>
-          <a href="/zzz-dibujos/">
-            <span class="archive-list__title">Dibujitos ZZZ 2026</span>
-            <span class="archive-list__meta">Galería y reseñas</span>
-          </a>
-        </li>
-      </ul>
-    </section>
-
-    <section class="section" aria-labelledby="titulo-criterio">
-      <div class="section-heading section-heading--compact">
-        <div>
-          <span class="eyebrow">03 / Traducción</span>
-          <h2 id="titulo-criterio">Criterios</h2>
+      <section id="archivo" class="section" aria-labelledby="titulo-archivo">
+        <div class="section-heading section-heading--compact">
+          <div>
+            <span class="eyebrow">Archivo</span>
+            <h2 id="titulo-archivo">Trabajos anteriores</h2>
+          </div>
         </div>
-      </div>
 
-      <div class="feature-grid">
-        <article class="feature">
-          <h3>Español natural</h3>
-          <p>Sin calcos ni regionalismos innecesarios.</p>
-        </article>
-        <article class="feature">
-          <h3>Coherencia</h3>
-          <p>Nombres, tratamientos y términos uniformes.</p>
-        </article>
-        <article class="feature">
-          <h3>Presentación</h3>
-          <p>Texto ajustado a las interfaces del juego.</p>
-        </article>
-        <article class="feature">
-          <h3>Instalación</h3>
-          <p>Parches reversibles que no incluyen el juego original.</p>
-        </article>
-      </div>
-    </section>
+        <ul class="archive-list">
+          {archive.map((item) => (
+            <li>
+              <a href={item.href}>
+                <span class="archive-list__title">{item.title}</span>
+                <span class="archive-list__meta">{item.meta} ↗</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
   </div>
 </SiteLayout>
