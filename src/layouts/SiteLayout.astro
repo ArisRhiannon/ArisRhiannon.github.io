@@ -59,13 +59,15 @@ const navItems = [
     <header class="site-header">
       <div class="site-header__inner">
         <a class="brand" href="/" aria-label="Aris Rhiannon, inicio">
-          <img
-            class="brand__avatar"
-            src="https://github.com/ArisRhiannon.png?size=160"
-            width="80"
-            height="80"
-            alt=""
-          />
+          <span class="brand__portrait">
+            <img
+              class="brand__avatar"
+              src="/favicon.png"
+              width="80"
+              height="80"
+              alt=""
+            />
+          </span>
           <span class="brand__copy">
             <span class="brand__name">Aris Rhiannon</span>
             <span class="brand__descriptor">Traducciones · es-419</span>
@@ -109,29 +111,71 @@ const navItems = [
         </p>
       </div>
     </footer>
+
+    <script>
+      const sectionLinks = Array.from(
+        document.querySelectorAll<HTMLAnchorElement>('.site-nav a[href^="/#"]')
+      );
+
+      if (location.pathname === '/' && sectionLinks.length) {
+        const homeLink = document.querySelector<HTMLAnchorElement>('.site-nav a[href="/"]');
+        const sections = sectionLinks
+          .map((link) => ({ link, section: document.querySelector<HTMLElement>(link.hash) }))
+          .filter(
+            (entry): entry is { link: HTMLAnchorElement; section: HTMLElement } =>
+              Boolean(entry.section)
+          );
+
+        const updateCurrentSection = () => {
+          const marker = scrollY + innerHeight * 0.35;
+          const fitsViewport = document.documentElement.scrollHeight <= innerHeight + 8;
+          const atBottom = scrollY + innerHeight >= document.documentElement.scrollHeight - 8;
+          const hashLink = sectionLinks.find((link) => link.hash === location.hash);
+          const current =
+            fitsViewport
+              ? hashLink ?? homeLink
+              : atBottom
+              ? sections[sections.length - 1]?.link
+              : scrollY < 64
+              ? homeLink
+              : [...sections].reverse().find(({ section }) => section.offsetTop <= marker)?.link;
+
+          [homeLink, ...sectionLinks].forEach((link) => {
+            if (!link) return;
+            if (link === current) link.setAttribute('aria-current', 'location');
+            else link.removeAttribute('aria-current');
+          });
+        };
+
+        addEventListener('scroll', updateCurrentSection, { passive: true });
+        addEventListener('resize', updateCurrentSection);
+        addEventListener('hashchange', updateCurrentSection);
+        updateCurrentSection();
+      }
+    </script>
   </body>
 </html>
 
 <style is:global>
   :root {
     color-scheme: dark;
-    --paper: #120f17;
-    --surface: #19151f;
-    --surface-strong: #211b28;
-    --ink: #f0eaf3;
-    --muted: #b9afbf;
-    --faint: #8f8396;
-    --line: #3a3241;
-    --line-strong: #64566b;
-    --accent: #b96a9e;
-    --accent-strong: #e2a7ce;
-    --accent-soft: #3a2133;
-    --positive: #75b89a;
-    --warning: #c8a05d;
-    --gold: #c6a66a;
-    --header: #0d0a10;
-    --header-ink: #f4edf6;
-    --header-muted: #aa9daf;
+    --paper: oklch(12.5% 0.018 315);
+    --surface: oklch(16% 0.022 315);
+    --surface-strong: oklch(19% 0.025 315);
+    --ink: oklch(94% 0.012 315);
+    --muted: oklch(74% 0.025 315);
+    --faint: oklch(60% 0.03 315);
+    --line: oklch(30% 0.03 315);
+    --line-strong: oklch(43% 0.045 315);
+    --accent: oklch(68% 0.14 326);
+    --accent-strong: oklch(79% 0.11 326);
+    --accent-soft: oklch(26% 0.07 326);
+    --positive: oklch(72% 0.11 155);
+    --warning: oklch(74% 0.12 86);
+    --gold: oklch(77% 0.1 86);
+    --header: oklch(9.5% 0.015 315);
+    --header-ink: oklch(94% 0.012 315);
+    --header-muted: oklch(68% 0.025 315);
     --focus: #f3cf4f;
     --focus-ink: #141414;
     --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
@@ -145,9 +189,9 @@ const navItems = [
 
   [data-theme="night"] {
     color-scheme: dark;
-    --paper: #120f17;
-    --surface: #19151f;
-    --surface-strong: #211b28;
+    --paper: oklch(12.5% 0.018 315);
+    --surface: oklch(16% 0.022 315);
+    --surface-strong: oklch(19% 0.025 315);
   }
 
   *,
@@ -159,12 +203,14 @@ const navItems = [
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 1rem;
+    overflow-x: clip;
     background: var(--paper);
   }
 
   body {
     margin: 0;
     min-width: 320px;
+    overflow-x: clip;
     background: var(--paper);
     color: var(--ink);
     font-family: var(--sans);
@@ -259,6 +305,7 @@ const navItems = [
     border-right: 1px solid var(--line);
     background: var(--header);
     color: var(--header-ink);
+    view-transition-name: site-sidebar;
   }
 
   .site-header__inner {
@@ -280,13 +327,19 @@ const navItems = [
     text-decoration: none;
   }
 
+  .brand__portrait {
+    display: block;
+    border-radius: 50%;
+    animation: portrait-halo 7s ease-in-out infinite;
+  }
+
   .brand__avatar {
     width: 80px;
     height: 80px;
     border: 1px solid var(--gold);
     border-radius: 50%;
     object-fit: cover;
-    outline: 5px solid color-mix(in srgb, var(--accent) 16%, transparent);
+    outline: 5px solid color-mix(in oklch, var(--accent) 16%, transparent);
   }
 
   .brand__copy {
@@ -326,6 +379,7 @@ const navItems = [
   }
 
   .site-nav a {
+    position: relative;
     display: flex;
     align-items: center;
     min-height: 44px;
@@ -338,9 +392,20 @@ const navItems = [
   }
 
   .site-nav a:hover,
-  .site-nav a[aria-current="page"] {
+  .site-nav a[aria-current] {
     color: var(--header-ink);
     background: var(--accent-soft);
+  }
+
+  .site-nav a[aria-current]::after {
+    position: absolute;
+    right: 0.65rem;
+    width: 0.38rem;
+    height: 0.38rem;
+    margin-left: auto;
+    rotate: 45deg;
+    background: var(--gold);
+    content: "";
   }
 
   .nav-label--short {
@@ -408,9 +473,13 @@ const navItems = [
 
   .hero-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.45fr) minmax(17rem, 0.55fr);
+    grid-template-columns: minmax(0, 8fr) minmax(17rem, 4fr);
     gap: clamp(1.5rem, 4vw, 3.5rem);
     align-items: center;
+  }
+
+  .hero-grid > * {
+    min-width: 0;
   }
 
   .eyebrow {
@@ -462,6 +531,10 @@ const navItems = [
     color: var(--ink);
     font-weight: 700;
     text-decoration: none;
+    transition:
+      border-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      background-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      color 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   .button:hover {
@@ -486,6 +559,7 @@ const navItems = [
     border: 1px solid var(--line);
     border-radius: var(--radius);
     background: var(--surface);
+    box-shadow: 0 1rem 2.5rem oklch(4% 0.02 315 / 0.18);
   }
 
   .brief dl {
@@ -552,6 +626,7 @@ const navItems = [
     border-radius: var(--radius);
     background: var(--surface);
     padding: clamp(1rem, 2vw, 1.35rem);
+    box-shadow: 0 1rem 2.5rem oklch(4% 0.02 315 / 0.14);
   }
 
   .project-card--featured {
@@ -624,6 +699,9 @@ const navItems = [
     padding-block: 0.5rem;
     color: var(--ink);
     text-decoration: none;
+    transition:
+      background-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      color 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   .archive-list a:hover .archive-list__title {
@@ -740,9 +818,58 @@ const navItems = [
     border-top: 1px solid var(--line-strong);
   }
 
+  @view-transition {
+    navigation: auto;
+  }
+
+  ::view-transition-group(root) {
+    animation-duration: 180ms;
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  ::view-transition-group(site-sidebar) {
+    animation-duration: 120ms;
+  }
+
+  @keyframes portrait-halo {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 0 oklch(68% 0.14 326 / 0.04),
+        0 0 1rem oklch(68% 0.14 326 / 0.07);
+    }
+
+    50% {
+      box-shadow:
+        0 0 0 0.22rem oklch(68% 0.14 326 / 0.09),
+        0 0 1.6rem oklch(77% 0.1 86 / 0.11);
+    }
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .project-card,
+    .story-card {
+      transition:
+        transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        border-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        background-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .project-card:hover,
+    .story-card:hover {
+      border-color: color-mix(in oklch, var(--accent) 48%, var(--line));
+      background: color-mix(in oklch, var(--surface) 92%, var(--accent));
+      transform: translateY(-2px);
+    }
+
+    .archive-list a:hover {
+      background: color-mix(in oklch, var(--surface) 88%, var(--accent));
+    }
+  }
+
   .home-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(19rem, 0.8fr);
+    grid-template-columns: minmax(0, 7fr) minmax(19rem, 5fr);
     gap: 1rem;
     align-items: start;
     padding-block: 1rem 1.5rem;
@@ -822,6 +949,12 @@ const navItems = [
       overflow-wrap: anywhere;
     }
 
+    .site-nav a[aria-current]::after {
+      right: 0.2rem;
+      width: 0.3rem;
+      height: 0.3rem;
+    }
+
     .nav-label {
       display: none;
     }
@@ -899,6 +1032,21 @@ const navItems = [
       transition-duration: 0.01ms !important;
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
+    }
+
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation: none !important;
+    }
+  }
+
+  @media (prefers-contrast: more) {
+    :root {
+      --muted: oklch(84% 0.02 315);
+      --faint: oklch(72% 0.025 315);
+      --line: oklch(42% 0.035 315);
+      --line-strong: oklch(58% 0.045 315);
     }
   }
 
