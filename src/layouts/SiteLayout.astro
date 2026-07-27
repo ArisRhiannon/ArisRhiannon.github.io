@@ -159,23 +159,23 @@ const navItems = [
 <style is:global>
   :root {
     color-scheme: dark;
-    --paper: oklch(12.5% 0.018 315);
-    --surface: oklch(16% 0.022 315);
-    --surface-strong: oklch(19% 0.025 315);
-    --ink: oklch(94% 0.012 315);
-    --muted: oklch(74% 0.025 315);
-    --faint: oklch(60% 0.03 315);
-    --line: oklch(30% 0.03 315);
-    --line-strong: oklch(43% 0.045 315);
-    --accent: oklch(68% 0.14 326);
-    --accent-strong: oklch(79% 0.11 326);
-    --accent-soft: oklch(26% 0.07 326);
-    --positive: oklch(72% 0.11 155);
-    --warning: oklch(74% 0.12 86);
-    --gold: oklch(77% 0.1 86);
-    --header: oklch(9.5% 0.015 315);
-    --header-ink: oklch(94% 0.012 315);
-    --header-muted: oklch(68% 0.025 315);
+    --paper: oklch(22% 0.018 315);
+    --surface: oklch(26% 0.022 315);
+    --surface-strong: oklch(30% 0.025 315);
+    --ink: oklch(88% 0.015 315);
+    --muted: oklch(78% 0.022 315);
+    --faint: oklch(77.5% 0.02 315);
+    --line: oklch(39% 0.03 315);
+    --line-strong: oklch(50% 0.04 315);
+    --accent: oklch(66% 0.1 326);
+    --accent-strong: oklch(78% 0.07 326);
+    --accent-soft: oklch(35% 0.05 326);
+    --positive: oklch(68% 0.08 155);
+    --warning: oklch(72% 0.09 86);
+    --gold: oklch(78% 0.06 86);
+    --header: oklch(18.5% 0.015 315);
+    --header-ink: oklch(88% 0.015 315);
+    --header-muted: oklch(72% 0.025 315);
     --focus: #f3cf4f;
     --focus-ink: #141414;
     --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
@@ -189,9 +189,9 @@ const navItems = [
 
   [data-theme="night"] {
     color-scheme: dark;
-    --paper: oklch(12.5% 0.018 315);
-    --surface: oklch(16% 0.022 315);
-    --surface-strong: oklch(19% 0.025 315);
+    --paper: oklch(22% 0.018 315);
+    --surface: oklch(26% 0.022 315);
+    --surface-strong: oklch(30% 0.025 315);
   }
 
   *,
@@ -543,14 +543,14 @@ const navItems = [
   }
 
   .button--primary {
-    border-color: var(--accent);
-    background: var(--accent);
+    border-color: var(--accent-strong);
+    background: var(--accent-strong);
     color: #140f16;
   }
 
   .button--primary:hover {
-    border-color: var(--accent-strong);
-    background: var(--accent-strong);
+    border-color: var(--gold);
+    background: var(--gold);
     color: #140f16;
   }
 
@@ -1044,7 +1044,7 @@ const navItems = [
   @media (prefers-contrast: more) {
     :root {
       --muted: oklch(84% 0.02 315);
-      --faint: oklch(72% 0.025 315);
+      --faint: oklch(84% 0.02 315);
       --line: oklch(42% 0.035 315);
       --line-strong: oklch(58% 0.045 315);
     }
