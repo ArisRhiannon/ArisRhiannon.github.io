@@ -4,7 +4,7 @@ interface Props {
   description: string;
   canonical: string;
   image?: string;
-  theme?: 'paper' | 'night';
+  theme?: 'paper' | 'night' | 'trianthology';
 }
 
 const {
@@ -16,6 +16,7 @@ const {
 } = Astro.props;
 
 const currentPath = Astro.url.pathname;
+const themeColor = theme === 'trianthology' ? '#050b16' : '#120f17';
 const navItems = [
   { href: '/', label: 'Inicio', short: 'Inicio' },
   { href: '/#proyectos', label: 'Proyectos', short: 'Proy.' },
@@ -33,7 +34,7 @@ const navItems = [
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content="#120f17" />
+    <meta name="theme-color" content={themeColor} />
     <meta name="google-site-verification" content="imK_jF_dOkcg7xB4k7Hx6BiKjvD_U-UTXiyOxYW_2Uk" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/png" href="/favicon.png" />
@@ -192,6 +193,29 @@ const navItems = [
     --paper: oklch(22% 0.018 315);
     --surface: oklch(26% 0.022 315);
     --surface-strong: oklch(30% 0.025 315);
+  }
+
+  [data-theme="trianthology"] {
+    color-scheme: dark;
+    --paper: #050b16;
+    --surface: #0a1424;
+    --surface-strong: #101d30;
+    --ink: #f0edf0;
+    --muted: #c1c9d4;
+    --faint: #99a8ba;
+    --line: rgb(184 206 229 / 20%);
+    --line-strong: rgb(216 229 242 / 42%);
+    --accent: #b41f35;
+    --accent-strong: #e07686;
+    --accent-soft: #391724;
+    --positive: #76b6a0;
+    --warning: #d7ba78;
+    --gold: #e1c98e;
+    --header: rgb(4 9 18 / 94%);
+    --header-ink: #f0edf0;
+    --header-muted: #aeb9c7;
+    --focus: #f6d77f;
+    --focus-ink: #07101d;
   }
 
   *,
