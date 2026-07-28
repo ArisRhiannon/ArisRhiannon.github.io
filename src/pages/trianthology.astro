@@ -1,140 +1,899 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
+
+const stories = [
+  {
+    suit: '♦',
+    title: 'Country Girl',
+    author: 'Tanaka Romeo',
+    text: 'Keiko, Mikihiko y un pueblo que cambia con el tiempo.',
+  },
+  {
+    suit: '♥',
+    title: 'Academy Love Adventure',
+    author: 'Tonokawa Yūto',
+    text: 'Una comedia escolar que juega con las reglas de su propio género.',
+  },
+  {
+    suit: '♠',
+    title: 'Vespio 2438',
+    author: 'Ryukishi07',
+    text: 'El escuadrón Fox ante una guerra que no admite respuestas sencillas.',
+  },
+  {
+    suit: '♣',
+    title: 'Alice y Usagi',
+    author: 'Historia marco',
+    text: 'El salón desde el que ambas recorren los tres fragmentos.',
+  },
+];
 ---
 
 <SiteLayout
-  title="TrianThology en español — Proyecto de traducción | Aris Rhiannon"
-  description="Página provisional del parche al español latinoamericano de TrianThology: Alice of the Three-Sided Mirror."
+  title="TrianThology en español | Aris Rhiannon"
+  description="Parche al español latinoamericano de TrianThology: Alice of the Three-Sided Mirror."
   canonical="https://arisrhiannon.github.io/trianthology/"
+  image="https://07th-expansion.net/wp-content/uploads/slider13/_0016_Alice1.jpeg"
+  theme="trianthology"
 >
-  <div class="page">
-    <section class="hero" aria-labelledby="titulo-trianthology">
-      <div class="hero-grid">
-        <div>
-          <span class="eyebrow">Parche al español · es-419</span>
-          <h1 id="titulo-trianthology" class="hero-title project-title">TrianThology</h1>
-          <p class="hero-lede">
-            <cite>Alice of the Three-Sided Mirror</cite>, traducido al español latinoamericano
-            con sus tres relatos, su historia marco y la presentación propia del juego.
-          </p>
-          <div class="hero-actions">
-            <a class="button button--primary" href="#estado">Consultar el estado</a>
-            <a class="button" href="/">Volver al inicio</a>
-          </div>
+  <link slot="head" rel="stylesheet" href="/trianthology/alice-night.css" />
+
+  <div class="trian-page">
+    <div class="cityscape" aria-hidden="true">
+      <div class="cityscape-art"></div>
+    </div>
+
+    <div class="moon" aria-hidden="true"></div>
+    <div class="shards" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <section class="landing" aria-labelledby="titulo-trianthology">
+      <div class="hero-copy">
+        <p class="kicker">Parche al español latinoamericano · es-419</p>
+        <h1 id="titulo-trianthology">
+          <span class="title-tri">Tri</span>an<span class="title-thology">Thology</span>
+        </h1>
+        <p class="subtitle">Alice of the Three-Sided Mirror</p>
+        <p class="summary">
+          Los tres relatos y la historia de Alice y Usagi, traducidos al español
+          y adaptados a las distintas cajas de texto del juego.
+        </p>
+
+        <div class="hero-actions">
+          <a class="primary-action" href="#estado">Estado del parche</a>
+          <span class="availability">
+            <span aria-hidden="true"></span>
+            Descarga pública próximamente
+          </span>
         </div>
 
-        <aside class="brief" aria-label="Ficha del proyecto">
-          <span class="status status--progress">En preparación</span>
-          <dl>
-            <dt>Idioma</dt>
-            <dd>Español latinoamericano</dd>
-            <dt>Plataforma</dt>
-            <dd>Windows</dd>
-            <dt>Formato</dt>
-            <dd>Parche instalable</dd>
-            <dt>Descarga</dt>
-            <dd>Aún no disponible</dd>
-          </dl>
-        </aside>
+        <nav class="story-menu" aria-label="Relatos incluidos">
+          {stories.map((story) => (
+            <a href={`#${story.title.toLowerCase().replaceAll(' ', '-')}`}>
+              <span class:list={['menu-suit', { red: story.suit === '♦' || story.suit === '♥' }]} aria-hidden="true">
+                {story.suit}
+              </span>
+              <span>{story.title}</span>
+            </a>
+          ))}
+        </nav>
+
+        <div class="hero-meta" aria-label="Ficha rápida">
+          <span>v0.1.15</span>
+          <span>Windows</span>
+          <span>18 056 segmentos</span>
+          <span>406 gráficos</span>
+        </div>
       </div>
     </section>
 
-    <section class="section" aria-label="Historias">
-      <div class="story-grid">
-        <article class="story-card">
-          <span class="eyebrow">Tanaka Romeo</span>
-          <h3>Country Girl</h3>
-          <p>
-            Un relato rural sobre Keiko, Mikihiko y los vínculos que permanecen
-            cuando el tiempo y la distancia cambian la forma de mirarse.
-          </p>
-        </article>
-        <article class="story-card">
-          <span class="eyebrow">Tonokawa Yūto</span>
-          <h3>Academy Love Adventure</h3>
-          <p>
-            Una comedia escolar metaficcional protagonizada por Amahara Ibito,
-            donde las convenciones del género forman parte del propio conflicto.
-          </p>
-        </article>
-        <article class="story-card">
-          <span class="eyebrow">Ryukishi07</span>
-          <h3>Vespio 2438</h3>
-          <p>
-            Ciencia ficción militar sobre el escuadrón Fox, una guerra futura
-            y las consecuencias de aquello que sus integrantes deciden proteger.
-          </p>
-        </article>
-        <article class="story-card">
-          <span class="eyebrow">Historia marco</span>
-          <h3>Alice y Usagi</h3>
-          <p>
-            El salón desde el que ambas recorren los fragmentos y construyen
-            una lectura común de historias muy diferentes entre sí.
-          </p>
-        </article>
-      </div>
-    </section>
-
-    <section id="estado" class="section" aria-labelledby="titulo-estado">
-      <div class="section-heading">
+    <section class="fragment-section" aria-labelledby="titulo-fragmentos">
+      <header class="section-head">
         <div>
-          <span class="eyebrow">02 / Estado</span>
-          <h2 id="titulo-estado">Preparando la versión pública</h2>
+          <span class="section-mark" aria-hidden="true">◇</span>
+          <p class="kicker">Fragmentos</p>
+          <h2 id="titulo-fragmentos">Tres historias, un mismo espejo</h2>
         </div>
         <p>
-          La traducción está en fase de empaquetado y comprobación. Esta página
-          permanecerá como referencia estable hasta que se habilite la descarga.
+          Cada relato conserva su tono y su presentación dentro del marco de Alice y Usagi.
+        </p>
+      </header>
+
+      <div class="fragment-grid">
+        {stories.map((story, index) => (
+          <article id={story.title.toLowerCase().replaceAll(' ', '-')} class="fragment">
+            <span class:list={['fragment-suit', { red: story.suit === '♦' || story.suit === '♥' }]} aria-hidden="true">
+              {story.suit}
+            </span>
+            <div>
+              <p class="fragment-author">{story.author}</p>
+              <h3>{story.title}</h3>
+              <p>{story.text}</p>
+            </div>
+            <span class="fragment-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section id="estado" class="status-section" aria-labelledby="titulo-estado">
+      <div class="status-copy">
+        <p class="kicker">Estado actual</p>
+        <h2 id="titulo-estado">Traducción completa</h2>
+        <p>
+          El texto, las imágenes y los ajustes del motor están integrados. La versión
+          pública se encuentra en preparación y todavía no tiene descarga.
         </p>
       </div>
 
-      <div class="feature-grid">
-        <article class="feature">
-          <h3>Texto</h3>
-          <p>Traducción completa de los relatos y del marco, con terminología compartida y voces diferenciadas.</p>
-        </article>
-        <article class="feature">
-          <h3>Motor y tipografía</h3>
-          <p>Ajustes para caracteres españoles, cajas de diálogo, saltos de línea y distintas geometrías de texto.</p>
-        </article>
-        <article class="feature">
-          <h3>Imágenes</h3>
-          <p>Flujo preparado para sustituir gráficos con texto por versiones localizadas sin alterar otros recursos.</p>
-        </article>
-        <article class="feature">
-          <h3>Instalador</h3>
-          <p>Distribución pensada para una instalación sencilla, verificable y reversible en otros equipos.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="section" aria-labelledby="titulo-disponibilidad">
-      <div class="section-heading">
+      <dl class="status-list">
         <div>
-          <span class="eyebrow">03 / Disponibilidad</span>
-          <h2 id="titulo-disponibilidad">Todavía sin descarga pública</h2>
+          <dt>Versión</dt>
+          <dd>0.1.15</dd>
         </div>
-        <p>
-          No se publicará un enlace provisional ni una redirección al repositorio.
-          El botón de descarga aparecerá aquí cuando el paquete esté listo para instalarse.
-        </p>
-      </div>
+        <div>
+          <dt>Texto</dt>
+          <dd>18 056 segmentos</dd>
+        </div>
+        <div>
+          <dt>Imágenes</dt>
+          <dd>406 recursos localizados</dd>
+        </div>
+        <div>
+          <dt>Distribución</dt>
+          <dd>Instalador para Windows</dd>
+        </div>
+      </dl>
 
-      <div class="notice">
-        <span class="status status--progress">Próximamente</span>
-        <h3>Parche al español por Aris Rhiannon</h3>
-        <p>
-          La descarga incluirá únicamente la traducción y los componentes necesarios
-          para aplicarla. Será necesaria una copia propia del juego original.
-        </p>
+      <div class="release-note">
+        <span class="release-glyph" aria-hidden="true">◈</span>
+        <div>
+          <strong>Próximamente</strong>
+          <p>
+            La descarga aparecerá aquí cuando termine la comprobación del paquete.
+            Será necesaria una copia propia del juego.
+          </p>
+        </div>
       </div>
     </section>
+
+    <footer class="project-credits">
+      <p><strong>Traducción y parche</strong> Aris Rhiannon</p>
+      <p>
+        <strong>Edición de imágenes</strong>
+        <a href="https://x.com/nitronnix">NitroNNIx</a>
+      </p>
+      <span class="suits" aria-hidden="true">♠ <b>♥</b> ♣ <b>♦</b></span>
+    </footer>
   </div>
 </SiteLayout>
 
 <style>
-  .project-title {
-    max-width: none;
-    font-size: clamp(2rem, 9vw, 7rem);
+  :global([data-theme="trianthology"] body) {
+    background: #050b16;
+  }
+
+  :global([data-theme="trianthology"] .site-header) {
+    border-right-color: rgb(212 227 241 / 24%);
+    background:
+      linear-gradient(180deg, rgb(7 14 27 / 97%), rgb(4 9 18 / 95%)),
+      #050b16;
+    box-shadow: 0.8rem 0 2.8rem rgb(0 0 0 / 28%);
+  }
+
+  :global([data-theme="trianthology"] .brand__portrait) {
+    position: relative;
+    padding: 0.2rem;
+    border: 1px solid rgb(225 201 142 / 42%);
+    border-radius: 50%;
+  }
+
+  :global([data-theme="trianthology"] .brand__avatar) {
+    border-color: rgb(237 229 232 / 65%);
+    outline-color: rgb(180 31 53 / 16%);
+  }
+
+  :global([data-theme="trianthology"] .site-nav a[aria-current]) {
+    background: linear-gradient(90deg, rgb(180 31 53 / 24%), transparent);
+  }
+
+  :global([data-theme="trianthology"] .site-nav a[aria-current]::after) {
+    background: #e1c98e;
+    box-shadow: 0 0 0.7rem rgb(225 201 142 / 55%);
+  }
+
+  :global([data-theme="trianthology"] .site-footer) {
+    position: relative;
+    z-index: 2;
+    border-color: rgb(184 206 229 / 18%);
+    background: #050b16;
+  }
+
+  .trian-page {
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
+    overflow: clip;
+    color: #f0edf0;
+  }
+
+  .cityscape {
+    position: fixed;
+    inset: 0 0 0 var(--sidebar);
+    z-index: -3;
+    overflow: hidden;
+    background: #030812;
+    pointer-events: none;
+  }
+
+  .cityscape::before,
+  .cityscape::after {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    content: "";
+  }
+
+  .cityscape::before {
+    background:
+      linear-gradient(90deg, rgb(2 7 15 / 12%) 0%, rgb(2 7 15 / 18%) 42%, rgb(2 7 15 / 78%) 74%, rgb(2 7 15 / 94%) 100%),
+      linear-gradient(180deg, rgb(1 6 14 / 8%) 38%, rgb(3 9 18 / 76%) 85%, #050b16 100%);
+  }
+
+  .cityscape::after {
+    opacity: 0.26;
+    background-image:
+      radial-gradient(circle at 9% 18%, #d9f0ff 0 1px, transparent 1.5px),
+      radial-gradient(circle at 28% 9%, #fff4d2 0 1px, transparent 1.5px),
+      radial-gradient(circle at 51% 16%, #d9f0ff 0 1px, transparent 1.5px),
+      radial-gradient(circle at 71% 7%, #fff4d2 0 1px, transparent 1.5px),
+      radial-gradient(circle at 88% 23%, #d9f0ff 0 1px, transparent 1.5px);
+    background-size: 31rem 19rem;
+    animation: star-breathe 8s ease-in-out infinite alternate;
+  }
+
+  .cityscape-art {
+    width: 100%;
+    height: 100%;
+    background-position: 50% center;
+    background-size: cover;
+    scale: 1.035;
+    animation: city-drift 26s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  .moon {
+    position: fixed;
+    top: clamp(2rem, 8vh, 6rem);
+    right: clamp(3rem, 9vw, 9rem);
+    z-index: -2;
+    width: clamp(4rem, 8vw, 7rem);
+    aspect-ratio: 1;
+    border: 1px solid rgb(219 237 255 / 24%);
+    border-radius: 50%;
+    opacity: 0.5;
+    background:
+      radial-gradient(circle at 38% 34%, rgb(235 244 255 / 78%), rgb(118 160 204 / 42%) 42%, rgb(57 95 143 / 15%) 70%, transparent 72%);
+    box-shadow: 0 0 3.5rem rgb(93 151 215 / 18%);
+    pointer-events: none;
+  }
+
+  .shards {
+    position: fixed;
+    inset: 0 0 0 var(--sidebar);
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .shards span {
+    position: absolute;
+    width: 0.55rem;
+    height: 1.2rem;
+    border: 1px solid rgb(224 237 249 / 34%);
+    opacity: 0.25;
+    background: linear-gradient(145deg, rgb(218 238 255 / 28%), transparent 70%);
+    clip-path: polygon(50% 0, 100% 34%, 62% 100%, 0 72%);
+    animation: shard-drift 15s ease-in-out infinite alternate;
+    will-change: transform, opacity;
+  }
+
+  .shards span:nth-child(1) { top: 11%; left: 46%; animation-delay: -3s; }
+  .shards span:nth-child(2) { top: 27%; left: 82%; scale: 0.7; animation-delay: -7s; }
+  .shards span:nth-child(3) { top: 44%; left: 58%; scale: 1.3; animation-delay: -12s; }
+  .shards span:nth-child(4) { top: 68%; left: 91%; scale: 0.8; animation-delay: -5s; }
+  .shards span:nth-child(5) { top: 77%; left: 39%; scale: 0.65; animation-delay: -9s; }
+  .shards span:nth-child(6) { top: 88%; left: 73%; scale: 1.1; animation-delay: -1s; }
+
+  .landing {
+    position: relative;
+    display: grid;
+    min-height: min(48rem, calc(100svh - 1rem));
+    grid-template-columns: minmax(18rem, 1fr) minmax(25rem, 0.88fr);
+    align-items: center;
+    width: min(calc(100% - 3rem), 1320px);
+    margin-inline: auto;
+    padding-block: clamp(2rem, 6vh, 5rem);
+  }
+
+  .hero-copy {
+    grid-column: 2;
+    width: min(100%, 37rem);
+    margin-left: auto;
+    padding: clamp(1.4rem, 3vw, 2.4rem);
+    border: 1px solid rgb(220 231 242 / 36%);
+    outline: 1px solid rgb(220 231 242 / 12%);
+    outline-offset: 0.35rem;
+    background:
+      linear-gradient(145deg, rgb(9 18 32 / 87%), rgb(3 9 19 / 75%)),
+      rgb(6 13 25 / 80%);
+    box-shadow:
+      0 2rem 5rem rgb(0 0 0 / 32%),
+      inset 0 0 3rem rgb(108 151 197 / 5%);
+    backdrop-filter: blur(9px);
+  }
+
+  .kicker {
+    margin: 0 0 0.65rem;
+    color: #e1c98e;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(3.1rem, 5.5vw, 5.5rem);
+    font-weight: 500;
+    letter-spacing: -0.075em;
+    line-height: 0.85;
+    white-space: nowrap;
+    text-shadow: 0 0.15rem 1.5rem rgb(0 0 0 / 55%);
+  }
+
+  .title-tri {
+    color: #eee9ea;
+  }
+
+  .title-tri::first-letter,
+  .title-thology::first-letter {
+    color: #c72c43;
+  }
+
+  .title-thology {
+    color: #eee9ea;
+  }
+
+  .subtitle {
+    margin: 0.7rem 0 0;
+    color: #c6d2df;
+    font-family: var(--serif);
+    font-size: clamp(1rem, 1.6vw, 1.35rem);
+    letter-spacing: 0.06em;
+  }
+
+  .summary {
+    max-width: 48ch;
+    margin: 1.25rem 0 0;
+    color: #c1c9d4;
+    line-height: 1.65;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.8rem 1rem;
+    margin-top: 1.35rem;
+  }
+
+  .primary-action {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.55rem 0.95rem;
+    border: 1px solid rgb(226 201 142 / 62%);
+    background: rgb(180 31 53 / 22%);
+    color: #f4edf0;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .primary-action:hover {
+    border-color: #e1c98e;
+    background: rgb(180 31 53 / 38%);
+    color: #fff;
+  }
+
+  .availability {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #aeb9c7;
+    font-size: 0.78rem;
+  }
+
+  .availability > span {
+    width: 0.48rem;
+    height: 0.48rem;
+    rotate: 45deg;
+    background: #d7ba78;
+    box-shadow: 0 0 0.8rem rgb(215 186 120 / 55%);
+  }
+
+  .story-menu {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem 1rem;
+    margin-top: 1.45rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgb(211 226 240 / 18%);
+  }
+
+  .story-menu a {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    gap: 0.55rem;
+    color: #d8dce3;
+    font-size: 0.84rem;
+    text-decoration: none;
+  }
+
+  .story-menu a:hover {
+    color: #fff;
+  }
+
+  .menu-suit {
+    width: 1rem;
+    color: #d8e2ec;
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .red {
+    color: #e07686;
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1rem;
+    margin-top: 0.9rem;
+    color: #8fa0b4;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .fragment-section,
+  .status-section,
+  .project-credits {
+    position: relative;
+    z-index: 1;
+    width: min(calc(100% - 3rem), 1320px);
+    margin-inline: auto;
+  }
+
+  .fragment-section {
+    padding: clamp(2.5rem, 6vw, 5rem);
+    border: 1px solid rgb(197 216 235 / 20%);
+    background:
+      linear-gradient(135deg, rgb(12 24 42 / 96%), rgb(5 12 23 / 97%)),
+      #07101d;
+    box-shadow: 0 2.5rem 7rem rgb(0 0 0 / 35%);
+  }
+
+  .section-head {
+    display: grid;
+    grid-template-columns: minmax(18rem, 0.9fr) minmax(18rem, 1.1fr);
+    gap: 2rem;
+    align-items: end;
+    margin-bottom: 2rem;
+  }
+
+  .section-head > div {
+    position: relative;
+  }
+
+  .section-mark {
+    position: absolute;
+    top: -2rem;
+    left: -1rem;
+    color: rgb(224 235 246 / 10%);
+    font-size: 7rem;
+    line-height: 1;
+  }
+
+  .section-head h2,
+  .status-copy h2 {
+    font-size: clamp(2rem, 3.8vw, 3.5rem);
+    letter-spacing: -0.035em;
+  }
+
+  .section-head > p {
+    max-width: 47ch;
+    margin: 0 0 0.25rem auto;
+    color: #aeb9c7;
+  }
+
+  .fragment-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid rgb(205 221 237 / 24%);
+    border-left: 1px solid rgb(205 221 237 / 24%);
+  }
+
+  .fragment {
+    position: relative;
+    display: grid;
+    min-width: 0;
+    min-height: 10rem;
+    grid-template-columns: 2.2rem 1fr auto;
+    gap: 0.8rem;
+    padding: 1.35rem;
+    border-right: 1px solid rgb(205 221 237 / 24%);
+    border-bottom: 1px solid rgb(205 221 237 / 24%);
+    scroll-margin-top: 1rem;
+    background: rgb(255 255 255 / 1.5%);
+  }
+
+  .fragment-suit {
+    color: #dce7f2;
+    font-size: 1.7rem;
+    line-height: 1;
+  }
+
+  .fragment-author {
+    margin: 0 0 0.2rem;
+    color: #9aaabd;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .fragment h3 {
+    font-size: clamp(1.35rem, 2.3vw, 2rem);
+  }
+
+  .fragment p:last-child {
+    max-width: 42ch;
+    margin: 0.65rem 0 0;
+    color: #b9c3cf;
+    font-size: 0.9rem;
+  }
+
+  .fragment-number {
+    color: rgb(211 225 239 / 24%);
+    font-family: var(--serif);
+    font-size: 1.5rem;
+  }
+
+  .status-section {
+    display: grid;
+    grid-template-columns: minmax(18rem, 0.9fr) minmax(22rem, 1.1fr);
+    gap: clamp(2rem, 6vw, 5rem);
+    padding: clamp(3rem, 7vw, 6rem) clamp(1.25rem, 4vw, 3.5rem);
+    border-inline: 1px solid rgb(197 216 235 / 18%);
+    background:
+      linear-gradient(135deg, rgb(8 17 30 / 94%), rgb(4 10 20 / 91%)),
+      #07101d;
+    box-shadow: 0 2rem 6rem rgb(0 0 0 / 24%);
+  }
+
+  .status-copy > p:last-child {
+    max-width: 48ch;
+    margin: 1rem 0 0;
+    color: #b9c3cf;
+  }
+
+  .status-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-self: start;
+    margin: 0;
+    border-top: 1px solid rgb(205 221 237 / 28%);
+  }
+
+  .status-list div {
+    padding: 0.95rem 0;
+    border-bottom: 1px solid rgb(205 221 237 / 20%);
+  }
+
+  .status-list div:nth-child(odd) {
+    padding-right: 1rem;
+  }
+
+  .status-list dt {
+    color: #8fa0b4;
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .status-list dd {
+    margin: 0.25rem 0 0;
+    color: #edf0f4;
+    font-weight: 700;
+  }
+
+  .release-note {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-block: 1px solid rgb(225 201 142 / 28%);
+    background: rgb(8 17 30 / 74%);
+  }
+
+  .release-glyph {
+    color: #e1c98e;
+    font-size: 1.4rem;
+  }
+
+  .release-note strong {
+    color: #f0edf0;
+    font-family: var(--serif);
+    font-size: 1.1rem;
+  }
+
+  .release-note p {
+    margin: 0.15rem 0 0;
+    color: #aeb9c7;
+    font-size: 0.88rem;
+  }
+
+  .project-credits {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.45rem 1.6rem;
+    padding-block: 1.25rem 2rem;
+    border-top: 1px solid rgb(205 221 237 / 18%);
+    color: #8fa0b4;
+    font-size: 0.76rem;
+  }
+
+  .project-credits p {
+    margin: 0;
+  }
+
+  .project-credits strong {
+    margin-right: 0.35rem;
+    color: #c7d0da;
+    font-weight: 700;
+  }
+
+  .project-credits a {
+    color: #d9c58f;
+  }
+
+  .suits {
+    margin-left: auto;
+    color: #c7d6e5;
+    letter-spacing: 0.35em;
+  }
+
+  .suits b {
+    color: #cf5367;
+    font-weight: 400;
+  }
+
+  @keyframes city-drift {
+    from { transform: translate3d(-0.45%, -0.25%, 0) scale(1.035); }
+    to { transform: translate3d(0.45%, 0.25%, 0) scale(1.055); }
+  }
+
+  @keyframes star-breathe {
+    from { opacity: 0.15; transform: translate3d(0, 0, 0); }
+    to { opacity: 0.34; transform: translate3d(0.2rem, -0.15rem, 0); }
+  }
+
+  @keyframes shard-drift {
+    from { opacity: 0.12; transform: translate3d(-0.25rem, 0.4rem, 0) rotate(-5deg); }
+    to { opacity: 0.38; transform: translate3d(0.35rem, -0.5rem, 0) rotate(7deg); }
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .fragment {
+      transition:
+        background-color 180ms ease,
+        color 180ms ease;
+    }
+
+    .fragment:hover {
+      background: rgb(121 158 195 / 8%);
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .landing {
+      grid-template-columns: minmax(10rem, 0.65fr) minmax(24rem, 1fr);
+    }
+
+    .hero-copy {
+      padding: 1.4rem;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .cityscape::before {
+      background:
+        linear-gradient(180deg, rgb(2 7 15 / 6%) 0%, rgb(2 7 15 / 30%) 36%, rgb(3 9 18 / 93%) 67%, #050b16 100%);
+    }
+
+    .cityscape-art {
+      background-position: 38% center;
+    }
+
+    .moon {
+      right: 1.5rem;
+    }
+
+    .landing {
+      display: block;
+      min-height: 45rem;
+      width: min(calc(100% - 1.25rem), 42rem);
+      padding-top: clamp(13rem, 43vh, 21rem);
+      padding-bottom: 2rem;
+    }
+
+    .hero-copy {
+      width: 100%;
+      margin: 0;
+      padding: 1.15rem;
+      background: linear-gradient(150deg, rgb(8 17 30 / 93%), rgb(3 9 18 / 90%));
+      backdrop-filter: blur(7px);
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 12vw, 4rem);
+    }
+
+    .summary {
+      font-size: 0.9rem;
+    }
+
+    .story-menu {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .story-menu a {
+      min-height: 32px;
+    }
+
+    .fragment-section,
+    .status-section,
+    .project-credits {
+      width: min(calc(100% - 1.25rem), 42rem);
+    }
+
+    .fragment-section {
+      padding: 1.35rem;
+    }
+
+    .section-head,
+    .status-section {
+      grid-template-columns: 1fr;
+    }
+
+    .section-head {
+      gap: 0.8rem;
+    }
+
+    .section-head > p {
+      margin-left: 0;
+    }
+
+    .fragment-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .fragment {
+      min-height: auto;
+    }
+
+    .status-section {
+      gap: 1.5rem;
+      padding: 2.5rem 1.25rem;
+    }
+
+    .release-note {
+      grid-column: auto;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .landing,
+    .fragment-section,
+    .status-section,
+    .project-credits {
+      width: min(calc(100% - 0.8rem), 42rem);
+    }
+
+    .landing {
+      padding-top: 12.5rem;
+    }
+
+    .hero-copy {
+      padding: 1rem;
+      outline: 0;
+    }
+
+    .kicker {
+      font-size: 0.62rem;
+    }
+
+    .hero-actions {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .primary-action {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .hero-meta {
+      gap-inline: 0.65rem;
+    }
+
+    .fragment {
+      grid-template-columns: 1.7rem 1fr;
+      padding: 1rem;
+    }
+
+    .fragment-number {
+      display: none;
+    }
+
+    .status-list {
+      grid-template-columns: 1fr;
+    }
+
+    .status-list div:nth-child(odd) {
+      padding-right: 0;
+    }
+
+    .project-credits {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .suits {
+      margin-left: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cityscape-art,
+    .cityscape::after,
+    .shards span {
+      animation: none;
+      transform: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .hero-copy,
+    .fragment-section,
+    .release-note {
+      border: 1px solid CanvasText;
+      background: Canvas;
+    }
+
+    .cityscape,
+    .moon,
+    .shards {
+      display: none;
+    }
   }
 </style>
