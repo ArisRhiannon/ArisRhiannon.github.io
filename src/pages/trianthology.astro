@@ -42,6 +42,7 @@ const stories = [
     <div class="cityscape" aria-hidden="true">
       <div class="cityscape-art"></div>
     </div>
+    <canvas class="rain" data-rain aria-hidden="true"></canvas>
 
     <div class="moon" aria-hidden="true"></div>
     <div class="shards" aria-hidden="true">
@@ -168,6 +169,138 @@ const stories = [
   </div>
 </SiteLayout>
 
+<script>
+  const rainCanvas = document.querySelector('[data-rain]');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (rainCanvas instanceof HTMLCanvasElement && !reduceMotion.matches) {
+    const rainContext = rainCanvas.getContext('2d', { alpha: true, desynchronized: true });
+
+    if (rainContext) {
+      let width = 0;
+      let height = 0;
+      let pixelRatio = 1;
+      let drops = [];
+      let splashes = [];
+      let animationFrame = 0;
+      let previousTime = performance.now();
+
+      const makeDrop = (y = -24) => {
+        const depth = 0.25 + Math.random() * 0.75;
+        return {
+          x: Math.random() * width,
+          y,
+          length: 8 + depth * 19,
+          speed: 250 + depth * 330,
+          drift: 0.14 + depth * 0.24,
+          width: 0.35 + depth * 0.65,
+          alpha: 0.08 + depth * 0.19,
+        };
+      };
+
+      const resizeRain = () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+        rainCanvas.width = Math.max(1, Math.floor(width * pixelRatio));
+        rainCanvas.height = Math.max(1, Math.floor(height * pixelRatio));
+        rainContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
+        const count = Math.min(420, Math.max(120, Math.floor(width / 4.8)));
+        drops = Array.from({ length: count }, () => makeDrop(Math.random() * height));
+        splashes = [];
+      };
+
+      const addSplash = (x, size) => {
+        if (splashes.length >= 34) splashes.shift();
+        splashes.push({ x, size, age: 0 });
+      };
+
+      const drawSplash = (splash) => {
+        const progress = splash.age / 0.42;
+        const fade = 1 - progress;
+        const spread = splash.size * (0.7 + progress * 2.4);
+        const ground = height - 1;
+
+        rainContext.strokeStyle = `rgba(188, 220, 246, ${fade * 0.34})`;
+        rainContext.lineWidth = 0.55 + fade * 0.45;
+        rainContext.beginPath();
+        rainContext.ellipse(splash.x, ground, spread, 1.2 + progress * 1.8, 0, Math.PI, Math.PI * 2);
+        rainContext.stroke();
+
+        rainContext.strokeStyle = `rgba(220, 237, 255, ${fade * 0.26})`;
+        rainContext.beginPath();
+        rainContext.moveTo(splash.x - spread * 0.28, ground - 1);
+        rainContext.lineTo(splash.x - spread * 0.42, ground - 4 - fade * 2);
+        rainContext.moveTo(splash.x + spread * 0.28, ground - 1);
+        rainContext.lineTo(splash.x + spread * 0.42, ground - 4 - fade * 2);
+        rainContext.stroke();
+      };
+
+      const drawRain = (time) => {
+        const delta = Math.min(0.034, Math.max(0.001, (time - previousTime) / 1000));
+        previousTime = time;
+        rainContext.clearRect(0, 0, width, height);
+
+        const groundGlow = rainContext.createLinearGradient(0, height - 76, 0, height);
+        groundGlow.addColorStop(0, 'rgba(93, 144, 191, 0)');
+        groundGlow.addColorStop(1, 'rgba(104, 157, 204, 0.09)');
+        rainContext.fillStyle = groundGlow;
+        rainContext.fillRect(0, height - 76, width, 76);
+
+        rainContext.lineCap = 'round';
+        for (const drop of drops) {
+          const previousY = drop.y;
+          drop.y += drop.speed * delta;
+          drop.x += drop.drift * drop.speed * delta;
+
+          if (drop.y > height - 2 && previousY <= height - 2) {
+            addSplash(drop.x, 1.2 + drop.width * 1.8);
+          }
+
+          if (drop.y > height + drop.length) {
+            Object.assign(drop, makeDrop(-drop.length - Math.random() * height * 0.35));
+          }
+
+          rainContext.strokeStyle = `rgba(193, 222, 247, ${drop.alpha})`;
+          rainContext.lineWidth = drop.width;
+          rainContext.beginPath();
+          rainContext.moveTo(drop.x, drop.y);
+          rainContext.lineTo(drop.x + drop.drift * drop.length, drop.y + drop.length);
+          rainContext.stroke();
+        }
+
+        for (let index = splashes.length - 1; index >= 0; index -= 1) {
+          const splash = splashes[index];
+          splash.age += delta;
+          if (splash.age >= 0.42) {
+            splashes.splice(index, 1);
+          } else {
+            drawSplash(splash);
+          }
+        }
+
+        animationFrame = requestAnimationFrame(drawRain);
+      };
+
+      const setRainActivity = () => {
+        if (document.visibilityState === 'visible') {
+          previousTime = performance.now();
+          cancelAnimationFrame(animationFrame);
+          animationFrame = requestAnimationFrame(drawRain);
+        } else {
+          cancelAnimationFrame(animationFrame);
+        }
+      };
+
+      resizeRain();
+      window.addEventListener('resize', resizeRain, { passive: true });
+      document.addEventListener('visibilitychange', setRainActivity);
+      setRainActivity();
+    }
+  }
+</script>
+
 <style>
   :global([data-theme="trianthology"] body) {
     background: #050b16;
@@ -260,6 +393,16 @@ const stories = [
     scale: 1.035;
     animation: city-drift 26s ease-in-out infinite alternate;
     will-change: transform;
+  }
+
+  .rain {
+    position: fixed;
+    inset: 0 0 0 var(--sidebar);
+    z-index: -2;
+    width: calc(100% - var(--sidebar));
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.72;
   }
 
   .moon {
@@ -896,6 +1039,10 @@ const stories = [
       animation: none;
       transform: none;
     }
+
+    .rain {
+      display: none;
+    }
   }
 
   @media (forced-colors: active) {
@@ -907,6 +1054,7 @@ const stories = [
     }
 
     .cityscape,
+    .rain,
     .moon,
     .shards {
       display: none;
