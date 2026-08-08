@@ -27,6 +27,8 @@ const stories = [
     text: 'El salón desde el que ambas recorren los tres fragmentos.',
   },
 ];
+
+const patchDownload = 'https://github.com/ArisRhiannon/trianthology-es/releases/latest/download/Instalar-Parche-TrianThology-ES.exe';
 ---
 
 <SiteLayout
@@ -61,7 +63,7 @@ const stories = [
         </p>
 
         <div class="hero-actions">
-          <a class="primary-action" href="https://github.com/ArisRhiannon/trianthology-es/releases/latest">Descargar parche</a>
+          <a class="primary-action" href={patchDownload} download="Instalar-Parche-TrianThology-ES.exe">Descargar parche</a>
           <a class="secondary-action" href="#estado">Estado del parche</a>
           <span class="availability">
             <span aria-hidden="true"></span>
@@ -149,7 +151,7 @@ const stories = [
         <div>
           <strong>Disponible</strong>
           <p>
-            <a class="release-link" href="https://github.com/ArisRhiannon/trianthology-es/releases/latest">
+            <a class="release-link" href={patchDownload} download="Instalar-Parche-TrianThology-ES.exe">
               Descargar el instalador desde GitHub
             </a>
             Necesitarás una copia propia del juego.
@@ -194,7 +196,7 @@ const stories = [
           speed: 250 + depth * 330,
           drift: 0.14 + depth * 0.24,
           width: 0.35 + depth * 0.65,
-          alpha: 0.08 + depth * 0.19,
+          alpha: 0.1 + depth * 0.21,
         };
       };
 
@@ -222,13 +224,13 @@ const stories = [
         const spread = splash.size * (0.7 + progress * 2.4);
         const ground = height - 1;
 
-        rainContext.strokeStyle = `rgba(188, 220, 246, ${fade * 0.34})`;
+        rainContext.strokeStyle = `rgba(188, 220, 246, ${fade * 0.38})`;
         rainContext.lineWidth = 0.55 + fade * 0.45;
         rainContext.beginPath();
         rainContext.ellipse(splash.x, ground, spread, 1.2 + progress * 1.8, 0, Math.PI, Math.PI * 2);
         rainContext.stroke();
 
-        rainContext.strokeStyle = `rgba(220, 237, 255, ${fade * 0.26})`;
+        rainContext.strokeStyle = `rgba(220, 237, 255, ${fade * 0.3})`;
         rainContext.beginPath();
         rainContext.moveTo(splash.x - spread * 0.28, ground - 1);
         rainContext.lineTo(splash.x - spread * 0.42, ground - 4 - fade * 2);
@@ -244,7 +246,7 @@ const stories = [
 
         const groundGlow = rainContext.createLinearGradient(0, height - 76, 0, height);
         groundGlow.addColorStop(0, 'rgba(93, 144, 191, 0)');
-        groundGlow.addColorStop(1, 'rgba(104, 157, 204, 0.09)');
+        groundGlow.addColorStop(1, 'rgba(104, 157, 204, 0.11)');
         rainContext.fillStyle = groundGlow;
         rainContext.fillRect(0, height - 76, width, 76);
 
@@ -402,7 +404,7 @@ const stories = [
     width: calc(100% - var(--sidebar));
     height: 100%;
     pointer-events: none;
-    opacity: 0.72;
+    opacity: 0.82;
   }
 
   .moon {
