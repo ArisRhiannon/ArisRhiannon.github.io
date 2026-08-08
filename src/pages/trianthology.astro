@@ -58,9 +58,6 @@ const patchDownload = 'https://github.com/ArisRhiannon/trianthology-es/releases/
           <span class="title-tri">Tri</span>an<span class="title-thology">Thology</span>
         </h1>
         <p class="subtitle">Alice of the Three-Sided Mirror</p>
-        <p class="summary">
-          Los tres relatos y la historia de Alice y Usagi, traducidos al español.
-        </p>
 
         <div class="hero-actions">
           <a class="primary-action" href={patchDownload} download="Instalar-Parche-TrianThology-ES.exe">Descargar parche</a>
@@ -165,6 +162,14 @@ const patchDownload = 'https://github.com/ArisRhiannon/trianthology-es/releases/
       <p>
         <strong>Edición de imágenes</strong>
         <a href="https://x.com/nitronnix">NitroNNIx</a>
+      </p>
+      <p class="license-line">
+        <strong>Licencias</strong>
+        <a href="https://github.com/ArisRhiannon/trianthology-es/blob/main/LICENSE.translation">Traducción: CC BY-NC-SA 4.0</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://github.com/ArisRhiannon/trianthology-es/blob/main/LICENSE">Código: AGPL-3.0-or-later</a>
+        <span aria-hidden="true">·</span>
+        Obra original: 07th Expansion / Ryukishi07.
       </p>
       <span class="suits" aria-hidden="true">♠ <b>♥</b> ♣ <b>♦</b></span>
     </footer>
@@ -824,6 +829,12 @@ const patchDownload = 'https://github.com/ArisRhiannon/trianthology-es/releases/
 
   .project-credits p {
     margin: 0;
+  }
+
+  .license-line {
+    flex-basis: 100%;
+    max-width: 76ch;
+    line-height: 1.6;
   }
 
   .project-credits strong {
