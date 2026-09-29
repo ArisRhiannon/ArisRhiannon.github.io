@@ -1,5 +1,6 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
+import sprite from './trt-sprite.svg?raw';
 
 interface Props {
   lang: 'es' | 'en' | 'ja';
@@ -61,6 +62,8 @@ const copy = {
     ],
     credits: ['Traducción y parche', 'Edición de imágenes', 'Licencias', 'Traducción', 'Código'],
     unofficial: 'Proyecto de fans no oficial. Obra original de 07th Expansion.',
+    music: 'Música',
+    bgm: 'Música de fondo',
     home: 'Inicio',
     patchName: 'TRianThology — Parche de traducción al español',
   },
@@ -107,6 +110,8 @@ const copy = {
     ],
     credits: ['Translation & patch', 'Image editing', 'Licenses', 'Translation', 'Code'],
     unofficial: 'Unofficial fan project. Original work by 07th Expansion.',
+    music: 'Music',
+    bgm: 'Background music',
     home: 'Home',
     patchName: 'TRianThology Spanish Translation Patch',
   },
@@ -153,6 +158,8 @@ const copy = {
     ],
     credits: ['翻訳・パッチ', '画像編集', 'ライセンス', '翻訳', 'コード'],
     unofficial: '非公式のファンプロジェクトです。原作：07th Expansion。',
+    music: '音楽',
+    bgm: 'BGM',
     home: 'ホーム',
     patchName: 'トライアンソロジー スペイン語翻訳パッチ',
   },
@@ -174,15 +181,30 @@ const arcs = [
 const nf = new Intl.NumberFormat(htmlLang);
 const stats = [18056, 412, 4].map((n, i) => ({ n, shown: nf.format(n), label: copy.stats[i] }));
 
-const letters: [string, string][] = [
-  ['T', 'cap'], ['R', 'cap r'], ['i', 'min'], ['a', 'min'], ['n', 'min'], ['T', 't2'],
-  ['h', 'min'], ['o', 'min'], ['l', 'min'], ['o', 'min'], ['g', 'min'], ['y', 'min'],
-];
+/* Logo glyphs live in trt-sprite.svg (traced from the game's title logo). */
+const glyphs = ['t1', 'r', 'i', 'a', 'n', 't2', 'h', 'o', 'l', 'o2', 'g', 'y'];
 
-const panes = [
-  { cls: 'l', o: 26 * 0, w: 26, t: 3 },
-  { cls: 'c', o: 26, w: 48, t: 0 },
-  { cls: 'r', o: 74, w: 26, t: 3 },
+/* The painted mirror, cut out of the key art. Seams follow the hinges (they lean with the
+   perspective); wings swing on those slanted axes. Coordinates are % of the 1920×1080 art. */
+const panes = ['l', 'c', 'r'];
+
+/* Top edge of the cut-out (fraction of height, 160 columns; 9 = empty) for rain splashes. */
+const mirrorTop =
+  '9 9 9 9 9 9 .467 .449 .435 .422 .413 .406 .398 .393 .388 .384 .381 .377 .374 .372 .37 .37 .37 .346 .293 .249 .23 .213 .199 .186 .174 .164 .155 .146 .139 .131 .127 .122 .119 .117 .117 .117 .118 .121 .124 .086 .074 .07 .067 .062 .056 .05 .04 .026 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .018 .033 .045 .054 .059 .064 .068 .072 .077 .102 .122 .119 .117 .117 .117 .118 .12 .125 .13 .135 .142 .15 .158 .169 .181 .193 .206 .22 .239 .262 .292 .34 .414 .454 .472 .484 .494 .505 .806 .823 .86 9 9 9 9 9 9 9 9 9 9 9 9 9 9';
+
+/* Background of the key art, redrawn: stars (x, y, radius, float period) and bubbles, in art px.
+   Glints run around the mirror in order, so their delay comes from the angle to its centre. */
+const stars = [
+  [485, 24, 40, 9], [335, 142, 28, 11], [250, 252, 25, 8], [196, 362, 46, 12], [226, 484, 21, 10], [128, 624, 17, 9],
+  [1395, 22, 32, 10], [1546, 78, 44, 12], [1652, 252, 27, 9], [1698, 336, 48, 11], [1748, 498, 29, 10], [1792, 652, 19, 8],
+].map(([x, y, r, f]) => ({ x, y, r, f, d: (((Math.atan2(y - 560, x - 960) * 180) / Math.PI + 270) % 360) / 40 }));
+const bubbles = [
+  [300, 160, 8], [318, 180, 5], [212, 300, 9], [232, 322, 6], [160, 545, 7], [92, 420, 6], [420, 60, 6],
+  [1604, 112, 9], [1624, 96, 6], [1682, 424, 10], [1760, 566, 7], [1856, 382, 5], [1500, 30, 6],
+];
+/* The white orbits around the mirror: rx, ry, tilt, comet period (s), direction. */
+const orbits = [
+  [900, 560, -8, 26, 1], [860, 610, 13, 34, -1], [990, 470, 4, 21, 1], [780, 640, -19, 41, -1],
 ];
 
 const langLinks = [
@@ -199,7 +221,7 @@ const alternates = [
 ];
 
 const imgSizes = '(max-width: 760px) 92vw, 50vw';
-const imgSrcset = '/trianthology/alice-880.webp 880w, /trianthology/alice.webp 1600w';
+const imgSrcset = '/trianthology/mirror-880.webp 880w, /trianthology/mirror.webp 1600w';
 const strip = (html: string) => html.replace(/<[^>]+>/g, '');
 
 const PERSON = `${SITE}/#person`;
@@ -312,8 +334,10 @@ const jsonLd = {
 >
   <Fragment slot="head">
     <link rel="preload" href="/trianthology/bodoni-trt-normal.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" as="image" href="/trianthology/alice.webp" imagesrcset={imgSrcset} imagesizes={imgSizes} fetchpriority="high" />
+    <link rel="preload" as="image" href="/trianthology/mirror.webp" imagesrcset={imgSrcset} imagesizes={imgSizes} fetchpriority="high" />
   </Fragment>
+
+  <Fragment set:html={sprite} />
 
   <div class="trt">
     <div class="trt-bg" aria-hidden="true"></div>
@@ -333,31 +357,20 @@ const jsonLd = {
         <h1 id="trt-title" class="sr-only">{copy.h1}</h1>
 
         <div class="logo" aria-hidden="true">
-          <span class="logo__kana">トライアンソロジー</span>
-          <span class="logo__word">
-            {letters.map(([ch, kind], i) => (
-              <span class={`l l--${kind.split(' ').join(' l--')}`} style={`--i:${i}`}>
-                {ch}
-                {kind === 't2' && (
-                  <svg class="crown" viewBox="0 0 40 26">
-                    <defs>
-                      <linearGradient id="trt-gold" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0" stop-color="#fff0b8" />
-                        <stop offset=".55" stop-color="#e0b44f" />
-                        <stop offset="1" stop-color="#9c6d1c" />
-                      </linearGradient>
-                    </defs>
-                    <path d="M3 24 5 7l8 8 7-13 7 13 8-8 2 17Z" fill="url(#trt-gold)" stroke="#5b3d0c" stroke-width="1.1" stroke-linejoin="round" />
-                    <path d="m20 13 3 4-3 4-3-4Z" fill="#6fd0f2" />
-                  </svg>
-                )}
-              </span>
-            ))}
-          </span>
-          <svg class="logo__swash" viewBox="0 0 400 30" preserveAspectRatio="none">
-            <path pathLength="1" d="M3 22C90 9 220 4 397 12" />
+          <svg class="logo__svg" viewBox="0 -8 880 388">
+            <use class="logo__kana" href="#lg-kana" />
+            <rect class="logo__rule" x="14" y="244.2" width="852" height="1.6" fill="url(#trt-rule)" />
+            <path class="logo__swash" d="M290 224C330 262 470 273 610 263 720 255 800 246 868 234 800 253 700 264 600 270 470 279 336 272 290 224Z" />
+            {glyphs.map((g, i) => <use class={`g g--${g}`} href={`#lg-${g}`} style={`--i:${i}`} />)}
+            <g transform="translate(422 -2) rotate(-8 31 40) scale(1.5)">
+              <g class="crown">
+                <use href="#trt-crown" />
+                <g clip-path="url(#trt-crown-front)"><path class="crown__glint" d="M-16 60h7l12-44h-7Z" /></g>
+                <path class="crown__spark" d="m11 54.6.9 3 3 .9-3 .9-.9 3-.9-3-3-.9 3-.9Z" />
+              </g>
+            </g>
+            <use class="logo__sub" href="#lg-sub" />
           </svg>
-          <span class="logo__sub">三面鏡の国のアリス</span>
         </div>
 
         <p class="tagline">{copy.tagline}</p>
@@ -383,62 +396,81 @@ const jsonLd = {
       </div>
 
       <div class="hero__art">
-        <figure class="mirror" data-mirror role="img" aria-label={copy.mirrorAlt}>
+        <figure class="mirror" data-mirror data-top={mirrorTop} role="img" aria-label={copy.mirrorAlt}>
+          <svg class="halo" viewBox="0 0 1920 1080" aria-hidden="true">
+            {orbits.map(([rx, ry, tilt, dur, dir], k) => (
+              <g class="orbit" transform={`rotate(${tilt} 960 560)`}>
+                <g class="orbit__spin" style={`--spin:${140 + k * 47}s;--dur:${dur}s`}>
+                  <ellipse class="orbit__line" cx="960" cy="560" rx={rx} ry={ry} />
+                  <ellipse class="orbit__tail" cx="960" cy="560" rx={rx} ry={ry} pathLength="1000" style={`animation-delay:${-k * 4.3}s`} />
+                  <ellipse class="orbit__head" cx="960" cy="560" rx={rx} ry={ry} pathLength="1000" style={`animation-delay:${(-k * 4.3 - (dir > 0 ? 0.126 * dur : 0)).toFixed(2)}s`} />
+                </g>
+              </g>
+            ))}
+          </svg>
+          <svg class="sky" viewBox="0 0 1920 1080" aria-hidden="true">
+            {bubbles.map(([x, y, r], k) => (
+              <circle class="bubble" cx={x} cy={y} r={r} style={`--d:${(k * 0.73) % 5}s`} />
+            ))}
+            {stars.map((s) => (
+              <g transform={`translate(${s.x} ${s.y})`}>
+                <g class="star" style={`--d:${s.d.toFixed(2)}s;--f:${s.f}s`}>
+                  <circle class="star__glow" r={s.r * 1.25} />
+                  <use href="#trt-star" x={-s.r * 1.2} y={-s.r * 1.2} width={s.r * 2.4} height={s.r * 2.4} />
+                  <path class="star__flare" d="M0-14 1.6-1.6 14 0 1.6 1.6 0 14-1.6 1.6-14 0-1.6-1.6Z" transform={`scale(${(s.r / 9).toFixed(2)})`} />
+                </g>
+              </g>
+            ))}
+          </svg>
           <div class="mirror__stage">
             {panes.map((p, i) => (
-              <div class={`pane pane--${p.cls}`} style={`--o:${p.o};--w:${p.w};--t:${p.t}`} data-surface>
-                <div class="pane__glass">
-                  <div class="pane__art">
-                    <img
-                      src="/trianthology/alice.webp"
-                      srcset={imgSrcset}
-                      sizes={imgSizes}
-                      width="1600"
-                      height="900"
-                      alt=""
-                      fetchpriority={i === 1 ? 'high' : undefined}
-                      decoding="async"
-                    />
-                    {p.cls === 'c' && (
-                      <svg class="clock" data-clock viewBox="-50 -50 100 100">
-                        <defs>
-                          <radialGradient id="trt-face">
-                            <stop offset="0" stop-color="#fdfbf5" />
-                            <stop offset=".8" stop-color="#ece6dc" />
-                            <stop offset="1" stop-color="#bfb6b0" />
-                          </radialGradient>
-                        </defs>
-                        <circle r="48" fill="url(#trt-face)" stroke="#3a2f3d" stroke-width="3" />
-                        <circle r="40" fill="none" stroke="#3a2f3d" stroke-width=".8" />
-                        {Array.from({ length: 12 }, (_, k) => (
-                          <line y1="-44.5" y2={k % 3 ? '-41' : '-38.5'} transform={`rotate(${k * 30})`} stroke="#3a2f3d" stroke-width={k % 3 ? 1.2 : 2.4} />
-                        ))}
-                        <g class="clock__num" fill="#2b2230">
-                          <text y="-27">XII</text>
-                          <text x="29" y="1">III</text>
-                          <text y="29">VI</text>
-                          <text x="-29" y="1">IX</text>
-                        </g>
-                        <line class="hand hand--h" y1="5" y2="-21" />
-                        <line class="hand hand--m" y1="7" y2="-33" />
-                        <line class="hand hand--s" y1="10" y2="-37" />
-                        <circle r="2.8" fill="#1d1620" />
-                      </svg>
-                    )}
-                  </div>
-                  <span class="pane__glare"></span>
-                </div>
+              <div class={`pane pane--${p}`}>
+                <img
+                  src="/trianthology/mirror.webp"
+                  srcset={imgSrcset}
+                  sizes={imgSizes}
+                  width="1600"
+                  height="900"
+                  alt=""
+                  fetchpriority={i === 1 ? 'high' : undefined}
+                  decoding="async"
+                />
+                {p === 'c' && (
+                  <svg class="clock" data-clock viewBox="-50 -50 100 100">
+                    <defs>
+                      <radialGradient id="trt-face">
+                        <stop offset="0" stop-color="#fdfbf5" />
+                        <stop offset=".8" stop-color="#ece6dc" />
+                        <stop offset="1" stop-color="#bfb6b0" />
+                      </radialGradient>
+                    </defs>
+                    <circle r="48" fill="url(#trt-face)" stroke="#3a2f3d" stroke-width="3" />
+                    <circle r="40" fill="none" stroke="#3a2f3d" stroke-width=".8" />
+                    {Array.from({ length: 12 }, (_, k) => (
+                      <line y1="-44.5" y2={k % 3 ? '-41' : '-38.5'} transform={`rotate(${k * 30})`} stroke="#3a2f3d" stroke-width={k % 3 ? 1.2 : 2.4} />
+                    ))}
+                    <g class="clock__num" fill="#2b2230">
+                      <text y="-27">XII</text>
+                      <text x="29" y="1">III</text>
+                      <text y="29">VI</text>
+                      <text x="-29" y="1">IX</text>
+                    </g>
+                    <line class="hand hand--h" y1="5" y2="-21" />
+                    <line class="hand hand--m" y1="7" y2="-33" />
+                    <line class="hand hand--s" y1="10" y2="-37" />
+                    <circle r="2.8" fill="#1d1620" />
+                  </svg>
+                )}
+                <span class="pane__glare"></span>
               </div>
             ))}
           </div>
-          {[[4, 14, 0], [95, 20, 1.3], [-2, 62, 2.1], [99, 70, 0.7], [14, 94, 2.8], [84, 96, 1.8], [50, -5, 3.4]].map(([x, y, d]) => (
-            <span class="spark" style={`--x:${x}%;--y:${y}%;--d:${d}s`}></span>
-          ))}
+          <span class="mirror__sheen"></span>
         </figure>
       </div>
     </section>
 
-    <div class="harlequin" aria-hidden="true"></div>
+    <div class="sep" data-reveal aria-hidden="true"><span class="sep__band"></span><span class="sep__gem"><b>♦</b></span></div>
 
     <section class="arcs" aria-labelledby="trt-arcs">
       <header class="arcs__head">
@@ -464,7 +496,21 @@ const jsonLd = {
                   <span class="idx idx--br" aria-hidden="true">{arc.idx}<b>{arc.suit}</b></span>
                 </article>
                 <div class="card__face card__back" aria-hidden="true">
-                  <span class="monogram">TRT</span>
+                  <span class="card__suit">{arc.suit}</span>
+                  <span class="card__suit card__suit--br">{arc.suit}</span>
+                  <svg class="medal" viewBox="-60 -60 120 120">
+                    <circle class="medal__disc" r="57" />
+                    <circle class="medal__ring" r="51.5" />
+                    {Array.from({ length: 12 }, (_, k) => (
+                      <line class="medal__tick" y1="-54.6" y2={k % 3 ? '-52.6' : '-50.4'} transform={`rotate(${k * 30})`} />
+                    ))}
+                    <svg x="-44" y="-31" width="88" height="58" viewBox="-6 5 380 250">
+                      <use class="medal__t" href="#lg-t2" transform="translate(-399 0)" />
+                      <use class="medal__r" href="#lg-r" transform="translate(-60 0)" />
+                      <use class="medal__t" href="#lg-t2" transform="translate(-172 0)" />
+                      <g transform="translate(257 12) rotate(-8 31 40) scale(1.3)"><use href="#trt-crown" /></g>
+                    </svg>
+                  </svg>
                   <span class="card__backname" lang={lang === 'ja' ? 'en' : 'ja'}>{arc.back}</span>
                 </div>
               </div>
@@ -474,7 +520,7 @@ const jsonLd = {
       </ul>
     </section>
 
-    <div class="harlequin harlequin--rev" aria-hidden="true"></div>
+    <div class="sep sep--rev" data-reveal aria-hidden="true"><span class="sep__band"></span><span class="sep__gem"><b>♠</b></span></div>
 
     <div class="info">
       <section class="panel read" aria-labelledby="trt-read" data-surface>
@@ -523,12 +569,29 @@ const jsonLd = {
         <a href={`${REPO}/blob/main/LICENSE`}>{copy.credits[4]}: AGPL-3.0-or-later</a>
       </p>
       <p class="credits__note">{copy.unofficial}</p>
+      <p><strong>{copy.music}</strong> TRianThology OST · 07th Expansion</p>
       <span class="suits" aria-hidden="true">♠<b>♥</b>♣<b>♦</b></span>
     </footer>
+
+    <button class="bgm" type="button" aria-pressed="false" data-bgm title={copy.bgm}>
+      <span class="sr-only">{copy.bgm}</span>
+      <svg class="bgm__icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 17.5V6.2l10-2.2v11.5" />
+        <circle cx="6.6" cy="17.6" r="2.4" />
+        <circle cx="16.6" cy="15.5" r="2.4" />
+        <path class="bgm__slash" d="M4.5 4.5l15 15" />
+      </svg>
+      <span class="bgm__bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    </button>
+    <audio data-bgm-audio loop preload="none">
+      <source src="/trianthology/bgm.webm" type="audio/webm; codecs=opus" />
+      <source src="/trianthology/bgm.m4a" type="audio/mp4" />
+    </audio>
   </div>
 </SiteLayout>
 
 <script>
+  document.documentElement.classList.add('trt-js');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const numberFormat = new Intl.NumberFormat(document.documentElement.lang);
@@ -564,7 +627,13 @@ const jsonLd = {
     });
   }
 
+  /* Mirror entrance waits for the art (CSS keeps it paused until .is-ready). */
+  const mirrorImg = document.querySelector<HTMLImageElement>('.pane--c img');
+  const ready = () => document.querySelector('[data-mirror]')?.classList.add('is-ready');
+  if (mirrorImg) mirrorImg.decode().then(ready, ready);
+
   /* Pointer: mirror parallax + glare, and the rain umbrella. */
+
   const pointer = { x: -1e4, y: -1e4, on: false };
   const mirror = document.querySelector<HTMLElement>('[data-mirror]');
   let mirrorQueued = false;
@@ -617,6 +686,90 @@ const jsonLd = {
       card.style.setProperty('--ty', '0');
     });
   });
+
+  /* Separators play their entrance once they scroll into view. */
+  const reveal = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-in');
+        reveal.unobserve(e.target);
+      }),
+    { threshold: 0.6 }
+  );
+  document.querySelectorAll('[data-reveal]').forEach((el) => reveal.observe(el));
+
+  /* Background music: off until asked, choice remembered. A WebAudio gain gives smooth,
+     quiet fades everywhere (iOS ignores media.volume). The file is mastered at -23 LUFS. */
+  const bgmButton = document.querySelector<HTMLButtonElement>('[data-bgm]');
+  const audio = document.querySelector<HTMLAudioElement>('[data-bgm-audio]');
+  if (bgmButton && audio) {
+    const LEVEL = 0.55;
+    let ctx: AudioContext | undefined;
+    let gain: GainNode | undefined;
+    let on = false;
+    let pauseTimer = 0;
+    const fade = (to: number, secs: number) => {
+      if (!ctx || !gain) return;
+      const t = ctx.currentTime;
+      gain.gain.cancelScheduledValues(t);
+      gain.gain.setValueAtTime(gain.gain.value, t);
+      gain.gain.linearRampToValueAtTime(to, t + secs);
+    };
+    const start = async () => {
+      clearTimeout(pauseTimer);
+      if (!ctx) {
+        ctx = new AudioContext();
+        gain = ctx.createGain();
+        gain.gain.value = 0;
+        ctx.createMediaElementSource(audio).connect(gain).connect(ctx.destination);
+      }
+      await ctx.resume();
+      await audio.play();
+      fade(LEVEL, 3);
+    };
+    const stop = () => {
+      fade(0, 0.6);
+      clearTimeout(pauseTimer);
+      pauseTimer = window.setTimeout(() => audio.pause(), 650);
+    };
+    const remember = (value: string) => {
+      try {
+        localStorage.setItem('trt-bgm', value);
+      } catch {
+        /* private mode: just don't remember */
+      }
+    };
+    const set = (next: boolean) => {
+      on = next;
+      bgmButton.setAttribute('aria-pressed', String(on));
+      remember(on ? '1' : '0');
+      if (on) start().catch(() => set(false));
+      else stop();
+    };
+    bgmButton.addEventListener('click', () => set(!on));
+    document.addEventListener('visibilitychange', () => {
+      if (!on) return;
+      if (document.hidden) stop();
+      else start().catch(() => {});
+    });
+    let wanted = false;
+    try {
+      wanted = localStorage.getItem('trt-bgm') === '1';
+    } catch {
+      /* ignore */
+    }
+    if (wanted) {
+      // Autoplay with sound is blocked, so resume on the first gesture anywhere on the page.
+      const gesture = new AbortController();
+      const resume = (e: Event) => {
+        gesture.abort();
+        if (!(e.target instanceof Node && bgmButton.contains(e.target))) set(true);
+      };
+      addEventListener('pointerdown', resume, { capture: true, signal: gesture.signal });
+      addEventListener('keydown', resume, { capture: true, signal: gesture.signal });
+    }
+  }
 
   /* Theatrical confetti: suits and bows, on a throwaway canvas. */
   const burst = (x0: number, y0: number) => {
@@ -717,16 +870,18 @@ const jsonLd = {
     let H = 0;
     let left = 0;
     let drops: Float32Array[] = [];
-    let surfaces: { l: number; r: number; t: number }[] = [];
+    let surfaces: { l: number; r: number; t: number; h: number; p?: number[] }[] = [];
     const bits: { x: number; y: number; vx: number; vy: number; life: number }[] = [];
     const rings: { x: number; y: number; age: number; w: number }[] = [];
 
     const spawnX = () => Math.random() * (W + H * WIND) - H * WIND;
 
+    /* Boxes splash on their top edge; the mirror splashes on its real silhouette (data-top). */
     const measure = () => {
-      surfaces = Array.from(document.querySelectorAll('[data-surface]'), (el) => {
+      surfaces = Array.from(document.querySelectorAll<HTMLElement>('[data-surface], [data-top]'), (el) => {
         const r = el.getBoundingClientRect();
-        return { l: r.left - left, r: r.right - left, t: r.top + scrollY };
+        const p = el.dataset.top?.split(' ').map(Number);
+        return { l: r.left - left, r: r.right - left, t: r.top + scrollY, h: r.height, p };
       });
     };
 
@@ -770,8 +925,8 @@ const jsonLd = {
 
       const sy = scrollY;
       const visible = surfaces
-        .map((s) => ({ l: s.l, r: s.r, t: s.t - sy }))
-        .filter((s) => s.t > 0 && s.t < H);
+        .map((s) => ({ ...s, t: s.t - sy }))
+        .filter((s) => s.t + (s.p ? s.h : 0) > 0 && s.t < H);
       const cx = pointer.x - left;
       const cy = pointer.y;
       const R2 = UMBRELLA * UMBRELLA;
@@ -788,8 +943,10 @@ const jsonLd = {
           let hit = false;
           if (layer.hits) {
             for (const s of visible) {
-              if (x >= s.l && x <= s.r && y0 < s.t && y >= s.t) {
-                splash(x, s.t, layer.width);
+              if (x < s.l || x > s.r) continue;
+              const top = s.p ? s.t + s.p[Math.min(s.p.length - 1, (((x - s.l) / (s.r - s.l)) * s.p.length) | 0)] * s.h : s.t;
+              if (y0 < top && y >= top) {
+                splash(x, top, layer.width);
                 hit = true;
                 break;
               }
@@ -871,7 +1028,7 @@ const jsonLd = {
     resize();
     addEventListener('resize', resize, { passive: true });
     new ResizeObserver(() => measure()).observe(document.body);
-    setTimeout(measure, 2000); // after the mirror wings finish opening
+    setTimeout(measure, 3000); // after the mirror wings finish opening
     document.fonts?.ready.then(measure);
     document.addEventListener('visibilitychange', setActive);
     setActive();
@@ -1044,99 +1201,72 @@ const jsonLd = {
     letter-spacing: 0.2em;
   }
 
-  /* Typographic logo, after the official one */
+  /* Logo, traced from the game's title logo */
   .logo {
-    --size: clamp(3.4rem, 6.4vw, 6.6rem);
-    position: relative;
-    width: max-content;
-    max-width: 100%;
-    margin: 0.2rem 0 0.9rem;
-    font-size: var(--size);
+    width: min(100%, 31rem);
+    margin: 0 0 0.75rem -0.35rem;
   }
 
-  .logo__kana,
-  .logo__sub {
+  .logo__svg {
     display: block;
-    font-family: 'Yu Mincho', 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-    line-height: 1;
-    animation: trt-fade 900ms 700ms both;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 0.12rem 0.3rem rgb(0 0 0 / 60%));
   }
 
   .logo__kana {
-    margin: 0 0 -0.05em 0.35em;
-    color: var(--gold);
-    font-size: 0.17em;
-    font-style: italic;
-    letter-spacing: 0.28em;
+    fill: var(--gold);
+    animation: trt-fade 900ms 700ms both;
   }
 
-  .logo__word {
-    display: flex;
-    align-items: baseline;
-    font-family: 'Bodoni TRT', 'Bodoni MT', Didot, 'Times New Roman', serif;
-    font-weight: 500;
-    line-height: 0.92;
-    -webkit-box-reflect: below -0.12em linear-gradient(to bottom, rgb(0 0 0 / 22%), transparent 42%);
+  .logo__sub {
+    fill: var(--ivory);
+    animation: trt-fade 900ms 950ms both;
   }
 
-  .l {
-    position: relative;
-    display: inline-block;
-    color: var(--ivory);
-    text-shadow: 0 0.04em 0.12em rgb(0 0 0 / 60%);
+  .g {
+    fill: var(--ivory);
+    transform-box: fill-box;
     animation: trt-letter 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
     animation-delay: calc(var(--i) * 55ms + 120ms);
   }
 
-  .l--r {
-    margin-left: -0.07em;
-    color: var(--red);
+  .g--r {
+    fill: var(--red);
+    stroke: var(--ivory);
+    stroke-width: 3;
+    paint-order: stroke;
   }
 
-  .l--min {
-    font-size: 0.43em;
-  }
-
-  .l--t2 {
-    margin-left: 0.02em;
-    font-size: 0.8em;
-  }
-
-  .crown {
-    position: absolute;
-    top: -0.2em;
-    left: 50%;
-    width: 0.46em;
-    translate: -50% 0;
-    rotate: -8deg;
-    filter: drop-shadow(0 0.03em 0.05em rgb(0 0 0 / 50%));
-    animation: trt-crown 900ms cubic-bezier(0.3, 1.5, 0.5, 1) 900ms both;
+  .logo__rule {
+    transform-box: fill-box;
+    transform-origin: 0 50%;
+    animation: trt-grow 1100ms cubic-bezier(0.6, 0, 0.2, 1) 500ms both;
   }
 
   .logo__swash {
-    display: block;
-    width: 100%;
-    height: 0.2em;
-    margin-top: -0.12em;
-    overflow: visible;
+    fill: var(--red);
+    animation: trt-wipe 1100ms cubic-bezier(0.6, 0, 0.2, 1) 800ms both;
   }
 
-  .logo__swash path {
-    fill: none;
-    stroke: var(--red);
-    stroke-width: 3;
-    stroke-linecap: round;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 0;
-    vector-effect: non-scaling-stroke;
-    animation: trt-draw 1100ms cubic-bezier(0.6, 0, 0.2, 1) 650ms both;
+  .crown {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: trt-crown 900ms cubic-bezier(0.3, 1.5, 0.5, 1) 900ms both;
   }
 
-  .logo__sub {
-    margin-top: 0.12em;
-    color: var(--ivory);
-    font-size: 0.21em;
-    letter-spacing: 0.62em;
+  .crown__glint {
+    fill: rgb(255 255 255 / 80%);
+    animation: trt-glint 7s ease-in-out 2.6s infinite;
+  }
+
+  .crown__spark {
+    fill: #fff;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: trt-spark 7s ease-in-out 3.3s infinite;
   }
 
   .tagline {
@@ -1259,109 +1389,130 @@ const jsonLd = {
   }
 
   /* ---------- Three-sided mirror ---------- */
+  @property --open {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  @property --sway {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  @property --lit {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 1;
+  }
+
+  @property --px {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+  }
+
   .hero__art {
-    padding-block: 1rem 0.5rem;
+    padding-block: 0.4rem 0;
   }
 
   .mirror {
-    --f: 0.75cqw;
-    --px: 0;
-    --py: 0;
     --gx: 50%;
     --gy: 30%;
     position: relative;
     margin: 0;
     aspect-ratio: 16 / 9;
     container-type: inline-size;
+    transition: --px 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
-  .mirror__stage {
+  .halo,
+  .sky,
+  .mirror__stage,
+  .pane,
+  .pane__glare,
+  .mirror__sheen {
     position: absolute;
     inset: 0;
-    display: flex;
-    perspective: 1500px;
-    filter: drop-shadow(0 1.4rem 2.2rem rgb(0 0 0 / 55%));
   }
 
+  /* The art is cropped at top and bottom; fade those edges instead of cutting them. */
+  .mirror__stage {
+    perspective: 1400px;
+    filter: drop-shadow(0 1.2rem 1.6rem rgb(0 0 0 / 60%));
+    mask: linear-gradient(transparent, #000 3.5%, #000 84%, transparent);
+  }
+
+  /* Hold the entrance until the art is decoded, so nothing opens empty. */
+  :global(html.trt-js) .mirror:not(.is-ready) :is(.pane, .halo, .sky, .mirror__sheen) {
+    animation-play-state: paused;
+  }
+
+  /* The art is one cut-out; each pane shows its slice and swings on its own hinge line. */
   .pane {
-    flex: 0 0 calc(var(--w) * 1cqw);
-    height: calc(56.25cqw - var(--t) * 1cqw);
-    margin-top: calc(var(--t) * 1cqw);
-    padding: var(--f);
-    background:
-      linear-gradient(100deg, #6f6a7a, #f2eff6 22%, #a9a4b4 45%, #fbfaff 62%, #807a8c 100%);
-    box-shadow: inset 0 0 0 1px rgb(40 30 50 / 60%);
+    --open: 0deg;
+    --sway: 0deg;
+    --lit: 1;
+    clip-path: var(--clip);
+    transform: rotate3d(var(--ax, 0), 1, 0, calc((var(--open) + var(--sway)) * var(--dir, 1) + var(--px) * var(--tilt, 0deg)));
+    transform-origin: var(--ox, 50%) 0;
+    filter: brightness(var(--lit));
   }
 
-  .pane--c {
-    z-index: 1;
-    border-radius: 50% 50% 0.5cqw 0.5cqw / 8.5cqw 8.5cqw 0.5cqw 0.5cqw;
-  }
-
-  .pane--l,
-  .pane--r {
-    animation: 1.7s cubic-bezier(0.16, 0.9, 0.25, 1) 0.25s both;
-  }
-
-  .pane--l {
-    border-radius: 70% 30% 0.5cqw 0.5cqw / 7cqw 4cqw 0.5cqw 0.5cqw;
-    transform: rotateY(18deg);
-    transform-origin: 100% 50%;
-    animation-name: trt-wing-l;
-  }
-
-  .pane--r {
-    border-radius: 30% 70% 0.5cqw 0.5cqw / 4cqw 7cqw 0.5cqw 0.5cqw;
-    transform: rotateY(-18deg);
-    transform-origin: 0% 50%;
-    animation-name: trt-wing-r;
-  }
-
-  .pane__glass {
-    position: relative;
-    height: 100%;
-    overflow: hidden;
-    border-radius: inherit;
-    background: #0b1a36;
-    box-shadow: inset 0 0 0.6cqw rgb(0 0 0 / 70%);
-  }
-
-  .pane__art {
-    --k: 4;
-    position: absolute;
-    top: calc(var(--t) * -1cqw - var(--f));
-    left: calc(var(--o) * -1cqw - var(--f));
-    width: 100cqw;
-    height: 56.25cqw;
-    transform: translate3d(calc(var(--px) * var(--k) * 1px), calc(var(--py) * 3px), 0) scale(1.08);
-    transform-origin: calc((var(--o) + var(--w) / 2) * 1cqw) 40%;
-    transition: transform 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-
-  .pane--c .pane__art {
-    --k: 1.5;
-  }
-
-  .pane--r .pane__art {
-    --k: -4;
-  }
-
-  .pane__art img {
+  .pane img {
+    display: block;
     width: 100%;
     height: 100%;
   }
 
-  .pane__glare {
-    position: absolute;
-    top: calc(var(--t) * -1cqw - var(--f));
-    left: calc(var(--o) * -1cqw - var(--f));
-    width: 100cqw;
-    height: 56.25cqw;
-    background:
-      radial-gradient(circle at var(--gx) var(--gy), rgb(255 255 255 / 30%), transparent 22cqw),
-      linear-gradient(115deg, transparent calc(var(--gx) - 12%), rgb(255 255 255 / 12%) var(--gx), transparent calc(var(--gx) + 6%));
-    mix-blend-mode: soft-light;
+  .pane--c {
+    --clip: polygon(27.34% 0, 71.72% 0, 67.29% 100%, 34.74% 100%);
+    animation: trt-rise 1.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .pane--l,
+  .pane--r {
+    --tilt: 1.6deg;
+    z-index: 1;
+    animation:
+      trt-open 2.8s linear 0.2s both,
+      trt-sway 8s ease-in-out 2.5s infinite alternate;
+  }
+
+  .pane--l {
+    --clip: polygon(0 0, 27.6% 0, 35% 100%, 0 100%);
+    --ox: 27.34%;
+    --ax: 0.131;
+  }
+
+  .pane--r {
+    --clip: polygon(71.46% 0, 100% 0, 100% 100%, 67.03% 100%);
+    --ox: 71.72%;
+    --ax: -0.079;
+    --dir: -1;
+    animation-delay: 0.38s, 3.2s;
+    animation-duration: 2.8s, 9s;
+  }
+
+  .pane__glare,
+  .mirror__sheen {
+    mask: url('/trianthology/mirror-mask.png') 0 0 / 100% 100%;
     pointer-events: none;
+  }
+
+  .pane__glare {
+    background:
+      radial-gradient(circle at var(--gx) var(--gy), rgb(255 255 255 / 28%), transparent 24%),
+      linear-gradient(115deg, transparent calc(var(--gx) - 12%), rgb(255 255 255 / 10%) var(--gx), transparent calc(var(--gx) + 6%));
+    mix-blend-mode: soft-light;
+  }
+
+  /* One glint across the glass once the wings settle. */
+  .mirror__sheen {
+    background: linear-gradient(100deg, transparent 42%, rgb(255 250 235 / 65%) 50%, transparent 58%) 100% 0 / 300% 100% no-repeat;
+    mix-blend-mode: overlay;
+    animation: trt-sheen 1.8s ease-in-out 2.4s both;
   }
 
   .clock {
@@ -1394,25 +1545,181 @@ const jsonLd = {
   .hand--m { --a: var(--am, 0deg); --dur: 3600s; stroke-width: 2.2; }
   .hand--s { --a: var(--as, 0deg); --dur: 60s; stroke: #b3122e; stroke-width: 1; }
 
-  .spark {
-    position: absolute;
-    top: var(--y);
-    left: var(--x);
-    width: 1.1rem;
-    aspect-ratio: 1;
-    translate: -50% -50%;
-    background: radial-gradient(circle, #fff 0 12%, #f6e2a6 30%, transparent 70%);
-    clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
-    animation: trt-twinkle 3.6s ease-in-out var(--d) infinite;
+  /* The key art's background, redrawn around the mirror: orbits, stars and bubbles. */
+  .halo,
+  .sky {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
     pointer-events: none;
+    animation: trt-fade 1.8s 1.4s both;
   }
 
-  /* ---------- Harlequin strip ---------- */
-  .harlequin {
+  .halo {
+    mask: radial-gradient(ellipse 54% 56% at 50% 52%, #000 70%, transparent 100%);
+  }
+
+  .orbit__spin {
+    transform-box: view-box;
+    transform-origin: 960px 560px;
+    animation: trt-spin-slow var(--spin) linear infinite;
+  }
+
+  .orbit:nth-child(even) .orbit__spin {
+    animation-direction: reverse;
+  }
+
+  .orbit__line,
+  .orbit__tail,
+  .orbit__head {
+    fill: none;
+    stroke-linecap: round;
+  }
+
+  .orbit__line {
+    stroke: rgb(244 239 231 / 16%);
+    stroke-width: 2.6;
+  }
+
+  .orbit__tail,
+  .orbit__head {
+    animation: trt-comet var(--dur) linear infinite;
+  }
+
+  .orbit:nth-child(even) :is(.orbit__tail, .orbit__head) {
+    animation-direction: reverse;
+  }
+
+  .orbit__tail {
+    stroke: rgb(255 248 230 / 30%);
+    stroke-width: 3;
+    stroke-dasharray: 160 840;
+  }
+
+  .orbit__head {
+    stroke: rgb(255 252 242 / 85%);
+    stroke-width: 4;
+    stroke-dasharray: 34 966;
+  }
+
+  .bubble {
+    fill: rgb(250 246 238 / 88%);
+    stroke: #3b2150;
+    stroke-width: 2.2;
+    animation: trt-bob 6.5s ease-in-out var(--d) infinite alternate;
+  }
+
+  .star {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: trt-float var(--f) ease-in-out calc(var(--d) * -1.7) infinite alternate;
+  }
+
+  /* One glint travels around the mirror: each star's delay is its angle from the centre. */
+  .star__glow {
+    fill: url(#trt-glow);
+    opacity: 0;
+    animation: trt-glow 9s ease-in-out var(--d) infinite;
+  }
+
+  .star__flare {
+    fill: #fffdf6;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: trt-flare 9s ease-in-out var(--d) infinite;
+  }
+
+  /* ---------- Separators ---------- */
+  .sep {
+    --sep-mask: linear-gradient(90deg, transparent, #000 24%, #000 76%, transparent);
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 30px;
+  }
+
+  .sep::before,
+  .sep__band,
+  .sep::after {
+    position: absolute;
+    left: 4%;
+    right: 4%;
+    transition: scale 1.2s cubic-bezier(0.7, 0, 0.2, 1), opacity 1.2s;
+  }
+
+  .sep::before {
+    top: 50%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgb(227 200 138 / 60%) 15%, rgb(227 200 138 / 60%) 85%, transparent);
+    content: '';
+  }
+
+  .sep__band {
+    top: 7px;
     height: 16px;
     border-block: 1px solid rgb(227 200 138 / 50%);
-    background: var(--harlequin) 0 0 / 48px 16px, #0b0710;
-    opacity: 0.9;
+    background: var(--harlequin) 0 0 / 36px 16px, #0b0710;
+    mask: var(--sep-mask);
+    opacity: 0.88;
+    animation: trt-drift 90s linear infinite;
+  }
+
+  .sep--rev .sep__band {
+    animation-direction: reverse;
+  }
+
+  /* A soft light that runs along the strip now and then. */
+  .sep::after {
+    top: 7px;
+    height: 16px;
+    background: linear-gradient(90deg, transparent 46%, rgb(255 244 220 / 45%) 50%, transparent 54%) 100% 0 / 300% 100% no-repeat;
+    mask: var(--sep-mask);
+    mix-blend-mode: overlay;
+    animation: trt-sweep 11s ease-in-out 1.5s infinite;
+    content: '';
+  }
+
+  .sep--rev::after {
+    animation-delay: 6.5s;
+  }
+
+  .sep__gem {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--gold);
+    background: radial-gradient(circle at 35% 35%, #2a1422, #0b0710 70%);
+    box-shadow: 0 0 0 3px #0b0710, 0 0 0 4px rgb(227 200 138 / 40%), 0 0 1.1rem rgb(212 33 61 / 28%);
+    rotate: 45deg;
+    transition: scale 0.8s cubic-bezier(0.3, 1.5, 0.5, 1) 0.45s, rotate 0.8s cubic-bezier(0.3, 1.5, 0.5, 1) 0.45s;
+  }
+
+  .sep__gem b {
+    color: var(--red);
+    font-family: var(--serif);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1;
+    rotate: -45deg;
+  }
+
+  .sep--rev .sep__gem b {
+    color: var(--ivory);
+  }
+
+  :global(html.trt-js) .sep:not(.is-in)::before,
+  :global(html.trt-js) .sep:not(.is-in) .sep__band,
+  :global(html.trt-js) .sep:not(.is-in)::after {
+    opacity: 0;
+    scale: 0 1;
+  }
+
+  :global(html.trt-js) .sep:not(.is-in) .sep__gem {
+    scale: 0;
+    rotate: -135deg;
   }
 
   /* ---------- Deck ---------- */
@@ -1612,38 +1919,114 @@ const jsonLd = {
     display: grid;
     place-items: center;
     align-content: center;
-    gap: 0.6rem;
+    gap: 0.75rem;
     padding: 0.9rem;
-    border: 0.45rem solid #f4efe7;
+    border: 0.4rem solid #f4efe7;
     background:
-      radial-gradient(circle, rgb(10 6 14 / 0) 30%, rgb(10 6 14 / 55%)),
-      var(--harlequin) 0 0 / 30px 20px,
-      #0b0710;
+      radial-gradient(ellipse at 50% 44%, rgb(190 24 52 / 38%), transparent 62%),
+      repeating-linear-gradient(45deg, rgb(227 200 138 / 12%) 0 1px, transparent 1px 12px),
+      repeating-linear-gradient(-45deg, rgb(227 200 138 / 12%) 0 1px, transparent 1px 12px),
+      linear-gradient(160deg, #3b0b17, #13060d 72%);
     transform: rotateY(180deg);
   }
 
-  .monogram {
-    display: grid;
-    place-items: center;
-    width: 5.2rem;
-    aspect-ratio: 1;
-    border: 2px solid var(--gold);
-    border-radius: 50%;
-    background: radial-gradient(circle, #1a0f18, #0b0710);
-    color: var(--ivory);
-    font-family: 'Bodoni TRT', var(--serif);
-    font-size: 1.7rem;
-    letter-spacing: -0.04em;
-    box-shadow: 0 0 0 4px #0b0710, 0 0 0 5px rgb(227 200 138 / 50%);
+  /* Double gold frame, like a real card back. */
+  .card__back::before {
+    position: absolute;
+    inset: 0.35rem;
+    border: 1px solid rgb(227 200 138 / 60%);
+    border-radius: 0.35rem;
+    box-shadow: inset 0 0 0 3px rgb(19 6 13 / 85%), inset 0 0 0 4px rgb(227 200 138 / 28%);
+    content: '';
+  }
+
+  /* Hover light for the back: no blend modes here, they break backface hiding in Chromium. */
+  .card__back::after {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--mx) var(--my), rgb(255 238 205 / 20%), transparent 45%);
+    opacity: 0;
+    transition: opacity 240ms;
+    content: '';
+  }
+
+  .card__suit {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.85rem;
+    color: var(--gold);
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+
+  .card--red .card__suit {
+    color: #ff5b72;
+  }
+
+  .card__suit--br {
+    top: auto;
+    right: 0.85rem;
+    bottom: 0.75rem;
+    left: auto;
+    rotate: 180deg;
+  }
+
+  .medal {
+    width: 6.6rem;
+    overflow: visible;
+    filter: drop-shadow(0 0.35rem 0.6rem rgb(0 0 0 / 55%));
+  }
+
+  .medal__disc {
+    fill: #0d0710;
+    stroke: var(--gold);
+    stroke-width: 1.6;
+  }
+
+  .medal__ring {
+    fill: none;
+    stroke: rgb(227 200 138 / 50%);
+    stroke-width: 0.7;
+  }
+
+  .medal__tick {
+    stroke: var(--gold);
+    stroke-width: 1.2;
+  }
+
+  .medal__t {
+    fill: var(--ivory);
+  }
+
+  .medal__r {
+    fill: var(--red);
+    stroke: var(--ivory);
+    stroke-width: 5;
+    paint-order: stroke;
   }
 
   .card__backname {
+    position: relative;
     max-width: 100%;
-    padding: 0.2rem 0.5rem;
-    background: #0b0710;
+    padding: 0.2rem 0.6rem;
+    border-block: 1px solid rgb(227 200 138 / 45%);
+    background: #0d0710;
     color: var(--gold);
     font-size: 0.72rem;
+    letter-spacing: 0.06em;
     text-align: center;
+  }
+
+  /* Swap faces at mid-turn so a flipped card never shows its mirrored front. */
+  .card__front,
+  .card__back {
+    transition: visibility 0s linear 330ms;
+  }
+
+  .card__flip[aria-pressed='true'] + .card__tilt .card__front,
+  .card__flip[aria-pressed='false'] + .card__tilt .card__back {
+    visibility: hidden;
   }
 
   /* ---------- Info panels ---------- */
@@ -1805,44 +2188,103 @@ const jsonLd = {
 
   /* ---------- Motion ---------- */
   @keyframes trt-letter {
-    from { opacity: 0; translate: 0 0.3em; filter: blur(6px); }
+    from { opacity: 0; translate: 0 26px; }
   }
 
   @keyframes trt-fade {
     from { opacity: 0; }
   }
 
+  @keyframes trt-grow {
+    from { scale: 0 1; }
+  }
+
+  @keyframes trt-wipe {
+    from { clip-path: inset(0 100% 0 0); }
+    to { clip-path: inset(0); }
+  }
+
   @keyframes trt-crown {
-    from { opacity: 0; translate: -50% -0.5em; rotate: -30deg; }
+    from { opacity: 0; translate: 0 -40px; rotate: -30deg; }
   }
 
-  @keyframes trt-draw {
-    from { stroke-dashoffset: 1; }
+  @keyframes trt-glint {
+    0% { translate: 0 0; }
+    14%, 100% { translate: 84px 0; }
   }
 
-  @keyframes trt-wing-l {
-    from { transform: rotateY(88deg); }
+  @keyframes trt-spark {
+    0%, 84%, 100% { opacity: 0; scale: 0.2; rotate: 0deg; }
+    90% { opacity: 1; scale: 1; rotate: 45deg; }
   }
 
-  @keyframes trt-wing-r {
-    from { transform: rotateY(-88deg); }
+  @keyframes trt-rise {
+    from { opacity: 0; translate: 0 1.2rem; --lit: 0.35; }
+  }
+
+  /* Wings unfold from behind, overshoot a touch and settle flat (the art is flat at rest). */
+  @keyframes trt-open {
+    0% { --open: -70deg; --lit: 0.15; opacity: 0; animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1); }
+    10% { opacity: 1; }
+    56% { --open: 3.2deg; --lit: 1.14; animation-timing-function: cubic-bezier(0.4, 0, 0.4, 1); }
+    76% { --open: -1deg; --lit: 1; animation-timing-function: cubic-bezier(0.4, 0, 0.4, 1); }
+    90% { --open: 0.3deg; animation-timing-function: ease-out; }
+    100% { --open: 0deg; --lit: 1; }
+  }
+
+  @keyframes trt-sway {
+    from { --sway: -0.6deg; }
+    to { --sway: 0.6deg; }
+  }
+
+  @keyframes trt-sheen {
+    to { background-position: 0 0; }
   }
 
   @keyframes trt-spin {
     to { rotate: calc(var(--a) + 360deg); }
   }
 
-  @keyframes trt-twinkle {
-    0%, 100% { opacity: 0.15; scale: 0.5; rotate: 0deg; }
-    50% { opacity: 1; scale: 1; rotate: 45deg; }
+  @keyframes trt-spin-slow {
+    to { rotate: 360deg; }
   }
 
-  @keyframes trt-slide {
-    to { background-position: 960px 0, 0 0; }
+  @keyframes trt-comet {
+    from { stroke-dashoffset: 1000; }
+    to { stroke-dashoffset: 0; }
   }
 
-  @keyframes trt-slide-rev {
-    to { background-position: -960px 0, 0 0; }
+  @keyframes trt-float {
+    from { translate: -7px 8px; rotate: -8deg; }
+    to { translate: 8px -9px; rotate: 8deg; }
+  }
+
+  @keyframes trt-bob {
+    to { translate: 0 -12px; }
+  }
+
+  @keyframes trt-glow {
+    0%, 20%, 100% { opacity: 0; }
+    7% { opacity: 1; }
+  }
+
+  @keyframes trt-flare {
+    0%, 14%, 100% { opacity: 0; scale: 0.2; rotate: 0deg; }
+    6% { opacity: 0.95; scale: 1; rotate: 45deg; }
+  }
+
+  @keyframes trt-drift {
+    to { background-position: 360px 0, 0 0; }
+  }
+
+  @keyframes trt-sweep {
+    0% { background-position: 100% 0; }
+    45%, 100% { background-position: 0 0; }
+  }
+
+  @keyframes trt-eq {
+    from { scale: 1 0.25; }
+    to { scale: 1 1; }
   }
 
   @keyframes trt-reveal {
@@ -1850,23 +2292,16 @@ const jsonLd = {
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .card:hover .card__front::after {
+    .card:hover .card__flip[aria-pressed='false'] + .card__tilt .card__front::after {
       opacity: 0.6;
+    }
+
+    .card:hover .card__back::after {
+      opacity: 1;
     }
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: scroll()) {
-      .harlequin {
-        animation: trt-slide linear both;
-        animation-timeline: scroll(root);
-      }
-
-      .harlequin--rev {
-        animation-name: trt-slide-rev;
-      }
-    }
-
     @supports (animation-timeline: view()) {
       .arcs,
       .panel {
@@ -1875,6 +2310,98 @@ const jsonLd = {
         animation-range: entry 0% entry 60%;
       }
     }
+  }
+
+  /* ---------- Music toggle ---------- */
+  .bgm {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border: 1px solid rgb(227 200 138 / 55%);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #2b1a2b, #0b0710 70%);
+    box-shadow: 0 0 0 3px rgb(11 7 16 / 85%), 0 0 0 4px rgb(227 200 138 / 20%), 0 0.6rem 1.4rem rgb(0 0 0 / 45%);
+    color: #cdbf9f;
+    cursor: pointer;
+    transition: translate 200ms, color 200ms, box-shadow 400ms;
+  }
+
+  .bgm:hover {
+    translate: 0 -2px;
+    color: var(--ivory);
+  }
+
+  .bgm:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 5px;
+  }
+
+  .bgm[aria-pressed='true'] {
+    color: var(--gold);
+    box-shadow: 0 0 0 3px rgb(11 7 16 / 85%), 0 0 0 4px rgb(227 200 138 / 45%), 0 0 1.4rem rgb(227 200 138 / 30%), 0 0.6rem 1.4rem rgb(0 0 0 / 45%);
+  }
+
+  .bgm__icon,
+  .bgm__bars {
+    grid-area: 1 / 1;
+    transition: opacity 280ms, scale 280ms;
+  }
+
+  .bgm__icon {
+    width: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .bgm__slash {
+    stroke: var(--red);
+    stroke-width: 1.8;
+  }
+
+  .bgm__bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 16px;
+    opacity: 0;
+    scale: 0.5;
+  }
+
+  .bgm__bars i {
+    width: 3px;
+    height: 100%;
+    border-radius: 2px;
+    background: currentColor;
+    transform-origin: 50% 100%;
+    scale: 1 0.4;
+    animation: trt-eq 0.9s ease-in-out infinite alternate paused;
+  }
+
+  .bgm__bars i:nth-child(2) { animation-duration: 1.3s; animation-delay: -0.5s; scale: 1 0.8; }
+  .bgm__bars i:nth-child(3) { animation-duration: 1.05s; animation-delay: -0.2s; scale: 1 0.55; }
+  .bgm__bars i:nth-child(4) { animation-duration: 1.5s; animation-delay: -0.9s; scale: 1 0.7; }
+
+  .bgm[aria-pressed='true'] .bgm__icon {
+    opacity: 0;
+    scale: 0.5;
+  }
+
+  .bgm[aria-pressed='true'] .bgm__bars {
+    opacity: 1;
+    scale: 1;
+  }
+
+  .bgm[aria-pressed='true'] .bgm__bars i {
+    animation-play-state: running;
   }
 
   /* ---------- Responsive ---------- */
@@ -1913,10 +2440,6 @@ const jsonLd = {
 
     .hero__copy {
       padding: 2.4rem 1rem 1rem;
-    }
-
-    .logo {
-      --size: clamp(2.6rem, 14.5vw, 4.2rem);
     }
 
     .stats {
@@ -1963,10 +2486,18 @@ const jsonLd = {
   @media (forced-colors: active) {
     .trt-bg,
     .rain,
-    .spark,
-    .harlequin,
+    .halo,
+    .sep__band,
+    .sep::after,
+    .pane__glare,
+    .mirror__sheen,
     .card__front::after {
       display: none;
+    }
+
+    .bgm {
+      border: 1px solid ButtonText;
+      color: ButtonText;
     }
 
     .hero__copy,
@@ -1975,9 +2506,11 @@ const jsonLd = {
       border: 1px solid CanvasText;
     }
 
-    .l,
-    .l--r {
-      color: CanvasText;
+    .g,
+    .logo__kana,
+    .logo__sub,
+    .medal__t {
+      fill: CanvasText;
     }
   }
 </style>
