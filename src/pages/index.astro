@@ -28,12 +28,42 @@ const archive = [
     href: 'https://youtu.be/7lJav3O3v_g',
   },
 ];
+
+const SITE = 'https://arisrhiannon.github.io';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE}/#website`,
+      url: `${SITE}/`,
+      name: 'Aris Rhiannon',
+      description: 'Parches y traducciones de novelas visuales al español latinoamericano.',
+      inLanguage: 'es-419',
+      publisher: { '@id': `${SITE}/#person` },
+    },
+    {
+      '@type': 'Person',
+      '@id': `${SITE}/#person`,
+      name: 'Aris Rhiannon',
+      url: `${SITE}/`,
+      image: `${SITE}/favicon.png`,
+      knowsLanguage: ['es', 'ja', 'en'],
+      sameAs: [
+        'https://github.com/ArisRhiannon',
+        'https://x.com/goddamnBern',
+        'https://www.youtube.com/@GoddamnBernkastel',
+      ],
+    },
+  ],
+};
 ---
 
 <SiteLayout
   title="Aris Rhiannon — Parches y traducciones al español"
-  description="Parches y traducciones de novelas visuales al español latinoamericano."
+  description="Parches y traducciones de novelas visuales al español latinoamericano: TRianThology y Ciconia When They Cry, con instaladores para Windows."
   canonical="https://arisrhiannon.github.io/"
+  jsonLd={jsonLd}
 >
   <div class="page">
     <section class="hero" aria-labelledby="titulo-principal">
@@ -43,7 +73,7 @@ const archive = [
           <h1 id="titulo-principal" class="hero-title">Aris Rhiannon</h1>
           <p class="hero-lede">Traducciones de novelas visuales al español latinoamericano.</p>
           <div class="hero-actions">
-            <a class="button button--primary" href="/trianthology/">Ver TrianThology</a>
+            <a class="button button--primary" href="/trianthology/">TRianThology en español</a>
             <a class="button" href="/ciconia/">Descargar Ciconia</a>
           </div>
         </div>
@@ -51,8 +81,8 @@ const archive = [
         <aside class="brief" aria-label="Estado de los proyectos">
           <span class="eyebrow">Proyectos</span>
           <dl>
-            <dt>TrianThology</dt>
-            <dd>En preparación</dd>
+            <dt>TRianThology</dt>
+            <dd>Disponible</dd>
             <dt>Ciconia</dt>
             <dd>Disponible</dd>
           </dl>
@@ -70,11 +100,20 @@ const archive = [
         </div>
 
         <div class="project-grid">
-          <article class="project-card project-card--featured">
-            <span class="status status--progress">En preparación</span>
-            <h3>TrianThology</h3>
-            <p>Parche en español latinoamericano para <cite>Alice of the Three-Sided Mirror</cite>.</p>
-            <a class="project-card__link" href="/trianthology/">Ver el proyecto →</a>
+          <article class="project-card project-card--featured project-card--art">
+            <img
+              class="project-card__thumb"
+              src="/trianthology/alice-880.webp"
+              width="880"
+              height="495"
+              loading="lazy"
+              decoding="async"
+              alt=""
+            />
+            <span class="status status--available">Disponible</span>
+            <h3>TRianThology</h3>
+            <p>Traducción completa de <cite>Alice of the Three-Sided Mirror</cite>, con instalador para Windows.</p>
+            <a class="project-card__link" href="/trianthology/">Descargar el parche →</a>
           </article>
 
           <article class="project-card project-card--featured">

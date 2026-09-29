@@ -1,0 +1,1983 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+
+interface Props {
+  lang: 'es' | 'en' | 'ja';
+}
+
+const { lang } = Astro.props;
+
+const SITE = 'https://arisrhiannon.github.io';
+const BASE = `${SITE}/trianthology/`;
+const urls = { es: BASE, en: `${BASE}en/`, ja: `${BASE}ja/` };
+const htmlLang = { es: 'es-419', en: 'en', ja: 'ja' }[lang];
+const url = urls[lang];
+
+const REPO = 'https://github.com/ArisRhiannon/trianthology-es';
+const DOWNLOAD = `${REPO}/releases/latest/download/Instalar-Parche-TrianThology-ES.exe`;
+const VERSION = '0.1.25';
+
+const copy = {
+  es: {
+    title: 'TRianThology en español — Parche de traducción | Aris Rhiannon',
+    description:
+      'Parche gratuito para jugar TRianThology (TRT, トライアンソロジー) en español latinoamericano: los cuatro arcos traducidos e instalador reversible para Windows.',
+    imageAlt: 'TRianThology en español: Alice, con su corona, frente al espejo de tres caras.',
+    langNav: 'Idioma',
+    kicker: 'Parche de traducción al español',
+    h1: 'TRianThology ~Alice of the Three-Sided Mirror~ en español',
+    tagline: 'Tres escritores, tres mundos y la bruja que los une.',
+    lede: 'La novela visual de 07th Expansion (2016), traducida completa al español latinoamericano.',
+    download: 'Descargar parche',
+    github: 'Código en GitHub',
+    need: 'Necesitas tu propia copia del juego en japonés.',
+    stats: ['segmentos de texto', 'gráficos traducidos', 'arcos'],
+    mirrorAlt: 'Arte clave de TRianThology: Alice, con corona, frente a un espejo de tres caras.',
+    deckTitle: 'Cuatro arcos',
+    deckNote: 'Las mayúsculas del título son las iniciales de sus autores.',
+    flip: 'Voltear carta',
+    finalArc: 'Arco final',
+    arcs: [
+      'Cuatro amigos de la infancia y un pueblo condenado a desaparecer.',
+      'Una comedia escolar que se burla de sus propias reglas.',
+      'El escuadrón Fox y una guerra sin respuestas sencillas.',
+      'Alice y Usagi, al otro lado del espejo.',
+    ],
+    readTitle: 'Así se lee',
+    original: 'Original',
+    installTitle: 'Instalación',
+    steps: [
+      'Descarga el instalador.',
+      'Ábrelo y elige la carpeta del juego, la que tiene <code>Trianthology.exe</code>.',
+      'Pulsa «Instalar parche al español». Listo.',
+    ],
+    faqTitle: 'Preguntas',
+    faq: [
+      ['¿Necesito el juego?', 'Sí. El parche se aplica sobre tu copia japonesa; no incluye el juego.'],
+      ['¿Cuánto cuesta?', 'Nada. Es un proyecto de fans, sin fines de lucro.'],
+      ['¿Y mis partidas guardadas?', 'Se conservan, aunque las anteriores al parche no siempre son compatibles.'],
+      ['¿Puedo volver al japonés?', 'Sí: abre el instalador y pulsa «Restaurar original».'],
+      ['Windows me muestra un aviso', 'El instalador aún no tiene firma digital. En SmartScreen, elige «Más información» y luego «Ejecutar de todas formas».'],
+    ],
+    credits: ['Traducción y parche', 'Edición de imágenes', 'Licencias', 'Traducción', 'Código'],
+    unofficial: 'Proyecto de fans no oficial. Obra original de 07th Expansion.',
+    home: 'Inicio',
+    patchName: 'TRianThology — Parche de traducción al español',
+  },
+  en: {
+    title: 'TRianThology Spanish Translation Patch (TRT) | Aris Rhiannon',
+    description:
+      'Free Spanish translation patch for TRianThology (TRT, トライアンソロジー) by 07th Expansion. All four arcs translated, with a reversible Windows installer.',
+    imageAlt: 'TRianThology in Spanish: crowned Alice in front of the three-sided mirror.',
+    langNav: 'Language',
+    kicker: 'Spanish translation patch',
+    h1: 'TRianThology ~Alice of the Three-Sided Mirror~ Spanish translation',
+    tagline: 'Three writers, three worlds, and the witch who ties them together.',
+    lede: "07th Expansion's 2016 visual novel, fully translated into Latin American Spanish.",
+    download: 'Download patch',
+    github: 'Source on GitHub',
+    need: 'Requires your own copy of the Japanese game.',
+    stats: ['text segments', 'translated graphics', 'arcs'],
+    mirrorAlt: 'TRianThology key art: crowned Alice in front of a three-sided mirror.',
+    deckTitle: 'Four arcs',
+    deckNote: "The capitals in the title are its writers' initials.",
+    flip: 'Flip card',
+    finalArc: 'Final arc',
+    arcs: [
+      'Four childhood friends and a town doomed to disappear.',
+      'A school comedy that makes fun of its own rules.',
+      'Fox squad, and a war with no easy answers.',
+      'Alice and Usagi, on the other side of the mirror.',
+    ],
+    readTitle: 'How it reads',
+    original: 'Original',
+    installTitle: 'Install',
+    steps: [
+      'Download the installer.',
+      'Open it and pick the game folder, the one with <code>Trianthology.exe</code>.',
+      'Click “Instalar parche al español”. Done.',
+    ],
+    faqTitle: 'Questions',
+    faq: [
+      ['Do I need the game?', "Yes. The patch goes on top of your Japanese copy; the game isn't included."],
+      ['Is it free?', "Yes. It's a non-profit fan project."],
+      ['What about my saves?', 'They are kept, but saves made before the patch may not load correctly.'],
+      ['Can I go back to Japanese?', 'Yes: open the installer and click “Restaurar original”.'],
+      ['Windows shows a warning', "The installer isn't code-signed yet. On SmartScreen, click “More info”, then “Run anyway”."],
+    ],
+    credits: ['Translation & patch', 'Image editing', 'Licenses', 'Translation', 'Code'],
+    unofficial: 'Unofficial fan project. Original work by 07th Expansion.',
+    home: 'Home',
+    patchName: 'TRianThology Spanish Translation Patch',
+  },
+  ja: {
+    title: 'トライアンソロジー スペイン語翻訳パッチ | Aris Rhiannon',
+    description:
+      '07th Expansion『トライアンソロジー ～三面鏡の国のアリス～』（TRT）のスペイン語翻訳パッチ。全4編を翻訳し、Windows用インストーラーで簡単に導入・復元できます。無料。',
+    imageAlt: 'スペイン語版トライアンソロジー：三面鏡の前に立つ、王冠をかぶったアリス。',
+    langNav: '言語',
+    kicker: 'スペイン語翻訳パッチ',
+    h1: 'トライアンソロジー ～三面鏡の国のアリス～ スペイン語翻訳パッチ',
+    tagline: '三人の作家が描く三つの世界と、それをつなぐ魔女。',
+    lede: '07th Expansionが2016年に発表したビジュアルノベルを、ラテンアメリカ・スペイン語に全編翻訳しました。',
+    download: 'パッチをダウンロード',
+    github: 'GitHubでソースを見る',
+    need: '日本語版のゲーム本体が別途必要です。',
+    stats: ['翻訳テキスト', '差し替え画像', '編'],
+    mirrorAlt: 'トライアンソロジーのキービジュアル：三面鏡の前に立つ、王冠をかぶったアリス。',
+    deckTitle: '四つの物語',
+    deckNote: 'タイトルの大文字 T・R・T は、三人の作家の頭文字です。',
+    flip: 'カードをめくる',
+    finalArc: '最終章',
+    arcs: [
+      '幼なじみ四人と、消えゆく運命の田舎町。',
+      '自らのお約束を笑い飛ばす学園コメディ。',
+      'チームフォックスと、たやすく答えの出ない戦争。',
+      'アリスとウサギ、鏡の向こう側で。',
+    ],
+    readTitle: '実際の画面',
+    original: '原文',
+    installTitle: '導入方法',
+    steps: [
+      'インストーラーをダウンロード。',
+      '起動して、<code>Trianthology.exe</code> があるゲームのフォルダを選択。',
+      '「Instalar parche al español」を押せば完了。',
+    ],
+    faqTitle: 'よくある質問',
+    faq: [
+      ['ゲーム本体は必要？', 'はい。パッチは日本語版に適用するもので、ゲーム本体は含まれていません。'],
+      ['無料ですか？', 'はい。非営利のファンプロジェクトです。'],
+      ['セーブデータは？', '残りますが、パッチ適用前のセーブは正しく読み込めない場合があります。'],
+      ['元に戻せますか？', 'はい。インストーラーを開いて「Restaurar original」を押してください。'],
+      ['Windowsの警告が出る', 'インストーラーにはまだデジタル署名がありません。SmartScreenで「詳細情報」→「実行」を選んでください。'],
+    ],
+    credits: ['翻訳・パッチ', '画像編集', 'ライセンス', '翻訳', 'コード'],
+    unofficial: '非公式のファンプロジェクトです。原作：07th Expansion。',
+    home: 'ホーム',
+    patchName: 'トライアンソロジー スペイン語翻訳パッチ',
+  },
+}[lang];
+
+const arcs = [
+  { suit: '♦', idx: 'T', red: true, title: 'Country Girl', ja: 'カントリーガアル', author: 'Tanaka Romeo', authorJa: '田中ロミオ' },
+  { suit: '♥', idx: 'T', red: true, title: 'School Love Adventure', ja: '学園恋愛（と呼ぶにはおこがましい）アドベンチャー', author: 'Tonokawa Yūto', authorJa: '都乃河勇人' },
+  { suit: '♠', idx: 'R', red: false, title: 'Vespio 2438', ja: 'ベスピオ2438', author: 'Ryukishi07', authorJa: '竜騎士07' },
+  { suit: '♣', idx: '?', red: false, title: '???', ja: '？？？', author: copy.finalArc, authorJa: copy.finalArc },
+].map((arc, i) => ({
+  ...arc,
+  text: copy.arcs[i],
+  front: lang === 'ja' ? arc.ja : arc.title,
+  back: lang === 'ja' ? arc.title : arc.ja,
+  by: lang === 'ja' ? arc.authorJa : arc.author,
+}));
+
+const nf = new Intl.NumberFormat(htmlLang);
+const stats = [18056, 412, 4].map((n, i) => ({ n, shown: nf.format(n), label: copy.stats[i] }));
+
+const letters: [string, string][] = [
+  ['T', 'cap'], ['R', 'cap r'], ['i', 'min'], ['a', 'min'], ['n', 'min'], ['T', 't2'],
+  ['h', 'min'], ['o', 'min'], ['l', 'min'], ['o', 'min'], ['g', 'min'], ['y', 'min'],
+];
+
+const panes = [
+  { cls: 'l', o: 26 * 0, w: 26, t: 3 },
+  { cls: 'c', o: 26, w: 48, t: 0 },
+  { cls: 'r', o: 74, w: 26, t: 3 },
+];
+
+const langLinks = [
+  { code: 'es', hreflang: 'es-419', label: 'ES' },
+  { code: 'en', hreflang: 'en', label: 'EN' },
+  { code: 'ja', hreflang: 'ja', label: '日本語' },
+] as const;
+
+const alternates = [
+  { hreflang: 'es-419', href: urls.es },
+  { hreflang: 'es', href: urls.es },
+  { hreflang: 'en', href: urls.en },
+  { hreflang: 'ja', href: urls.ja },
+];
+
+const imgSizes = '(max-width: 760px) 92vw, 50vw';
+const imgSrcset = '/trianthology/alice-880.webp 880w, /trianthology/alice.webp 1600w';
+const strip = (html: string) => html.replace(/<[^>]+>/g, '');
+
+const PERSON = `${SITE}/#person`;
+const GAME = `${BASE}#game`;
+const PATCH = `${BASE}#patch`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebPage',
+      '@id': `${url}#webpage`,
+      url,
+      name: copy.title,
+      description: copy.description,
+      inLanguage: htmlLang,
+      isPartOf: { '@id': `${SITE}/#website` },
+      primaryImageOfPage: { '@type': 'ImageObject', url: `${BASE}og.jpg`, width: 1200, height: 630 },
+      about: { '@id': GAME },
+      mainEntity: { '@id': PATCH },
+      breadcrumb: { '@id': `${url}#breadcrumb` },
+    },
+    {
+      '@type': 'VideoGame',
+      '@id': GAME,
+      name: 'TRianThology ~Sanmenkyou no Kuni no Alice~',
+      alternateName: [
+        'トライアンソロジー ～三面鏡の国のアリス～',
+        'トライアンソロジー',
+        'TRianThology: Alice of the Three-Sided Mirror',
+        'TRianThology',
+        'TRT',
+      ],
+      author: [
+        { '@type': 'Person', name: 'Tanaka Romeo', alternateName: '田中ロミオ' },
+        { '@type': 'Person', name: 'Tonokawa Yūto', alternateName: '都乃河勇人' },
+        { '@type': 'Person', name: 'Ryukishi07', alternateName: '竜騎士07' },
+      ],
+      publisher: { '@type': 'Organization', name: '07th Expansion', url: 'https://07th-expansion.net/' },
+      datePublished: '2016-08-31',
+      gamePlatform: 'Windows',
+      genre: 'Visual novel',
+      inLanguage: 'ja',
+      sameAs: [
+        'https://07th-expansion.net/trt_gen',
+        'https://ja.wikipedia.org/wiki/%E3%83%88%E3%83%A9%E3%82%A4%E3%82%A2%E3%83%B3%E3%82%BD%E3%83%AD%E3%82%B8%E3%83%BC%E3%80%9C%E4%B8%89%E9%9D%A2%E9%8F%A1%E3%81%AE%E5%9B%BD%E3%81%AE%E3%82%A2%E3%83%AA%E3%82%B9%E3%80%9C',
+      ],
+    },
+    {
+      '@type': 'SoftwareApplication',
+      '@id': PATCH,
+      name: copy.patchName,
+      alternateName: ['TRianThology en español', 'TRianThology Spanish Translation Patch', 'トライアンソロジー スペイン語翻訳パッチ', 'TRT en español'],
+      applicationCategory: 'GameApplication',
+      operatingSystem: 'Windows',
+      softwareVersion: VERSION,
+      dateModified: '2026-08-08',
+      downloadUrl: DOWNLOAD,
+      fileSize: '43 MB',
+      isAccessibleForFree: true,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      inLanguage: 'es-419',
+      screenshot: { '@type': 'ImageObject', url: `${BASE}captura-es.webp`, width: 1024, height: 576 },
+      image: `${BASE}og.jpg`,
+      license: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
+      author: { '@id': PERSON },
+      contributor: { '@type': 'Person', name: 'NitroNNIx', url: 'https://x.com/nitronnix' },
+      isBasedOn: { '@id': GAME },
+      sameAs: REPO,
+    },
+    {
+      '@type': 'Person',
+      '@id': PERSON,
+      name: 'Aris Rhiannon',
+      url: `${SITE}/`,
+      sameAs: ['https://github.com/ArisRhiannon', 'https://x.com/goddamnBern', 'https://www.youtube.com/@GoddamnBernkastel'],
+    },
+    {
+      '@type': 'FAQPage',
+      '@id': `${url}#faq`,
+      inLanguage: htmlLang,
+      mainEntity: copy.faq.map(([q, a]) => ({
+        '@type': 'Question',
+        name: q,
+        acceptedAnswer: { '@type': 'Answer', text: strip(a) },
+      })),
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${url}#breadcrumb`,
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: copy.home, item: `${SITE}/` },
+        { '@type': 'ListItem', position: 2, name: 'TRianThology', item: BASE },
+        ...(lang === 'es' ? [] : [{ '@type': 'ListItem', position: 3, name: lang === 'en' ? 'English' : '日本語', item: url }]),
+      ],
+    },
+  ],
+};
+---
+
+<SiteLayout
+  title={copy.title}
+  description={copy.description}
+  canonical={url}
+  image={`${BASE}og.jpg`}
+  imageAlt={copy.imageAlt}
+  theme="trianthology"
+  lang={htmlLang}
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <Fragment slot="head">
+    <link rel="preload" href="/trianthology/bodoni-trt-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" as="image" href="/trianthology/alice.webp" imagesrcset={imgSrcset} imagesizes={imgSizes} fetchpriority="high" />
+  </Fragment>
+
+  <div class="trt">
+    <div class="trt-bg" aria-hidden="true"></div>
+    <canvas class="rain" data-rain aria-hidden="true"></canvas>
+
+    <section class="hero" aria-labelledby="trt-title">
+      <div class="hero__copy" data-surface>
+        <nav class="langs" aria-label={copy.langNav}>
+          {langLinks.map((l) => (
+            <a href={urls[l.code]} hreflang={l.hreflang} lang={l.hreflang} aria-current={l.code === lang ? 'page' : undefined}>
+              {l.label}
+            </a>
+          ))}
+        </nav>
+
+        <p class="kicker">{copy.kicker}</p>
+        <h1 id="trt-title" class="sr-only">{copy.h1}</h1>
+
+        <div class="logo" aria-hidden="true">
+          <span class="logo__kana">トライアンソロジー</span>
+          <span class="logo__word">
+            {letters.map(([ch, kind], i) => (
+              <span class={`l l--${kind.split(' ').join(' l--')}`} style={`--i:${i}`}>
+                {ch}
+                {kind === 't2' && (
+                  <svg class="crown" viewBox="0 0 40 26">
+                    <defs>
+                      <linearGradient id="trt-gold" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#fff0b8" />
+                        <stop offset=".55" stop-color="#e0b44f" />
+                        <stop offset="1" stop-color="#9c6d1c" />
+                      </linearGradient>
+                    </defs>
+                    <path d="M3 24 5 7l8 8 7-13 7 13 8-8 2 17Z" fill="url(#trt-gold)" stroke="#5b3d0c" stroke-width="1.1" stroke-linejoin="round" />
+                    <path d="m20 13 3 4-3 4-3-4Z" fill="#6fd0f2" />
+                  </svg>
+                )}
+              </span>
+            ))}
+          </span>
+          <svg class="logo__swash" viewBox="0 0 400 30" preserveAspectRatio="none">
+            <path pathLength="1" d="M3 22C90 9 220 4 397 12" />
+          </svg>
+          <span class="logo__sub">三面鏡の国のアリス</span>
+        </div>
+
+        <p class="tagline">{copy.tagline}</p>
+        <p class="lede">{copy.lede}</p>
+
+        <div class="cta">
+          <a class="dl" href={DOWNLOAD} data-download>
+            <span class="dl__label">{copy.download}</span>
+            <span class="dl__meta">v{VERSION} · Windows · 43 MB</span>
+          </a>
+          <a class="gh" href={REPO}>{copy.github} ↗</a>
+        </div>
+        <p class="need">{copy.need}</p>
+
+        <dl class="stats">
+          {stats.map((s) => (
+            <div>
+              <dt>{s.label}</dt>
+              <dd data-count={s.n}>{s.shown}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+
+      <div class="hero__art">
+        <figure class="mirror" data-mirror role="img" aria-label={copy.mirrorAlt}>
+          <div class="mirror__stage">
+            {panes.map((p, i) => (
+              <div class={`pane pane--${p.cls}`} style={`--o:${p.o};--w:${p.w};--t:${p.t}`} data-surface>
+                <div class="pane__glass">
+                  <div class="pane__art">
+                    <img
+                      src="/trianthology/alice.webp"
+                      srcset={imgSrcset}
+                      sizes={imgSizes}
+                      width="1600"
+                      height="900"
+                      alt=""
+                      fetchpriority={i === 1 ? 'high' : undefined}
+                      decoding="async"
+                    />
+                    {p.cls === 'c' && (
+                      <svg class="clock" data-clock viewBox="-50 -50 100 100">
+                        <defs>
+                          <radialGradient id="trt-face">
+                            <stop offset="0" stop-color="#fdfbf5" />
+                            <stop offset=".8" stop-color="#ece6dc" />
+                            <stop offset="1" stop-color="#bfb6b0" />
+                          </radialGradient>
+                        </defs>
+                        <circle r="48" fill="url(#trt-face)" stroke="#3a2f3d" stroke-width="3" />
+                        <circle r="40" fill="none" stroke="#3a2f3d" stroke-width=".8" />
+                        {Array.from({ length: 12 }, (_, k) => (
+                          <line y1="-44.5" y2={k % 3 ? '-41' : '-38.5'} transform={`rotate(${k * 30})`} stroke="#3a2f3d" stroke-width={k % 3 ? 1.2 : 2.4} />
+                        ))}
+                        <g class="clock__num" fill="#2b2230">
+                          <text y="-27">XII</text>
+                          <text x="29" y="1">III</text>
+                          <text y="29">VI</text>
+                          <text x="-29" y="1">IX</text>
+                        </g>
+                        <line class="hand hand--h" y1="5" y2="-21" />
+                        <line class="hand hand--m" y1="7" y2="-33" />
+                        <line class="hand hand--s" y1="10" y2="-37" />
+                        <circle r="2.8" fill="#1d1620" />
+                      </svg>
+                    )}
+                  </div>
+                  <span class="pane__glare"></span>
+                </div>
+              </div>
+            ))}
+          </div>
+          {[[4, 14, 0], [95, 20, 1.3], [-2, 62, 2.1], [99, 70, 0.7], [14, 94, 2.8], [84, 96, 1.8], [50, -5, 3.4]].map(([x, y, d]) => (
+            <span class="spark" style={`--x:${x}%;--y:${y}%;--d:${d}s`}></span>
+          ))}
+        </figure>
+      </div>
+    </section>
+
+    <div class="harlequin" aria-hidden="true"></div>
+
+    <section class="arcs" aria-labelledby="trt-arcs">
+      <header class="arcs__head">
+        <p class="kicker">T · R · T</p>
+        <h2 id="trt-arcs">{copy.deckTitle}</h2>
+        <p>{copy.deckNote}</p>
+      </header>
+
+      <ul class="deck" role="list">
+        {arcs.map((arc) => (
+          <li class:list={['card', { 'card--red': arc.red }]} data-surface>
+            <button class="card__flip" type="button" aria-pressed="false" aria-label={`${copy.flip}: ${arc.front}`}></button>
+            <div class="card__tilt">
+              <div class="card__inner">
+                <article class="card__face card__front">
+                  <span class="idx" aria-hidden="true">{arc.idx}<b>{arc.suit}</b></span>
+                  <span class="pip" aria-hidden="true">{arc.suit}</span>
+                  <div class="card__body">
+                    <p class="card__author">{arc.by}</p>
+                    <h3 class:list={['card__title', { 'card__title--long': arc.front.length > 14 }]}>{arc.front}</h3>
+                    <p class="card__text">{arc.text}</p>
+                  </div>
+                  <span class="idx idx--br" aria-hidden="true">{arc.idx}<b>{arc.suit}</b></span>
+                </article>
+                <div class="card__face card__back" aria-hidden="true">
+                  <span class="monogram">TRT</span>
+                  <span class="card__backname" lang={lang === 'ja' ? 'en' : 'ja'}>{arc.back}</span>
+                </div>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <div class="harlequin harlequin--rev" aria-hidden="true"></div>
+
+    <div class="info">
+      <section class="panel read" aria-labelledby="trt-read" data-surface>
+        <h2 id="trt-read">{copy.readTitle}</h2>
+        <figure>
+          <img src="/trianthology/captura-es.webp" width="1024" height="576" loading="lazy" decoding="async" alt="" />
+          <blockquote lang="es-419">
+            <p>«Quizá la vida sea un viaje en busca de un trozo de sandía perdido en algún punto de un desierto de sal.»</p>
+          </blockquote>
+          <figcaption>
+            — Alice · <span class="orig"><span>{copy.original}:</span> <span lang="ja">「多分、塩の砂漠のどこかに落ちてる、スイカのカケラを探す旅が人生だわ」</span></span>
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="panel install" aria-labelledby="trt-install" data-surface>
+        <h2 id="trt-install">{copy.installTitle}</h2>
+        <ol class="steps-trt">
+          {copy.steps.map((s, i) => (
+            <li><span class="roman" aria-hidden="true">{['I', 'II', 'III'][i]}</span><span set:html={s} /></li>
+          ))}
+        </ol>
+        <a class="dl dl--small" href={DOWNLOAD} data-download>
+          <span class="dl__label">{copy.download}</span>
+          <span class="dl__meta">v{VERSION} · 43 MB</span>
+        </a>
+      </section>
+
+      <section class="panel faq" aria-labelledby="trt-faq" data-surface>
+        <h2 id="trt-faq">{copy.faqTitle}</h2>
+        {copy.faq.map(([q, a]) => (
+          <details>
+            <summary>{q}</summary>
+            <p set:html={a} />
+          </details>
+        ))}
+      </section>
+    </div>
+
+    <footer class="credits">
+      <p><strong>{copy.credits[0]}</strong> Aris Rhiannon (<a href="https://x.com/goddamnBern">@goddamnBern</a>)</p>
+      <p><strong>{copy.credits[1]}</strong> <a href="https://x.com/nitronnix">NitroNNIx</a></p>
+      <p>
+        <strong>{copy.credits[2]}</strong>
+        <a href={`${REPO}/blob/main/LICENSE.translation`}>{copy.credits[3]}: CC BY-NC-SA 4.0</a> ·
+        <a href={`${REPO}/blob/main/LICENSE`}>{copy.credits[4]}: AGPL-3.0-or-later</a>
+      </p>
+      <p class="credits__note">{copy.unofficial}</p>
+      <span class="suits" aria-hidden="true">♠<b>♥</b>♣<b>♦</b></span>
+    </footer>
+  </div>
+</SiteLayout>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const numberFormat = new Intl.NumberFormat(document.documentElement.lang);
+
+  /* Clock: real local time; CSS spins the hands from these start angles. */
+  const clock = document.querySelector<SVGSVGElement>('[data-clock]');
+  if (clock) {
+    const now = new Date();
+    const s = now.getSeconds() + now.getMilliseconds() / 1000;
+    const m = now.getMinutes() + s / 60;
+    const h = (now.getHours() % 12) + m / 60;
+    clock.style.setProperty('--ah', `${h * 30}deg`);
+    clock.style.setProperty('--am', `${m * 6}deg`);
+    clock.style.setProperty('--as', `${s * 6}deg`);
+  }
+
+  /* Counters */
+  if (!reduce) {
+    document.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
+      const end = Number(el.dataset.count);
+      const io = new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        const t0 = performance.now();
+        const tick = (t: number) => {
+          const p = Math.min(1, (t - t0) / 1400);
+          el.textContent = numberFormat.format(Math.round(end * (1 - (1 - p) ** 3)));
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+      io.observe(el);
+    });
+  }
+
+  /* Pointer: mirror parallax + glare, and the rain umbrella. */
+  const pointer = { x: -1e4, y: -1e4, on: false };
+  const mirror = document.querySelector<HTMLElement>('[data-mirror]');
+  let mirrorQueued = false;
+  const updateMirror = () => {
+    mirrorQueued = false;
+    if (!mirror) return;
+    const r = mirror.getBoundingClientRect();
+    const nx = Math.max(0, Math.min(1, (pointer.x - r.left) / r.width));
+    const ny = Math.max(0, Math.min(1, (pointer.y - r.top) / r.height));
+    mirror.style.setProperty('--px', ((nx - 0.5) * 2).toFixed(3));
+    mirror.style.setProperty('--py', ((ny - 0.5) * 2).toFixed(3));
+    mirror.style.setProperty('--gx', `${(nx * 100).toFixed(1)}%`);
+    mirror.style.setProperty('--gy', `${(ny * 100).toFixed(1)}%`);
+  };
+  if (fine && !reduce) {
+    addEventListener(
+      'pointermove',
+      (e) => {
+        pointer.x = e.clientX;
+        pointer.y = e.clientY;
+        pointer.on = true;
+        if (!mirrorQueued) {
+          mirrorQueued = true;
+          requestAnimationFrame(updateMirror);
+        }
+      },
+      { passive: true }
+    );
+    document.documentElement.addEventListener('pointerleave', () => (pointer.on = false));
+  }
+
+  /* Cards: flip + holographic foil */
+  document.querySelectorAll<HTMLElement>('.card').forEach((card) => {
+    const button = card.querySelector('button');
+    button?.addEventListener('click', () =>
+      button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true'))
+    );
+    if (!fine || reduce) return;
+    card.addEventListener('pointermove', (e) => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width;
+      const y = (e.clientY - r.top) / r.height;
+      card.style.setProperty('--mx', `${(x * 100).toFixed(1)}%`);
+      card.style.setProperty('--my', `${(y * 100).toFixed(1)}%`);
+      card.style.setProperty('--tx', (x - 0.5).toFixed(3));
+      card.style.setProperty('--ty', (y - 0.5).toFixed(3));
+    });
+    card.addEventListener('pointerleave', () => {
+      card.style.setProperty('--tx', '0');
+      card.style.setProperty('--ty', '0');
+    });
+  });
+
+  /* Theatrical confetti: suits and bows, on a throwaway canvas. */
+  const burst = (x0: number, y0: number) => {
+    const c = document.createElement('canvas');
+    c.setAttribute('aria-hidden', 'true');
+    c.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999';
+    document.body.append(c);
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const w = innerWidth;
+    const h = innerHeight;
+    c.width = w * dpr;
+    c.height = h * dpr;
+    const g = c.getContext('2d');
+    if (!g) return c.remove();
+    g.scale(dpr, dpr);
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    const SUITS = ['♠', '♥', '♣', '♦'];
+    const COLORS = ['#d4213d', '#f4efe7', '#e3c88a', '#140e17'];
+    const parts = Array.from({ length: 96 }, (_, i) => {
+      const a = -Math.PI / 2 + (Math.random() - 0.5) * 2.1;
+      const v = 7 + Math.random() * 10;
+      const suit = SUITS[(Math.random() * 4) | 0];
+      const bow = i % 3 === 0;
+      return {
+        x: x0, y: y0,
+        vx: Math.cos(a) * v, vy: Math.sin(a) * v,
+        r: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.3,
+        s: 10 + Math.random() * 12, t: Math.random() * 6.28,
+        k: bow ? '' : suit,
+        c: bow ? COLORS[i % 4] : suit === '♥' || suit === '♦' ? '#d4213d' : COLORS[1 + (i % 2) * 2],
+      };
+    });
+    let last = performance.now();
+    const end = last + 2800;
+    const frame = (now: number) => {
+      const f = Math.min(2.5, (now - last) / 16.67);
+      last = now;
+      g.clearRect(0, 0, w, h);
+      g.globalAlpha = Math.max(0, Math.min(1, (end - now) / 700));
+      for (const p of parts) {
+        p.vx *= 0.986 ** f;
+        p.vy = p.vy * 0.986 ** f + 0.3 * f;
+        p.x += p.vx * f;
+        p.y += p.vy * f;
+        p.r += p.vr * f;
+        p.t += 0.18 * f;
+        g.save();
+        g.translate(p.x, p.y);
+        g.rotate(p.r);
+        g.scale(1, Math.cos(p.t));
+        g.fillStyle = p.c;
+        if (p.k) {
+          g.font = `${p.s}px Georgia, serif`;
+          if (p.c === '#140e17') {
+            g.strokeStyle = '#f4efe7';
+            g.lineWidth = 1;
+            g.strokeText(p.k, 0, 0);
+          }
+          g.fillText(p.k, 0, 0);
+        } else {
+          const s = p.s * 0.55;
+          g.beginPath();
+          g.moveTo(0, 0); g.lineTo(-s, -s * 0.6); g.lineTo(-s, s * 0.6);
+          g.moveTo(0, 0); g.lineTo(s, -s * 0.6); g.lineTo(s, s * 0.6);
+          g.fill();
+          g.fillRect(-s * 0.18, -s * 0.22, s * 0.36, s * 0.44);
+        }
+        g.restore();
+      }
+      if (now < end) requestAnimationFrame(frame);
+      else c.remove();
+    };
+    requestAnimationFrame(frame);
+  };
+  if (!reduce) {
+    document.querySelectorAll<HTMLElement>('[data-download]').forEach((a) =>
+      a.addEventListener('click', () => {
+        const r = a.getBoundingClientRect();
+        burst(r.left + r.width / 2, r.top + r.height / 2);
+      })
+    );
+  }
+
+  /* Rain: 3 depth layers (one stroke each). Near layers splash on [data-surface]
+     top edges, on the viewport floor and on an invisible umbrella around the cursor. */
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-rain]');
+  const ctx = canvas?.getContext('2d');
+  if (canvas && ctx && !reduce) {
+    const WIND = 0.17;
+    const UMBRELLA = 74;
+    const LAYERS = [
+      { len: 8, speed: 380, width: 0.55, alpha: 0.14, hits: false, share: 0.46 },
+      { len: 14, speed: 620, width: 0.85, alpha: 0.24, hits: true, share: 0.34 },
+      { len: 23, speed: 900, width: 1.25, alpha: 0.34, hits: true, share: 0.2 },
+    ];
+    let W = 0;
+    let H = 0;
+    let left = 0;
+    let drops: Float32Array[] = [];
+    let surfaces: { l: number; r: number; t: number }[] = [];
+    const bits: { x: number; y: number; vx: number; vy: number; life: number }[] = [];
+    const rings: { x: number; y: number; age: number; w: number }[] = [];
+
+    const spawnX = () => Math.random() * (W + H * WIND) - H * WIND;
+
+    const measure = () => {
+      surfaces = Array.from(document.querySelectorAll('[data-surface]'), (el) => {
+        const r = el.getBoundingClientRect();
+        return { l: r.left - left, r: r.right - left, t: r.top + scrollY };
+      });
+    };
+
+    const resize = () => {
+      const box = canvas.getBoundingClientRect();
+      left = box.left;
+      W = box.width;
+      H = box.height;
+      const dpr = Math.min(devicePixelRatio || 1, 1.5);
+      canvas.width = Math.max(1, Math.round(W * dpr));
+      canvas.height = Math.max(1, Math.round(H * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const total = Math.round(Math.min(380, (W * H) / 3400));
+      drops = LAYERS.map((layer) => {
+        const a = new Float32Array(Math.round(total * layer.share) * 2);
+        for (let i = 0; i < a.length; i += 2) {
+          a[i] = spawnX();
+          a[i + 1] = Math.random() * H;
+        }
+        return a;
+      });
+      measure();
+    };
+
+    const splash = (x: number, y: number, size: number, nx = 0, ny = -1, ring = true) => {
+      if (ring && rings.length < 70) rings.push({ x, y, age: 0, w: size });
+      for (let k = 0; k < 3 && bits.length < 260; k++) {
+        const spread = (Math.random() - 0.5) * 150 * size;
+        const up = (70 + Math.random() * 110) * Math.sqrt(size);
+        bits.push({ x, y: y - 1, vx: nx * up + spread * -ny, vy: ny * up + spread * nx * 0.5, life: 0.28 + Math.random() * 0.2 });
+      }
+    };
+
+    let last = performance.now();
+    let raf = 0;
+    const frame = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      ctx.clearRect(0, 0, W, H);
+      ctx.lineCap = 'round';
+
+      const sy = scrollY;
+      const visible = surfaces
+        .map((s) => ({ l: s.l, r: s.r, t: s.t - sy }))
+        .filter((s) => s.t > 0 && s.t < H);
+      const cx = pointer.x - left;
+      const cy = pointer.y;
+      const R2 = UMBRELLA * UMBRELLA;
+
+      LAYERS.forEach((layer, li) => {
+        const a = drops[li];
+        const dy = layer.speed * dt;
+        const dx = dy * WIND;
+        ctx.beginPath();
+        for (let i = 0; i < a.length; i += 2) {
+          const y0 = a[i + 1];
+          const x = a[i] + dx;
+          const y = y0 + dy;
+          let hit = false;
+          if (layer.hits) {
+            for (const s of visible) {
+              if (x >= s.l && x <= s.r && y0 < s.t && y >= s.t) {
+                splash(x, s.t, layer.width);
+                hit = true;
+                break;
+              }
+            }
+            if (!hit && pointer.on) {
+              const ox = x - cx;
+              const oy = y - cy;
+              const d2 = ox * ox + oy * oy;
+              if (oy < 0 && d2 < R2) {
+                const d = Math.sqrt(d2) || 1;
+                splash(cx + (ox / d) * UMBRELLA, cy + (oy / d) * UMBRELLA, layer.width, ox / d, oy / d, false);
+                hit = true;
+              }
+            }
+          }
+          if (!hit && y >= H) {
+            if (layer.hits || i % 6 === 0) splash(x, H - 1, layer.width);
+            hit = true;
+          }
+          if (hit) {
+            a[i] = spawnX();
+            a[i + 1] = -layer.len - Math.random() * H * 0.25;
+            continue;
+          }
+          a[i] = x;
+          a[i + 1] = y;
+          ctx.moveTo(x - WIND * layer.len, y - layer.len);
+          ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = `rgba(196, 220, 244, ${layer.alpha})`;
+        ctx.lineWidth = layer.width;
+        ctx.stroke();
+      });
+
+      ctx.lineWidth = 0.7;
+      for (let i = rings.length - 1; i >= 0; i--) {
+        const ring = rings[i];
+        ring.age += dt;
+        const p = ring.age / 0.36;
+        if (p >= 1) {
+          rings.splice(i, 1);
+          continue;
+        }
+        ctx.strokeStyle = `rgba(206, 228, 250, ${(1 - p) * 0.42})`;
+        ctx.beginPath();
+        ctx.ellipse(ring.x, ring.y, ring.w * (1.5 + p * 6), 0.6 + p * 1.4, 0, Math.PI, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      ctx.beginPath();
+      for (let i = bits.length - 1; i >= 0; i--) {
+        const b = bits[i];
+        b.life -= dt;
+        if (b.life <= 0) {
+          bits.splice(i, 1);
+          continue;
+        }
+        b.vy += 900 * dt;
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
+        ctx.moveTo(b.x, b.y);
+        ctx.lineTo(b.x - b.vx * 0.012, b.y - b.vy * 0.012);
+      }
+      ctx.strokeStyle = 'rgba(214, 233, 252, 0.5)';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+
+      raf = requestAnimationFrame(frame);
+    };
+
+    const setActive = () => {
+      cancelAnimationFrame(raf);
+      if (document.visibilityState === 'visible') {
+        last = performance.now();
+        raf = requestAnimationFrame(frame);
+      }
+    };
+
+    resize();
+    addEventListener('resize', resize, { passive: true });
+    new ResizeObserver(() => measure()).observe(document.body);
+    setTimeout(measure, 2000); // after the mirror wings finish opening
+    document.fonts?.ready.then(measure);
+    document.addEventListener('visibilitychange', setActive);
+    setActive();
+  }
+</script>
+
+<style>
+  @font-face {
+    font-family: 'Bodoni TRT';
+    src: url('/trianthology/bodoni-trt-normal.woff2') format('woff2');
+    font-weight: 500;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Bodoni TRT';
+    src: url('/trianthology/bodoni-trt-italic.woff2') format('woff2');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+  }
+
+  :global([data-theme='trianthology'] .site-header) {
+    border-right-color: rgb(212 227 241 / 20%);
+    background: linear-gradient(180deg, rgb(7 12 24 / 97%), rgb(4 8 17 / 96%)), #050b16;
+    box-shadow: 0.8rem 0 2.8rem rgb(0 0 0 / 28%);
+  }
+
+  :global([data-theme='trianthology'] .brand__portrait) {
+    padding: 0.2rem;
+    border: 1px solid rgb(227 200 138 / 42%);
+  }
+
+  :global([data-theme='trianthology'] .brand__avatar) {
+    border-color: rgb(244 239 231 / 65%);
+    outline-color: rgb(212 33 61 / 16%);
+  }
+
+  :global([data-theme='trianthology'] .site-nav a[aria-current]) {
+    background: linear-gradient(90deg, rgb(212 33 61 / 24%), transparent);
+  }
+
+  :global([data-theme='trianthology'] .site-nav a[aria-current]::after) {
+    background: #e3c88a;
+    box-shadow: 0 0 0.7rem rgb(227 200 138 / 55%);
+  }
+
+  :global([data-theme='trianthology'] .site-footer) {
+    position: relative;
+    z-index: 2;
+    border-color: rgb(184 206 229 / 16%);
+    background: #050b16;
+  }
+
+  .trt {
+    --red: #d4213d;
+    --ivory: #f4efe7;
+    --gold: #e3c88a;
+    --night: #050b16;
+    --pane-bg: rgb(6 10 21 / 82%);
+    --hair: rgb(227 200 138 / 22%);
+    --harlequin: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='16'%3E%3Cpath d='M12 0l12 8-12 8L0 8z' fill='%23c41d37'/%3E%3Cpath d='M36 0l12 8-12 8-12-8z' fill='%23efe8dc'/%3E%3C/svg%3E");
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.1rem;
+    width: min(calc(100% - 2.5rem), 1340px);
+    margin-inline: auto;
+    padding-block: 1.2rem 1.6rem;
+    color: var(--ivory);
+  }
+
+  .trt:lang(ja) {
+    font-family: 'Yu Gothic UI', 'Hiragino Sans', 'Noto Sans JP', var(--sans);
+    word-break: auto-phrase;
+  }
+
+  .trt:lang(ja) .card__title {
+    font-size: 1.02rem;
+  }
+
+  .trt :global(code) {
+    padding: 0.05rem 0.3rem;
+    border-color: rgb(255 255 255 / 14%);
+    background: rgb(255 255 255 / 6%);
+    color: var(--ivory);
+  }
+
+  /* ---------- Backdrop ---------- */
+  .trt-bg,
+  .rain {
+    position: fixed;
+    inset: 0 0 0 var(--sidebar);
+    pointer-events: none;
+  }
+
+  .trt-bg {
+    z-index: -3;
+    background:
+      radial-gradient(ellipse 60% 50% at 70% 18%, transparent, rgb(3 7 15 / 55%)),
+      linear-gradient(180deg, rgb(3 7 15 / 40%) 0%, rgb(4 9 19 / 84%) 58%, var(--night) 100%),
+      #040913 url('/trianthology/night.webp') 50% 22% / cover no-repeat;
+  }
+
+  .rain {
+    z-index: -2;
+    width: calc(100% - var(--sidebar));
+    height: 100%;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(1.25rem, 3vw, 2.75rem);
+    align-items: center;
+  }
+
+  .hero__copy {
+    position: relative;
+    padding: 1.35rem 1.6rem 1.25rem;
+    border: 1px solid var(--hair);
+    background: var(--pane-bg);
+    box-shadow: inset 0 0 0 4px rgb(6 10 21 / 90%), inset 0 0 0 5px rgb(227 200 138 / 10%), 0 1.6rem 4rem rgb(0 0 0 / 38%);
+  }
+
+  .langs {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.6rem;
+    display: flex;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+  }
+
+  .langs a {
+    display: inline-grid;
+    place-items: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding-inline: 0.35rem;
+    color: #aab6c6;
+    text-decoration: none;
+  }
+
+  .langs a:hover {
+    color: var(--ivory);
+  }
+
+  .langs a[aria-current] {
+    color: var(--gold);
+    text-decoration: underline;
+    text-decoration-color: var(--red);
+    text-underline-offset: 0.35em;
+  }
+
+  .kicker {
+    margin: 0 0 0.4rem;
+    color: var(--gold);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .trt:lang(ja) .kicker {
+    font-family: inherit;
+    letter-spacing: 0.2em;
+  }
+
+  /* Typographic logo, after the official one */
+  .logo {
+    --size: clamp(3.4rem, 6.4vw, 6.6rem);
+    position: relative;
+    width: max-content;
+    max-width: 100%;
+    margin: 0.2rem 0 0.9rem;
+    font-size: var(--size);
+  }
+
+  .logo__kana,
+  .logo__sub {
+    display: block;
+    font-family: 'Yu Mincho', 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+    line-height: 1;
+    animation: trt-fade 900ms 700ms both;
+  }
+
+  .logo__kana {
+    margin: 0 0 -0.05em 0.35em;
+    color: var(--gold);
+    font-size: 0.17em;
+    font-style: italic;
+    letter-spacing: 0.28em;
+  }
+
+  .logo__word {
+    display: flex;
+    align-items: baseline;
+    font-family: 'Bodoni TRT', 'Bodoni MT', Didot, 'Times New Roman', serif;
+    font-weight: 500;
+    line-height: 0.92;
+    -webkit-box-reflect: below -0.12em linear-gradient(to bottom, rgb(0 0 0 / 22%), transparent 42%);
+  }
+
+  .l {
+    position: relative;
+    display: inline-block;
+    color: var(--ivory);
+    text-shadow: 0 0.04em 0.12em rgb(0 0 0 / 60%);
+    animation: trt-letter 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--i) * 55ms + 120ms);
+  }
+
+  .l--r {
+    margin-left: -0.07em;
+    color: var(--red);
+  }
+
+  .l--min {
+    font-size: 0.43em;
+  }
+
+  .l--t2 {
+    margin-left: 0.02em;
+    font-size: 0.8em;
+  }
+
+  .crown {
+    position: absolute;
+    top: -0.2em;
+    left: 50%;
+    width: 0.46em;
+    translate: -50% 0;
+    rotate: -8deg;
+    filter: drop-shadow(0 0.03em 0.05em rgb(0 0 0 / 50%));
+    animation: trt-crown 900ms cubic-bezier(0.3, 1.5, 0.5, 1) 900ms both;
+  }
+
+  .logo__swash {
+    display: block;
+    width: 100%;
+    height: 0.2em;
+    margin-top: -0.12em;
+    overflow: visible;
+  }
+
+  .logo__swash path {
+    fill: none;
+    stroke: var(--red);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    vector-effect: non-scaling-stroke;
+    animation: trt-draw 1100ms cubic-bezier(0.6, 0, 0.2, 1) 650ms both;
+  }
+
+  .logo__sub {
+    margin-top: 0.12em;
+    color: var(--ivory);
+    font-size: 0.21em;
+    letter-spacing: 0.62em;
+  }
+
+  .tagline {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(1.1rem, 1.6vw, 1.38rem);
+    font-style: italic;
+    line-height: 1.3;
+  }
+
+  .trt:lang(ja) .tagline {
+    font-family: 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+    font-style: normal;
+  }
+
+  .lede {
+    max-width: 46ch;
+    margin: 0.4rem 0 0;
+    color: #bdc7d3;
+    font-size: 0.92rem;
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 1.1rem;
+    margin-top: 1rem;
+  }
+
+  .dl {
+    position: relative;
+    display: inline-grid;
+    min-height: 44px;
+    padding: 0.55rem 1.25rem 0.5rem;
+    overflow: hidden;
+    border: 1px solid rgb(255 220 160 / 55%);
+    background: linear-gradient(180deg, #e0304b, #a3142c);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 25%), 0 0.6rem 1.6rem rgb(212 33 61 / 28%);
+    color: #fff;
+    text-decoration: none;
+    transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 180ms;
+  }
+
+  .dl::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 38%) 50%, transparent 65%) -150% 0 / 250% 100% no-repeat;
+    content: '';
+  }
+
+  .dl:hover {
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 25%), 0 0.8rem 2rem rgb(212 33 61 / 40%);
+  }
+
+  .dl:hover::after {
+    background-position: 150% 0;
+    transition: background-position 700ms ease;
+  }
+
+  .dl__label {
+    font-weight: 750;
+    letter-spacing: 0.02em;
+  }
+
+  .dl__meta {
+    color: rgb(255 238 214 / 85%);
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.06em;
+  }
+
+  .gh {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--gold);
+    font-size: 0.86rem;
+  }
+
+  .gh:hover {
+    color: var(--ivory);
+  }
+
+  .need {
+    margin: 0.35rem 0 0;
+    color: #98a6b8;
+    font-size: 0.76rem;
+  }
+
+  .stats {
+    display: flex;
+    gap: 1.6rem;
+    margin: 0.9rem 0 0;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgb(255 255 255 / 10%);
+  }
+
+  .stats div {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  .stats dt {
+    color: #98a6b8;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+  }
+
+  .stats dd {
+    margin: 0;
+    color: var(--ivory);
+    font-family: 'Bodoni TRT', var(--serif);
+    font-size: 1.65rem;
+    font-style: italic;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+
+  /* ---------- Three-sided mirror ---------- */
+  .hero__art {
+    padding-block: 1rem 0.5rem;
+  }
+
+  .mirror {
+    --f: 0.75cqw;
+    --px: 0;
+    --py: 0;
+    --gx: 50%;
+    --gy: 30%;
+    position: relative;
+    margin: 0;
+    aspect-ratio: 16 / 9;
+    container-type: inline-size;
+  }
+
+  .mirror__stage {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    perspective: 1500px;
+    filter: drop-shadow(0 1.4rem 2.2rem rgb(0 0 0 / 55%));
+  }
+
+  .pane {
+    flex: 0 0 calc(var(--w) * 1cqw);
+    height: calc(56.25cqw - var(--t) * 1cqw);
+    margin-top: calc(var(--t) * 1cqw);
+    padding: var(--f);
+    background:
+      linear-gradient(100deg, #6f6a7a, #f2eff6 22%, #a9a4b4 45%, #fbfaff 62%, #807a8c 100%);
+    box-shadow: inset 0 0 0 1px rgb(40 30 50 / 60%);
+  }
+
+  .pane--c {
+    z-index: 1;
+    border-radius: 50% 50% 0.5cqw 0.5cqw / 8.5cqw 8.5cqw 0.5cqw 0.5cqw;
+  }
+
+  .pane--l,
+  .pane--r {
+    animation: 1.7s cubic-bezier(0.16, 0.9, 0.25, 1) 0.25s both;
+  }
+
+  .pane--l {
+    border-radius: 70% 30% 0.5cqw 0.5cqw / 7cqw 4cqw 0.5cqw 0.5cqw;
+    transform: rotateY(18deg);
+    transform-origin: 100% 50%;
+    animation-name: trt-wing-l;
+  }
+
+  .pane--r {
+    border-radius: 30% 70% 0.5cqw 0.5cqw / 4cqw 7cqw 0.5cqw 0.5cqw;
+    transform: rotateY(-18deg);
+    transform-origin: 0% 50%;
+    animation-name: trt-wing-r;
+  }
+
+  .pane__glass {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    border-radius: inherit;
+    background: #0b1a36;
+    box-shadow: inset 0 0 0.6cqw rgb(0 0 0 / 70%);
+  }
+
+  .pane__art {
+    --k: 4;
+    position: absolute;
+    top: calc(var(--t) * -1cqw - var(--f));
+    left: calc(var(--o) * -1cqw - var(--f));
+    width: 100cqw;
+    height: 56.25cqw;
+    transform: translate3d(calc(var(--px) * var(--k) * 1px), calc(var(--py) * 3px), 0) scale(1.08);
+    transform-origin: calc((var(--o) + var(--w) / 2) * 1cqw) 40%;
+    transition: transform 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .pane--c .pane__art {
+    --k: 1.5;
+  }
+
+  .pane--r .pane__art {
+    --k: -4;
+  }
+
+  .pane__art img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .pane__glare {
+    position: absolute;
+    top: calc(var(--t) * -1cqw - var(--f));
+    left: calc(var(--o) * -1cqw - var(--f));
+    width: 100cqw;
+    height: 56.25cqw;
+    background:
+      radial-gradient(circle at var(--gx) var(--gy), rgb(255 255 255 / 30%), transparent 22cqw),
+      linear-gradient(115deg, transparent calc(var(--gx) - 12%), rgb(255 255 255 / 12%) var(--gx), transparent calc(var(--gx) + 6%));
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+  }
+
+  .clock {
+    position: absolute;
+    top: 10.32%;
+    left: 49.79%;
+    width: 7.3%;
+    translate: -50% -50%;
+    overflow: visible;
+    filter: drop-shadow(0 0.1cqw 0.2cqw rgb(0 0 0 / 45%));
+  }
+
+  .clock__num text {
+    font-family: 'Bodoni TRT', 'Times New Roman', serif;
+    font-size: 11px;
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  .hand {
+    stroke: #1d1620;
+    stroke-linecap: round;
+    transform-box: view-box;
+    transform-origin: 0 0; /* viewBox is centred on 0,0 */
+    rotate: var(--a);
+    animation: trt-spin var(--dur) linear infinite;
+  }
+
+  .hand--h { --a: var(--ah, 0deg); --dur: 43200s; stroke-width: 3.4; }
+  .hand--m { --a: var(--am, 0deg); --dur: 3600s; stroke-width: 2.2; }
+  .hand--s { --a: var(--as, 0deg); --dur: 60s; stroke: #b3122e; stroke-width: 1; }
+
+  .spark {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: 1.1rem;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    background: radial-gradient(circle, #fff 0 12%, #f6e2a6 30%, transparent 70%);
+    clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+    animation: trt-twinkle 3.6s ease-in-out var(--d) infinite;
+    pointer-events: none;
+  }
+
+  /* ---------- Harlequin strip ---------- */
+  .harlequin {
+    height: 16px;
+    border-block: 1px solid rgb(227 200 138 / 50%);
+    background: var(--harlequin) 0 0 / 48px 16px, #0b0710;
+    opacity: 0.9;
+  }
+
+  /* ---------- Deck ---------- */
+  .arcs {
+    display: grid;
+    grid-template-columns: minmax(12rem, 17rem) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .arcs__head h2 {
+    font-size: clamp(1.7rem, 2.6vw, 2.4rem);
+  }
+
+  .arcs__head p:last-child {
+    margin: 0.5rem 0 0;
+    color: #bdc7d3;
+    font-size: 0.88rem;
+  }
+
+  .deck {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 1.2rem 0 1.8rem;
+    list-style: none;
+  }
+
+  .card {
+    --r: 0deg;
+    --y: 0;
+    --mx: 50%;
+    --my: 50%;
+    position: relative;
+    flex: 0 0 clamp(10rem, 12.4vw, 12rem);
+    aspect-ratio: 5 / 7;
+    margin-inline: 0.05rem;
+    perspective: 900px;
+    transform: translateY(var(--y)) rotate(var(--r));
+    transition: transform 380ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .card:nth-child(1) { --r: -7deg; --y: 0.9rem; }
+  .card:nth-child(2) { --r: -2.3deg; --y: 0.1rem; }
+  .card:nth-child(3) { --r: 2.3deg; --y: 0.1rem; }
+  .card:nth-child(4) { --r: 7deg; --y: 0.9rem; }
+
+  .card:hover,
+  .card:focus-within {
+    z-index: 3;
+    transform: translateY(-0.9rem) rotate(0deg) scale(1.05);
+  }
+
+  .card__flip {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    padding: 0;
+    border: 0;
+    border-radius: 0.8rem;
+    background: none;
+    cursor: pointer;
+  }
+
+  .card__tilt,
+  .card__inner {
+    height: 100%;
+    transform-style: preserve-3d;
+  }
+
+  .card__tilt {
+    transform: rotateX(calc(var(--ty, 0) * -10deg)) rotateY(calc(var(--tx, 0) * 12deg));
+    transition: transform 200ms ease-out;
+  }
+
+  .card__inner {
+    position: relative;
+    transition: transform 700ms cubic-bezier(0.3, 0.7, 0.2, 1);
+  }
+
+  .card__flip[aria-pressed='true'] + .card__tilt .card__inner {
+    transform: rotateY(180deg);
+  }
+
+  .card__face {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 0.8rem;
+    backface-visibility: hidden;
+    box-shadow: 0 0.8rem 1.8rem rgb(0 0 0 / 45%);
+  }
+
+  .card__front {
+    display: flex;
+    flex-direction: column;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid #cfc3b2;
+    background:
+      radial-gradient(circle at 50% 38%, rgb(255 255 255 / 85%), transparent 60%),
+      linear-gradient(160deg, #fbf7ef, #e9e0d2);
+    color: #1b131d;
+  }
+
+  .card__front::after {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at var(--mx) var(--my), rgb(255 255 255 / 55%), transparent 40%),
+      linear-gradient(115deg, transparent 20%, #ff3d8b 32%, #ffd84a 42%, #3dffc8 52%, #6a7bff 62%, transparent 75%) var(--mx) var(--my) / 280% 280%;
+    mix-blend-mode: color-dodge;
+    opacity: 0;
+    transition: opacity 240ms;
+    pointer-events: none;
+    content: '';
+  }
+
+  .idx {
+    display: grid;
+    justify-items: center;
+    width: max-content;
+    font-family: 'Bodoni TRT', var(--serif);
+    font-size: 1.3rem;
+    font-style: italic;
+    line-height: 0.95;
+  }
+
+  .idx b {
+    font-family: var(--serif);
+    font-size: 0.85rem;
+    font-style: normal;
+    font-weight: 400;
+  }
+
+  .idx--br {
+    position: absolute;
+    right: 0.9rem;
+    bottom: 0.8rem;
+    rotate: 180deg;
+  }
+
+  .card--red .idx,
+  .card--red .pip {
+    color: var(--red);
+  }
+
+  .pip {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    translate: -50% -50%;
+    color: #1b131d;
+    font-family: var(--serif);
+    font-size: 4.6rem;
+    line-height: 1;
+    opacity: 0.12;
+  }
+
+  .card__body {
+    position: relative;
+    margin-top: auto;
+    padding-bottom: 1.2rem;
+  }
+
+  .card__author {
+    margin: 0;
+    color: #6d5a66;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .card__title {
+    margin: 0.15rem 0 0.35rem;
+    color: #1b131d;
+    font-size: 1.22rem;
+  }
+
+  .card__title--long {
+    font-size: 0.98rem;
+  }
+
+  .trt:lang(ja) .card__title--long {
+    font-size: 0.82rem;
+    line-height: 1.3;
+  }
+
+  .card__text {
+    margin: 0;
+    color: #3d3140;
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .card__back {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 0.6rem;
+    padding: 0.9rem;
+    border: 0.45rem solid #f4efe7;
+    background:
+      radial-gradient(circle, rgb(10 6 14 / 0) 30%, rgb(10 6 14 / 55%)),
+      var(--harlequin) 0 0 / 30px 20px,
+      #0b0710;
+    transform: rotateY(180deg);
+  }
+
+  .monogram {
+    display: grid;
+    place-items: center;
+    width: 5.2rem;
+    aspect-ratio: 1;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    background: radial-gradient(circle, #1a0f18, #0b0710);
+    color: var(--ivory);
+    font-family: 'Bodoni TRT', var(--serif);
+    font-size: 1.7rem;
+    letter-spacing: -0.04em;
+    box-shadow: 0 0 0 4px #0b0710, 0 0 0 5px rgb(227 200 138 / 50%);
+  }
+
+  .card__backname {
+    max-width: 100%;
+    padding: 0.2rem 0.5rem;
+    background: #0b0710;
+    color: var(--gold);
+    font-size: 0.72rem;
+    text-align: center;
+  }
+
+  /* ---------- Info panels ---------- */
+  .info {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .panel {
+    padding: 1rem 1.15rem 1.1rem;
+    border: 1px solid var(--hair);
+    background: var(--pane-bg);
+  }
+
+  .panel h2 {
+    margin-bottom: 0.75rem;
+    font-size: 1.35rem;
+  }
+
+  .read figure {
+    margin: 0;
+  }
+
+  .read img {
+    width: 100%;
+    border: 1px solid rgb(220 228 240 / 30%);
+    box-shadow: 0 0 0 4px rgb(0 0 0 / 50%), 0 0 0 5px rgb(227 200 138 / 20%);
+  }
+
+  .read blockquote {
+    margin: 0.9rem 0 0;
+    font-family: var(--serif);
+    font-size: 1.02rem;
+    font-style: italic;
+    line-height: 1.45;
+  }
+
+  .read blockquote p {
+    margin: 0;
+  }
+
+  .read figcaption {
+    margin-top: 0.35rem;
+    color: #98a6b8;
+    font-size: 0.74rem;
+  }
+
+  .orig span:first-child {
+    color: var(--gold);
+  }
+
+  .steps-trt {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .steps-trt li {
+    display: grid;
+    grid-template-columns: 2.1rem 1fr;
+    gap: 0.4rem;
+    align-items: baseline;
+    color: #d3dae3;
+    font-size: 0.9rem;
+  }
+
+  .roman {
+    color: var(--red);
+    font-family: 'Bodoni TRT', var(--serif);
+    font-size: 1.25rem;
+    font-style: italic;
+    text-align: center;
+  }
+
+  .dl--small {
+    padding: 0.45rem 1rem 0.4rem;
+  }
+
+  .faq details {
+    border-color: rgb(255 255 255 / 10%);
+  }
+
+  .faq summary {
+    position: relative;
+    min-height: 44px;
+    padding: 0.62rem 1.6rem 0.62rem 0;
+    font-size: 0.88rem;
+    list-style: none;
+  }
+
+  .faq summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq summary::after {
+    position: absolute;
+    top: 50%;
+    right: 0.3rem;
+    color: var(--red);
+    font-size: 0.8rem;
+    translate: 0 -50%;
+    transition: rotate 200ms;
+    content: '♦';
+  }
+
+  .faq details[open] summary::after {
+    rotate: 45deg;
+  }
+
+  .faq details p {
+    margin: 0 0 0.75rem;
+    color: #bdc7d3;
+    font-size: 0.84rem;
+  }
+
+  /* ---------- Credits ---------- */
+  .credits {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem 1.4rem;
+    padding: 0.4rem 0.2rem 0;
+    color: #98a6b8;
+    font-size: 0.74rem;
+  }
+
+  .credits p {
+    margin: 0;
+  }
+
+  .credits strong {
+    margin-right: 0.3rem;
+    color: #cfd6df;
+  }
+
+  .credits a {
+    color: var(--gold);
+  }
+
+  .credits__note {
+    flex-basis: 100%;
+    order: 5;
+  }
+
+  .suits {
+    margin-left: auto;
+    color: #cfd6df;
+    letter-spacing: 0.35em;
+  }
+
+  .suits b {
+    color: var(--red);
+    font-weight: 400;
+  }
+
+  /* ---------- Motion ---------- */
+  @keyframes trt-letter {
+    from { opacity: 0; translate: 0 0.3em; filter: blur(6px); }
+  }
+
+  @keyframes trt-fade {
+    from { opacity: 0; }
+  }
+
+  @keyframes trt-crown {
+    from { opacity: 0; translate: -50% -0.5em; rotate: -30deg; }
+  }
+
+  @keyframes trt-draw {
+    from { stroke-dashoffset: 1; }
+  }
+
+  @keyframes trt-wing-l {
+    from { transform: rotateY(88deg); }
+  }
+
+  @keyframes trt-wing-r {
+    from { transform: rotateY(-88deg); }
+  }
+
+  @keyframes trt-spin {
+    to { rotate: calc(var(--a) + 360deg); }
+  }
+
+  @keyframes trt-twinkle {
+    0%, 100% { opacity: 0.15; scale: 0.5; rotate: 0deg; }
+    50% { opacity: 1; scale: 1; rotate: 45deg; }
+  }
+
+  @keyframes trt-slide {
+    to { background-position: 960px 0, 0 0; }
+  }
+
+  @keyframes trt-slide-rev {
+    to { background-position: -960px 0, 0 0; }
+  }
+
+  @keyframes trt-reveal {
+    from { opacity: 0; translate: 0 1.5rem; }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover .card__front::after {
+      opacity: 0.6;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: scroll()) {
+      .harlequin {
+        animation: trt-slide linear both;
+        animation-timeline: scroll(root);
+      }
+
+      .harlequin--rev {
+        animation-name: trt-slide-rev;
+      }
+    }
+
+    @supports (animation-timeline: view()) {
+      .arcs,
+      .panel {
+        animation: trt-reveal linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 60%;
+      }
+    }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1100px) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero__art {
+      order: -1;
+      width: min(100%, 44rem);
+      margin-inline: auto;
+      padding-top: 0.4rem;
+    }
+
+    .arcs {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.2rem;
+    }
+
+    .info {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .read {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .trt {
+      width: min(calc(100% - 1rem), 42rem);
+      gap: 0.9rem;
+      padding-top: 0.6rem;
+    }
+
+    .hero__copy {
+      padding: 2.4rem 1rem 1rem;
+    }
+
+    .logo {
+      --size: clamp(2.6rem, 14.5vw, 4.2rem);
+    }
+
+    .stats {
+      gap: 1rem;
+    }
+
+    .stats dd {
+      font-size: 1.35rem;
+    }
+
+    .deck {
+      justify-content: flex-start;
+      gap: 0.75rem;
+      margin-inline: -0.5rem;
+      padding: 0.5rem 0.5rem 1rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: 0.5rem;
+    }
+
+    .card,
+    .card:nth-child(n) {
+      --r: 0deg;
+      --y: 0;
+      flex-basis: 11rem;
+      margin: 0;
+      scroll-snap-align: start;
+    }
+
+    .card:hover,
+    .card:focus-within {
+      transform: none;
+    }
+
+    .info {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .suits {
+      margin-left: 0;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .trt-bg,
+    .rain,
+    .spark,
+    .harlequin,
+    .card__front::after {
+      display: none;
+    }
+
+    .hero__copy,
+    .panel,
+    .card__face {
+      border: 1px solid CanvasText;
+    }
+
+    .l,
+    .l--r {
+      color: CanvasText;
+    }
+  }
+</style>
