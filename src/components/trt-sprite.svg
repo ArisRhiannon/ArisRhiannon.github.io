@@ -22,38 +22,13 @@
       <stop offset=".9" stop-color="#f4efe7" stop-opacity=".85" />
       <stop offset="1" stop-color="#f4efe7" stop-opacity="0" />
     </linearGradient>
-    <linearGradient id="trt-crown-back" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#e7c173" />
-      <stop offset="1" stop-color="#9e6f2e" />
-    </linearGradient>
-    <linearGradient id="trt-crown-face" x1="0" y1="0" x2=".35" y2="1">
-      <stop offset="0" stop-color="#fff6c8" />
-      <stop offset=".45" stop-color="#f2cc55" />
-      <stop offset="1" stop-color="#c08a1c" />
-    </linearGradient>
-    <linearGradient id="trt-gem" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#effdff" />
-      <stop offset=".5" stop-color="#72d2f4" />
-      <stop offset="1" stop-color="#2a78cc" />
-    </linearGradient>
     <radialGradient id="trt-glow">
       <stop offset="0" stop-color="#fff8e1" stop-opacity=".95" />
       <stop offset=".3" stop-color="#ffe9a8" stop-opacity=".4" />
       <stop offset="1" stop-color="#ffe9a8" stop-opacity="0" />
     </radialGradient>
-    <clipPath id="trt-crown-front"><path d="M6 36 10 25l8 8 8-10 7 11 8-8 5 8 9-6v19Q30.5 55 6 47Z" /></clipPath>
-    <!-- Alice's crown from the key art: back wall, dark inner band, front wall, black band, hanging gem -->
-    <g id="trt-crown" stroke-linejoin="round">
-      <path d="M7 37 8 13l8 7 8-15 8 12 9-13 6 14 7-8v27Z" fill="url(#trt-crown-back)" stroke="#24160a" stroke-width="1.6" />
-      <ellipse cx="30.5" cy="34" rx="23.5" ry="7" fill="#1b1422" />
-      <path d="M6 36 10 25l8 8 8-10 7 11 8-8 5 8 9-6v19Q30.5 55 6 47Z" fill="url(#trt-crown-face)" stroke="#24160a" stroke-width="1.6" />
-      <path d="m9.5 39 2-7 6.5 6 8-8.5 7 9.5 8-7 5 6.5 6-4" fill="none" stroke="#fff8dc" stroke-width="1" opacity=".85" />
-      <path d="M6 45Q30.5 53.5 55 45v6Q30.5 60 6 51Z" fill="#17111b" stroke="#24160a" />
-      <path d="M9 47.4Q30.5 55 52 47.4" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width=".8" />
-      <circle cx="12" cy="51.6" r="2.2" fill="#0e0a10" stroke="#cfe3ef" />
-      <path d="m12 53.8 3.6 5-4.6 7.4-4.5-7.4Z" fill="url(#trt-gem)" stroke="#173a66" stroke-width=".9" />
-      <path d="M6.5 58.8h9.1M12 53.8l-1 12.4" stroke="#fff" stroke-opacity=".55" stroke-width=".6" />
-    </g>
+    <!-- Flat gold crown, as on the game's title logo: three points with pearls over a band with a cut-out diamond -->
+    <path id="trt-crown" fill="#e6c77f" fill-rule="evenodd" d="M9 41 5.2 19.5 17.6 30 30.5 10.5 43.4 30 55.8 19.5 52 41ZM8.6 44h43.8v6H8.6ZM30.5 44.6l2.4 2.4-2.4 2.4-2.4-2.4ZM5.2 14.6a2.9 2.9 0 1 1 0 5.8 2.9 2.9 0 0 1 0-5.8ZM55.8 14.6a2.9 2.9 0 1 1 0 5.8 2.9 2.9 0 0 1 0-5.8ZM30.5 4.8a3.2 3.2 0 1 1 0 6.4 3.2 3.2 0 0 1 0-6.4Z" />
     <!-- Key-art star: cream fill, white rim, plum outline -->
     <symbol id="trt-star" viewBox="-12 -12 24 24">
       <path d="M0-10 2.7-4.68 8.66-5 5.4 0 8.66 5 2.7 4.68 0 10-2.7 4.68-8.66 5-5.4 0-8.66-5-2.7-4.68Z" fill="#f7e8c2" stroke="#3b2150" stroke-width="3" stroke-linejoin="round" paint-order="stroke" />
