@@ -1,15 +1,30 @@
+/*! TRianThology: the living mirror, a Live2D-style rig of Alice and the three-sided mirror.
+    Copyright (C) 2026 Aris Rhiannon
+    SPDX-License-Identifier: AGPL-3.0-only
+
+    This program is free software: you can redistribute it and/or modify it under the terms of the GNU
+    Affero General Public License as published by the Free Software Foundation, version 3 of the License
+    only. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+    implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General
+    Public License (LICENSES/AGPL-3.0-only.txt, https://www.gnu.org/licenses/agpl-3.0.html).
+    Source: https://github.com/ArisRhiannon/ArisRhiannon.github.io
+
+    Covered: this file, trt-rig.json and the rig maps trt-w.webp and trt-fx.webp. Not covered: the artwork
+    and every texture cut or repainted from it (trt-key*, trt-alice, trt-mirror, trt-sky, trt-dial, trt-lid),
+    which remain the property of their rights holders (TRianThology, © 07th Expansion). */
 /* The three-sided mirror, alive: WebGL2, no dependencies.
-   Canvas space is the 1240×1400 cut-out. The wings unfold on their hinge knuckles; the red glass takes
-   drops like still water (rings drawn on the wing's own plane); the starry glass twinkles star by star
-   and the clock keeps the visitor's time; the sky glass drifts. Alice floats with follow-through in her
-   hair, sleeves and skirt, breathes, turns her head in slow looks, and blinks with real eyelids.
-   Layers and measurements come from trt-rig.json (built from the key art). */
+   Canvas space is the 1240×1400 cut-out. The wings unfold on their hinge knuckles, then breathe in a night
+   wind; the red glass takes drops like still water (rings drawn on the wing's own plane); the starry glass
+   twinkles star by star and the clock keeps the visitor's time; the sky glass drifts. Alice floats with
+   follow-through in her hair and sleeves, her skirt sways and ripples like cloth, she breathes, turns her
+   head in slow looks, blinks with real eyelids, and her irises tremble like wet eyes; once in a while a
+   shooting star crosses them. Layers and measurements come from trt-rig.json (built from the key art). */
 import rig from './trt-rig.json';
 
 type V2 = [number, number];
 type Rect = [number, number, number, number];
 type Hair = { root: V2; axis: V2; len: number; nx: number; ny: number; step: number; w: number[] };
-type Eye = { a: V2; E: V2; band: [number, number, number]; lid: number[]; shine: [number, number, number, number][] };
+type Eye = { a: V2; E: V2; band: [number, number, number]; lid: number[]; shine: [number, number, number, number][]; iris: number[] };
 const R = rig as unknown as {
   rects: Record<string, Rect>;
   pos: Record<string, V2>;
@@ -61,7 +76,8 @@ precision highp float;
 in vec2 v_p;
 uniform sampler2D u_E, u_fx, u_sky, u_dial;
 uniform int u_side;
-uniform float u_t, u_lit, u_a, u_fxOn, u_rest;
+uniform float u_t, u_lit, u_a, u_fxOn, u_ang;
+uniform vec2 u_axis;
 uniform vec4 u_drop[4];
 uniform mat3 u_Hp, u_Hi;
 uniform vec4 u_skyL, u_skyR;
@@ -85,11 +101,12 @@ vec2 proj(mat3 m, vec2 p) { vec3 q = m * vec3(p, 1.); return q.xy / q.z; }
 void main() {
   vec2 uv = v_p / SZ;
   vec4 fx = texture(u_fx, uv);
-  /* Which pane owns this texel (painted gaps, knuckles kept with the centre). Hard split at rest, so the
-     still mirror is reproduced texel for texel; antialiased while the wings move. */
+  /* Which pane owns this texel (painted gaps, knuckles kept with the centre), antialiased: the wings are
+     always moving a little. Each wing reaches one ramp further, under the centre's (drawn last), so the
+     seam never lets the page show through. */
   float own = fx.b, aw = max(fwidth(own), 1e-3);
   float edge = u_side == 1 ? .25 - own : u_side == 2 ? own - .75 : min(own - .25, .75 - own);
-  edge = u_rest > .5 ? step(0., edge) : clamp(edge / aw + .5, 0., 1.);
+  edge = clamp(edge / aw + (u_side == 0 ? .5 : 1.5), 0., 1.);
   if (edge <= 0.) discard;
   vec4 c = texture(u_E, uv);
   float m = fx.r * u_fxOn;
@@ -112,6 +129,10 @@ void main() {
     vec2 ps = proj(u_Hp, q - grad * 5.2), uv2 = ps / SZ;
     float m2 = texture(u_fx, uv2).r;
     c = mix(c, textureGrad(u_E, uv2, dFdx(uv), dFdy(uv)), m * m2);
+    /* and the rings catch the evening light: slopes facing it brighten, the far sides dim. Worked out on
+       the plane too, so on the smooth orange sky they read as rings lying in the glass. */
+    float sh = dot(grad, vec2(.63, .77)) * 2.4;
+    c.rgb *= 1. + m * sh / (1. + abs(sh) * 2.2);
     vec3 n = normalize(vec3(-grad * 2.4, 1.));
     float spec = pow(max(0., dot(n, vec3(-.46, -.56, .69))), 36.);
     c.rgb += (vec3(1., .9, .84) * spec * .55 + vec3(1., .95, .9) * flash * .35) * m * c.a;
@@ -160,6 +181,13 @@ void main() {
     vec3 sky = texture(u_sky, tuv).rgb;
     c.rgb = mix(c.rgb, sky * c.a, m);
   }
+  if (u_side != 0 && m > 0.) {
+    /* As a wing turns the light slides over its glass: a faint sheen that moves out from the hinge as the
+       wing swings toward us and back as it turns away; nothing at rest. */
+    float a = u_ang * (u_side == 1 ? 57.3 : -57.3);
+    float sw = abs(v_p.x - u_axis.x - u_axis.y * v_p.y) + (v_p.y - 700.) * .22 - 150. - a * 50.;
+    c.rgb += vec3(1., .96, .92) * exp(-sw * sw / 9000.) * min(abs(a) * .02, .045) * m * c.a;
+  }
   o = vec4(c.rgb * u_lit, c.a) * edge * u_a;
 }`;
 
@@ -195,10 +223,10 @@ void main() {
 const VS_ALICE = `#version 300 es
 in vec2 a_p, a_uv;
 in float a_w;
-uniform sampler2D u_W;
+uniform sampler2D u_W, u_fx;
 uniform vec2 u_move, u_moveLag, u_root, u_axis;
 uniform vec3 u_head;
-uniform vec4 u_limb;
+uniform vec4 u_limb, u_skirt;
 uniform float u_t, u_breath, u_hair, u_len, u_ph, u_spin, u_spinLag, u_isHair;
 out vec2 v_uv, v_p;
 const vec2 NECK = ${v2(B.neck)}, NB = ${v2(B.neckBase)}, FACE = ${v2(B.face)}, WAIST = ${v2(B.waist)};
@@ -216,13 +244,26 @@ void main() {
     p -= FH * u_head.y * .3 * (1. - a_w);
     lag = a_w;
   } else {
-    /* Forearms swing a hair on the elbows, the skirt on the waist; lace and hem ripple. */
-    vec3 wt = texture(u_W, a_p / vec2(${f(W)}, ${f(H)})).rgb;
+    /* Forearms swing a hair on the elbows, the skirt on the waist; the lace ripples. */
+    vec2 uv = a_p / vec2(${f(W)}, ${f(H)});
+    vec3 wt = texture(u_W, uv).rgb;
     p = rotA(p, WAIST, u_limb.x * wt.r);
     p = rotA(p, ELL, u_limb.y * wt.g);
     p = rotA(p, ELR, u_limb.z * wt.b);
     float fl = max(smoothstep(.5, 1., max(wt.g, wt.b)), smoothstep(.55, .95, wt.r) * (1. - smoothstep(1170., 1225., a_p.y)));
-    p += fl * u_limb.w * vec2(sin(dot(a_p, vec2(.021, .013)) - u_t * 1.7), cos(dot(a_p, vec2(-.017, .024)) - u_t * 1.3));
+    /* The skirt is cloth of its own (fx.g: skirt and petticoat, zero on and around the legs, sleeves and
+       hand, which keep their motion): it swings on the waist as a soft pendulum, slow waves run down it,
+       out of step from side to side, and the hem frills ripple along; still at the waist, freest at the hem
+       (the swing weight). It takes over from the lace ripple there. */
+    float sk = texture(u_fx, uv).g;
+    p += fl * (1. - sk) * u_limb.w * vec2(sin(dot(a_p, vec2(.021, .013)) - u_t * 1.7), cos(dot(a_p, vec2(-.017, .024)) - u_t * 1.3));
+    if (sk > 0.) {
+      vec2 r = a_p - WAIST;
+      float d = max(length(r), 1.), g = wt.r * sqrt(wt.r), ph = atan(r.x, r.y) * 2.2;
+      float wv = sin(u_t * 1.85 - d * .0115 + ph) + .45 * sin(u_t * 2.9 - d * .021 + ph * 1.6 + 1.3);
+      float hem = sin(a_p.x * .045 - u_t * 2.3) * smoothstep(.55, 1., wt.r);
+      p += sk * g * (rotA(a_p, WAIST, u_skirt.x) - a_p + (vec2(r.y, -r.x) * wv * u_skirt.y + r * hem * u_skirt.z) / d);
+    }
     lag = max(max(wt.r * .85, max(wt.g, wt.b) * .6), fl);
     /* Breath: the chest rises a touch above the waist. */
     vec2 ch = a_p - vec2(650., 660.);
@@ -254,6 +295,9 @@ uniform float u_a, u_t, u_isHair;
 uniform vec2 u_close; /* upper lid, lower lid */
 uniform vec4 u_eyeA[2], u_eyeB[2], u_lid[32], u_shine[4];
 uniform vec4 u_gaze; /* eye content shift (px), sparkle */
+uniform vec4 u_iris[2]; /* iris centre, radii along its axes */
+uniform vec2 u_irisR[2], u_trem; /* iris axis; iris tremble (px) */
+uniform vec4 u_emet; /* shooting star in the eyes: head progress, head, last twinkle, tail */
 uniform vec2 u_bodyOff, u_atlas;
 out vec4 o;
 const vec2 FD = ${v2([-FU[0], -FU[1]])};
@@ -264,6 +308,31 @@ vec4 lidAt(int e, float u) {
   return mix(u_lid[e * 16 + i], u_lid[e * 16 + i + 1], x - float(i));
 }
 vec4 tx(vec2 q, vec2 gx, vec2 gy) { return textureGrad(u_tex, (q + u_bodyOff) / u_atlas, gx, gy); }
+/* on the iris ellipse: 0 at its centre, 1 on the rim */
+vec2 irisL(int e, vec2 q) {
+  vec2 r = u_irisR[e], d = q - u_iris[e].xy;
+  return vec2(dot(d, r), dot(d, vec2(-r.y, r.x))) / u_iris[e].zw;
+}
+/* The iris trembles as Live2D riggers make 瞳揺れ: the pupil and inner iris move by a fraction of a pixel
+   while the rim stays put, so one side stretches as the other gives; the whites and lashes never move. */
+vec2 tremble(int e, vec2 q) { return (1. - smoothstep(.3, .88, length(irisL(e, q)))) * u_trem; }
+/* A shooting star crosses her eyes now and then: one streak of one sky, so the same in both irises (same
+   place from the centre, same angle, same moment), clipped by each iris and hidden by the lids. A bright
+   head with a small cross of light, a fine tail fading into the iris, a last twinkle as it burns out.
+   Widths never drop under a screen pixel, so it stays clean when the canvas is small. */
+const vec2 EM_A = vec2(11., -8.5), EM_B = vec2(-.5, -2.5);
+vec3 eyeStar(int e, vec2 p, float fw) {
+  float clip = 1. - smoothstep(.8, .94, length(irisL(e, p)));
+  vec2 dir = normalize(EM_B - EM_A), r = p - u_iris[e].xy - mix(EM_A, EM_B, u_emet.x);
+  float along = -dot(r, dir), side = dot(r, vec2(-dir.y, dir.x)), sg = max(.45, .55 * fw), len = length(EM_B - EM_A) * u_emet.x;
+  float tail = exp(-side * side / (2. * sg * sg)) * .6 / sg * step(0., along) * exp(-along / 4.5) * (1. - smoothstep(len * .75, len + .01, along));
+  /* the head's light: a cross and, fainter, its diagonals (十字と斜め), longer as it burns out over the pupil */
+  vec2 a = abs(r), b = abs(vec2(r.x + r.y, r.x - r.y)) * .7071;
+  float d2 = dot(r, r), wx = 2.4 / max(1., fw), rl = .7 / (1. + 1.6 * u_emet.z);
+  float rays = (exp(-a.x * wx - a.y * rl) + exp(-a.y * wx - a.x * rl) + .45 * (exp(-b.x * wx - b.y * rl * 1.7) + exp(-b.y * wx - b.x * rl * 1.7))) / max(1., fw);
+  float head = exp(-d2 / (2. * sg * sg)) * .6 / sg + exp(-d2 / 5.) * .3 + rays * (.22 + .7 * u_emet.z);
+  return (vec3(.86, .9, 1.) * tail * u_emet.w + vec3(1., .97, 1.) * head * u_emet.y) * clip;
+}
 /* Eyelids per pixel, built the way Live2D riggers build a blink: the upper lash line, lashes and all, comes
    straight down the face onto the art's own closed-eye stroke; the lower lid rises to meet it and its lash
    hides under the upper one. The eye is covered, never squashed, and sinks a touch with the lid; the skin the
@@ -296,7 +365,8 @@ vec4 eyeCol(int e, vec2 p, vec2 gx, vec2 gy, out float open) {
   open = smoothstep(mU, mU + 1.4, v) * (1. - smoothstep(mL - 1.4, mL, v));
   if (bu * ab > 0.) {
     /* as the lids meet, what shows of the eye falls into the lashes' shadow (a dark slit, not a white one) */
-    vec4 ec = tx(p - (u_gaze.xy + FD * 1.2 * u_close.x) * open, gx, gy);
+    vec2 q = p - (u_gaze.xy + FD * 1.2 * u_close.x) * open;
+    vec4 ec = tx(q - tremble(e, q) * open, gx, gy);
     c = mix(c, vec4(ec.rgb * (1. - .45 * smoothstep(.55, 1., u_close.x)), ec.a), bu * ab);
   }
   /* upper lid on top: its lash thins as it rolls down over the eye (the closed keyform's lash is slimmer)
@@ -313,6 +383,7 @@ void main() {
   int eye = -1;
   float open = 0.;
   vec2 gx = dFdx(v_uv), gy = dFdy(v_uv);
+  float fw = max(fwidth(v_p).x, fwidth(v_p).y);
   if (u_isHair == 0.) {
     for (int e = 0; e < 2; e++) {
       vec2 d = v_p - (u_eyeA[e].xy + u_eyeA[e].zw * .5);
@@ -322,16 +393,18 @@ void main() {
   /* remapped samples keep the mesh's own gradients: no mip seams at the lids */
   c = eye >= 0 ? eyeCol(eye, v_p, gx, gy, open) : texture(u_tex, v_uv);
   if (eye >= 0 && open > 0.) {
-    /* Idle shine: the catchlight trembles and breathes like a wet eye; a tiny glint now and then. */
+    /* Idle shine: the catchlight trembles and breathes like a wet eye, riding the iris tremble a touch
+       further than the pupil does (Live2D's ハイライトゆれ); a tiny glint now and then. */
     vec4 s0 = u_shine[eye * 2], s1 = u_shine[eye * 2 + 1];
     float fe = float(eye);
-    vec2 wig = vec2(sin(u_t * 1.9 + fe) + .4 * sin(u_t * 4.1 + 2. * fe), cos(u_t * 1.4 + 1.3 + fe)) * .3 + u_gaze.xy + FD * 1.2 * u_close.x;
+    vec2 wig = vec2(sin(u_t * 1.9 + fe) + .4 * sin(u_t * 4.1 + 2. * fe), cos(u_t * 1.4 + 1.3 + fe)) * .3 + u_gaze.xy + FD * 1.2 * u_close.x + u_trem * 1.25;
     vec2 d0 = v_p - s0.xy - wig, d1 = v_p - s1.xy - wig * 1.5;
     float g0 = exp(-dot(d0, d0) / (s0.z * s0.z)) * (.6 + .4 * sin(u_t * 1.05 + fe * 2.)) * s0.w;
     float g1 = exp(-dot(d1, d1) / (s1.z * s1.z)) * (.5 + .5 * sin(u_t * .53 + 1. + fe)) * s1.w;
     vec2 q = abs(d0);
     float sp = u_gaze.z * (exp(-q.x * 1.5 - q.y * .38) + exp(-q.y * 1.5 - q.x * .38)) * .55;
     c.rgb += vec3(1., .97, 1.) * (g0 + g1 + sp) * open * c.a;
+    if (u_emet.y + u_emet.w > 0.) c.rgb += eyeStar(eye, v_p - u_gaze.xy - u_trem, fw) * open * c.a;
   }
   o = c * (1. - smoothstep(1290., 1400., v_p.y)) * u_a;
 }`;
@@ -621,11 +694,15 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
   const eyeB = new Float32Array(8);
   const lids = new Float32Array(128);
   const shine = new Float32Array(16);
+  const iris = new Float32Array(8);
+  const irisR = new Float32Array(4);
   R.eyes.forEach((e, i) => {
     eyeA.set([e.a[0], e.a[1], e.E[0], e.E[1]], i * 4);
     eyeB.set([...e.band, 0], i * 4);
     lids.set(e.lid, i * 64);
     e.shine.forEach((s, k) => shine.set(s, (i * 2 + k) * 4));
+    iris.set(e.iris.slice(0, 4), i * 4);
+    irisR.set([Math.cos(e.iris[4]), Math.sin(e.iris[4])], i * 2);
   });
 
   /* State */
@@ -662,7 +739,14 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     open: (quick ? 0.14 : 0.16) + Math.random() * 0.04,
   });
   let nextBlink = 3.4;
+  /* A shooting star in her eyes, once a cycle (every 19-26 s); no blink ever cuts across it. */
+  const EM_T = 0.62;
+  let emAt = 11 + Math.random() * 3;
   const blinkNow = (t: number) => {
+    if (t > emAt - 0.6 && t < emAt + EM_T + 0.1) {
+      nextBlink = emAt + EM_T + 0.25 + Math.random() * 0.8;
+      return;
+    }
     const b = newBlink(t);
     blinks.push(b);
     /* sometimes a second one right behind, when the lid is nearly up again */
@@ -679,12 +763,34 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
   let nextSacc = 1.2;
   const lagS = { x: { x: 0, v: 0 }, y: { x: 0, v: 0 }, s: { x: 0, v: 0 } };
 
+  /* Night wind: a slow swell that never repeats, and every 8-15 s a soft gust that reaches the left wing
+     first and the right one 0.45 s later. Each wing answers on its hinge like a light door on a soft
+     spring; the skirt feels the same air a moment later. Angles in degrees. */
+  const gusts: V2[] = [];
+  let nextGust = 6 + Math.random() * 4;
+  const windAt = (t: number) =>
+    wave(t, [[0.8, 10.3, 0.4], [0.42, 6.7, 2.2], [0.14, 3.9, 4.4]]) +
+    gusts.reduce((s, [g0, a]) => {
+      const x = (t - g0) / 1.3;
+      return x > 0 ? s + a * x * x * Math.exp(2 - 2 * x) : s;
+    }, 0);
+  const wingS = [{ x: 0, v: 0 }, { x: 0, v: 0 }];
+  const skirtS = { x: 0, v: 0 };
+
+  /* Iris tremble (px, along the face and up it): soft pendulums the lids kick as they reopen and the head
+     drags as it turns, over an idle quiver that swells and fades: about a tenth of a pixel, a quarter at
+     most when idle, half a pixel just after a blink. */
+  const tremS = [{ x: 0, v: 0 }, { x: 0, v: 0 }];
+  let lidWas = 0;
+  let headWas: V2 | undefined;
+
   const t0 = performance.now() - (opts.skipOpen() ? 4200 : 0);
   let last = t0;
   let raf = 0;
   let visible = true;
   let shown = false;
-  let debug: { blink?: number } | undefined;
+  /* dev-only hooks for captures: hold the lids, the wings, the eye star; drop a drop; still the skirt */
+  let debug: { blink?: number; wind?: number; emet?: number; trem?: V2; drop?: V2; noSkirt?: boolean; out?: number[] } | undefined;
 
   const drawPanes = (t: number) => {
     gl.useProgram(pane.p);
@@ -710,8 +816,13 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     const step = k < 1 ? 1 + 2.4 * (k - 1) ** 3 + 1.4 * (k - 1) ** 2 : 1;
     const min = d.getMinutes() - 1 + step;
     gl.uniform2f(u.u_clk, (((d.getHours() % 12) + d.getMinutes() / 60) / 12) * TAU, (min / 60) * TAU);
-    const state = panes.map((p) => (p.side ? unfold((t - p.delay) / 2.8) : [0, 1, Math.min(1, t / 0.9)]));
-    gl.uniform1f(u.u_rest, state.every((s) => s[0] === 0) ? 1 : 0);
+    const state = panes.map((p) => {
+      if (!p.side) return [0, 1, Math.min(1, t / 0.9)];
+      const [ang, lit, a] = unfold((t - p.delay) / 2.8);
+      /* once open, the wing breathes in the night wind (eased in), catching a little more light as it turns */
+      const idle = (debug?.wind ?? wingS[p.side - 1].x) * smooth((t - p.delay - 2.8) / 3);
+      return [ang + idle, lit * (1 + 0.014 * idle), a];
+    });
     for (const [i, p] of panes.entries()) {
       const [ang, lit, a] = state[i];
       gl.uniform1i(u.u_side, p.side);
@@ -753,6 +864,12 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
       drops[dropI] = [qx, qy, t, 0.75 + Math.random() * 0.45];
       dropI = (dropI + 1) % 4;
       nextDrop = t + 2.1 + Math.random() * 2.8;
+    }
+    if (debug?.drop) {
+      const [qx, qy] = toPlane(debug.drop[0], debug.drop[1]);
+      drops[dropI] = [qx, qy, t, 1];
+      dropI = (dropI + 1) % 4;
+      debug.drop = undefined;
     }
     if (t > nextMet) {
       met[0] = 470 + Math.random() * 360;
@@ -820,6 +937,44 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     spring(lagS.y, my, 3.4, 1, dt);
     spring(lagS.s, spin, 3.4, 1, dt);
     const breath = 0.5 + 0.5 * Math.sin((t * TAU) / 4.2);
+
+    /* the night wind on the wings and the skirt */
+    if (t > nextGust) {
+      gusts.push([t, 0.6 + Math.random() * 0.6]);
+      nextGust = t + 8 + Math.random() * 7;
+    }
+    while (gusts.length && t - gusts[0][0] > 14) gusts.shift();
+    spring(wingS[0], windAt(t), 2.1, 0.4, dt);
+    spring(wingS[1], windAt(t - 0.45) * 0.9, 2.35, 0.4, dt);
+    /* skirt: a soft pendulum on the waist, trailing the float and pushed by the wind (a gust from the left
+       swings the hem right); its waves run fuller while the wind blows */
+    const air = windAt(t - 0.2);
+    spring(skirtS, 0.0014 * (mx - lagS.x.x) - 0.0012 * air, 2.6, 0.3, dt);
+    const skirt = debug?.noSkirt ? [0, 0, 0, 0] : [skirtS.x, 1.15 + 0.45 * Math.max(0, air), 0.6, 0];
+
+    /* iris tremble: sub-stepped (the pendulums ring at ~2.7 Hz) */
+    const inv = 1 / Math.max(dt, 1e-3);
+    const lidV = (lid - lidWas) * inv;
+    const headV: V2 = headWas ? [(turn - headWas[0]) * inv, (nod - headWas[1]) * inv] : [0, 0];
+    lidWas = lid;
+    headWas = [turn, nod];
+    const steps = Math.min(12, Math.ceil(dt / 0.008));
+    for (let i = 0; i < steps; i++) {
+      spring(tremS[0], -0.12 * headV[0], 17, 0.14, dt / steps);
+      spring(tremS[1], 0.12 * headV[1] + 0.055 * Math.max(0, -lidV), 17, 0.14, dt / steps);
+    }
+    const qv = 0.6 + 0.4 * Math.sin((t * TAU) / 7.3);
+    const th = tremS[0].x + qv * wave(t, [[0.1, 0.37, 0], [0.07, 0.29, 1.3], [0.045, 0.23, 2.9]]);
+    const tu = tremS[1].x + qv * wave(t, [[0.09, 0.33, 0.7], [0.065, 0.41, 2.2], [0.045, 0.26, 4.1]]);
+    const trem: V2 = debug?.trem ?? [FH[0] * th + FU[0] * tu, FH[1] * th + FU[1] * tu];
+
+    /* the shooting star in her eyes: the head flies (easing out), twinkles and burns out; the tail fades first */
+    if (t > emAt + EM_T) emAt = t + 19 + Math.random() * 7;
+    const ek = debug?.emet ?? (t - emAt) / EM_T;
+    const emet =
+      ek > 0 && ek < 1
+        ? [1 - (1 - Math.min(1, ek / 0.8)) ** 1.6, smooth(ek / 0.1) * (1 - smooth((ek - 0.85) / 0.15)), smooth((ek - 0.62) / 0.16) * (1 - smooth((ek - 0.8) / 0.2)), smooth(ek / 0.2) * (1 - smooth((ek - 0.6) / 0.3))]
+        : [0, 0, 0, 0];
     const limbs = [
       wave(t, [[0.0022, 5.9, 1], [0.0012, 3.3, 2.5]]) + (mx - lagS.x.x) * 0.0006,
       wave(t, [[0.0048, 6.7, 0.3], [0.0021, 3.9, 1.7]]) - breath * 0.0018,
@@ -851,10 +1006,12 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     const u = alice.u;
     gl.uniform1i(u.u_tex, 1);
     gl.uniform1i(u.u_W, 4);
+    gl.uniform1i(u.u_fx, 2);
     gl.uniform1i(u.u_skin, 6);
     gl.uniform1f(u.u_t, t);
     gl.uniform3f(u.u_head, roll, turn, nod);
     gl.uniform4fv(u.u_limb, limbs);
+    gl.uniform4fv(u.u_skirt, skirt);
     gl.uniform1f(u.u_breath, breath);
     gl.uniform1f(u.u_spin, spin);
     gl.uniform1f(u.u_spinLag, lagS.s.x);
@@ -865,6 +1022,10 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     gl.uniform4fv(u.u_eyeB, eyeB);
     gl.uniform4fv(u.u_lid, lids);
     gl.uniform4fv(u.u_shine, shine);
+    gl.uniform4fv(u.u_iris, iris);
+    gl.uniform2fv(u.u_irisR, irisR);
+    gl.uniform2f(u.u_trem, trem[0], trem[1]);
+    gl.uniform4fv(u.u_emet, emet);
     gl.uniform2f(u.u_close, lid, lid ** 1.6);
     gl.uniform4f(u.u_gaze, gaze.x + gaze.lead.x, gaze.y + gaze.lead.y, sparkle, 0);
     gl.uniform2f(u.u_bodyOff, R.pos.body[0] - R.rects.body[0], R.pos.body[1] - R.rects.body[1]);
@@ -903,6 +1064,7 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     gl.drawArrays(gl.POINTS, 0, 1);
     drawDust(t, 1, dustA, [mx, my]);
 
+    if (import.meta.env.DEV && debug) debug.out = [t, trem[0], trem[1], wingS[0].x, wingS[1].x, skirtS.x, lid, ek];
     if (!shown) {
       shown = true;
       opts.onShow();
