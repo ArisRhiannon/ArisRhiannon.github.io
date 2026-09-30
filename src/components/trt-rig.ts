@@ -253,8 +253,8 @@ vec4 lidAt(int e, float u) {
 vec4 tx(vec2 q, vec2 gx, vec2 gy) { return textureGrad(u_tex, (q + u_bodyOff) / u_atlas, gx, gy); }
 /* Real eyelids, per pixel, layered like a Live2D model: the lid skin (the art's own closed-eye repaint)
    lies under the eye; the upper lash line slides down over it, lashes and all, to the closing line, and
-   the lower one rises a little to meet it. The eye inside the opening is covered, never squashed, and at
-   rest every texel is the untouched art. */
+   the lower one rises a little to meet it. The eye inside the opening is covered, never squashed; with the
+   lids open the art is untouched but for the gaze. */
 vec4 eyeCol(int e, vec2 p, vec2 gx, vec2 gy, out float open) {
   vec2 A = u_eyeA[e].xy, ax = u_eyeA[e].zw, n = vec2(-ax.y, ax.x);
   float len = u_eyeB[e].x, S = u_eyeB[e].y, Tl = u_eyeB[e].z, Sl = u_eyeB[e].w;
