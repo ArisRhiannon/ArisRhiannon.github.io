@@ -25,7 +25,7 @@ import rig from './trt-rig.json';
 type V2 = [number, number];
 type Rect = [number, number, number, number];
 type Hair = { root: V2; axis: V2; len: number; nx: number; ny: number; step: number; w: number[] };
-type Eye = { a: V2; E: V2; band: [number, number, number]; lid: number[]; shine: [number, number, number, number][]; iris: number[] };
+type Eye = { a: V2; E: V2; band: [number, number, number]; hook?: number; lid: number[]; shine: [number, number, number, number][]; iris: number[] };
 const R = rig as unknown as {
   rects: Record<string, Rect>;
   pos: Record<string, V2>;
@@ -482,11 +482,12 @@ vec3 eyeStar(int e, vec2 p, float fw) {
   return (vec3(.84, .88, 1.) * tail * u_emet.w + vec3(1., .98, 1.) * head * u_emet.y) * clip;
 }
 /* Eyelids per pixel, built the way Live2D riggers build a blink: the upper lash line, lashes and all, comes
-   straight down the face onto the art's own closed-eye stroke; the lower lid rises to meet it and its lash
-   hides under the upper one. The eye is covered, never squashed, and sinks a touch with the lid; the skin the
-   lids uncover is the art's closed-eye repaint cleaned of its strokes (top of trt-lid.webp), and in the last
-   frames of the close the lids settle into that closed eye itself (bottom half), the stroke as drawn. With the
-   lids open the art is untouched but for the gaze. */
+   straight down the face onto the closed-eye stroke (the art's own for the near eye; the far eye's is the near
+   one mirrored into it, a curve rather than the steep corner-to-corner slash that eye's axis gave); the lower
+   lid rises to meet it and its lash hides under the upper one. The eye is covered, never squashed, and sinks
+   a touch with the lid; the skin the lids uncover is the art's closed-eye repaint cleaned of its strokes (top
+   of trt-lid.webp), and in the last frames of the close the lids settle into that closed eye itself (bottom
+   half), the stroke as drawn. With the lids open the art is untouched but for the gaze. */
 vec4 eyeCol(int e, vec2 p, vec2 gx, vec2 gy, out float open) {
   vec2 A = u_eyeA[e].xy, E = u_eyeA[e].zw, d = p - A;
   /* columns run down the face, rows follow the line between the corners */
@@ -495,34 +496,46 @@ vec4 eyeCol(int e, vec2 p, vec2 gx, vec2 gy, out float open) {
   float v = dot(p - o, FD);
   open = 0.;
   vec4 c = tx(p, gx, gy);
+  float hook = u_eyeB[e].w;
+  vec2 lq = (p - EYES.xy) / EYES.zw * vec2(1., .5);
+  /* the far eye's lash tips run a hair past its inner corner: they go under the skin as it closes */
+  if (hook > 0. && u >= 1.)
+    return mix(c, texture(u_skin, lq), (1. - smoothstep(1.1, 1.2, u)) * (1. - smoothstep(5.5, 7., abs(v + 3.5))) * smoothstep(.15, .75, u_close.x));
   if (u <= 0. || u >= 1.) return c;
   vec4 L = lidAt(e, u); /* upper margin, lash thickness, closing line, lower margin */
   float S = u_eyeB[e].x, Tl = u_eyeB[e].y, Sl = u_eyeB[e].z;
-  float dU = (L.z + .6 - L.x) * u_close.x, dL = max(0., L.w + Tl - L.z - .6) * u_close.y;
+  /* the far eye's lids meet halfway, so its lower lid keeps pace with the upper one */
+  float cL = hook > 0. ? u_close.x : u_close.y;
+  float dU = (L.z + .6 - L.x) * u_close.x, dL = max(0., L.w + Tl - L.z - .6) * cL;
   float mU = L.x + dU, mL = L.w - dL, tU = L.x - L.y - S, bL = L.w + Tl + Sl;
   if (v < tU - 1. || v > bL + 1.) return c;
   /* edges are antialiased only once a lid moves, so the open eye stays texel-exact */
   float kU = max(smoothstep(0., 1., dU), 1e-3), kL = max(smoothstep(0., 1., dL), 1e-3);
   float bu = clamp((v - mU) / kU + .5, 0., 1.), ab = clamp((mL - v) / kL + .5, 0., 1.);
-  vec2 lq = (p - EYES.xy) / EYES.zw * vec2(1., .5);
   vec4 skin = texture(u_skin, lq);
-  /* lower lid: skin where its lash has left, then the lash line */
+  /* lower lid: skin where its lash has left, then the lash line (the far eye's strong lower rim fades into
+     the lid as it rises, so the lids close on one line, not two) */
   c = mix(c, skin, (1. - smoothstep(bL - 1., bL + 1., v)) * smoothstep(0., 1.5, dL) * (1. - ab));
-  c = mix(c, tx(o + FD * max(v + dL, L.w + .9 * kL), gx, gy), (1. - smoothstep(bL - dL - 1., bL - dL + 1., v)) * (1. - ab));
+  vec4 lo = tx(o + FD * max(v + dL, L.w + .9 * kL), gx, gy);
+  if (hook > 0.) lo = mix(lo, skin, smoothstep(.3, .95, cL));
+  c = mix(c, lo, (1. - smoothstep(bL - dL - 1., bL - dL + 1., v)) * (1. - ab));
   /* the eye in the opening */
   open = smoothstep(mU, mU + 1.4, v) * (1. - smoothstep(mL - 1.4, mL, v));
   if (bu * ab > 0.) {
     /* as the lids meet, what shows of the eye falls into the lashes' shadow (a dark slit, not a white one) */
     vec2 q = p - (u_gaze.xy + FD * 1.2 * u_close.x) * open;
     vec4 ec = tx(q - tremble(e, q) * open, gx, gy);
-    c = mix(c, vec4(ec.rgb * (1. - .45 * smoothstep(.55, 1., u_close.x)), ec.a), bu * ab);
+    c = mix(c, vec4(ec.rgb * (1. - (hook > 0. ? .7 : .45) * smoothstep(.55, 1., u_close.x)), ec.a), bu * ab);
   }
   /* upper lid on top: its lash thins as it rolls down over the eye (the closed keyform's lash is slimmer)
-     and the lid skin above rides on it */
+     and the lid skin above rides on it. Past the hook (u_eyeB.w: where the far eye's lash turns down to its
+     inner corner) the lid stays and its lash fades into the skin, so the eye closes on the curve alone. */
   float th = L.y * .45 * u_close.x, dS = dU + th;
   float sv = v > mU - L.y + th ? L.x - (mU - v) * L.y / (L.y - th) : v - dS;
   c = mix(c, skin, smoothstep(tU - 1., tU + 1., v) * smoothstep(0., 1.5, dS) * (1. - bu));
-  c = mix(c, tx(o + FD * min(sv, L.x - kU), gx, gy), smoothstep(tU + dS - 1., tU + dS + 1., v) * (1. - bu));
+  vec4 lc = tx(o + FD * min(sv, L.x - kU), gx, gy);
+  if (hook > 0.) lc = mix(lc, skin, smoothstep(hook, hook + .08, u) * smoothstep(.1, .75, u_close.x));
+  c = mix(c, lc, smoothstep(tU + dS - 1., tU + dS + 1., v) * (1. - bu));
   float shut = smoothstep(.9, 1., u_close.x) * smoothstep(tU - 1., tU, v) * (1. - smoothstep(bL, bL + 1., v));
   return shut > 0. ? mix(c, texture(u_skin, lq + vec2(0., .5)), shut) : c;
 }
@@ -909,7 +922,7 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
   const irisR = new Float32Array(4);
   R.eyes.forEach((e, i) => {
     eyeA.set([e.a[0], e.a[1], e.E[0], e.E[1]], i * 4);
-    eyeB.set([...e.band, 0], i * 4);
+    eyeB.set([...e.band, e.hook ?? 0], i * 4);
     lids.set(e.lid, i * 64);
     e.shine.forEach((s, k) => shine.set(s, (i * 2 + k) * 4));
     iris.set(e.iris.slice(0, 4), i * 4);
