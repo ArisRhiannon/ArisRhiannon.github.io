@@ -48,6 +48,12 @@ const f = (x: number) => (Number.isInteger(x) ? x.toFixed(1) : String(x));
 const v2 = ([x, y]: V2) => `vec2(${f(x)}, ${f(y)})`;
 const B = R.body;
 const CLK = R.clock;
+/* canvas -> the red glass's own plane (its perspective), where the rings are drawn */
+const toPlane = (x: number, y: number): V2 => {
+  const h = R.plane.Hi;
+  const Z = h[2] * x + h[5] * y + h[8];
+  return [(h[0] * x + h[3] * y + h[6]) / Z, (h[1] * x + h[4] * y + h[7]) / Z];
+};
 /* Face axes (the head is tilted ~29°): along the eyes, and up the face. */
 const FH: V2 = [0.875, 0.483];
 const FU: V2 = [0.483, -0.875];
@@ -55,20 +61,35 @@ const FU: V2 = [0.483, -0.875];
 const VS_PANE = `#version 300 es
 in vec2 a_p;
 uniform vec2 u_axis;
-uniform float u_ang, u_f;
+uniform float u_ang, u_f, u_sway, u_wside;
 out vec2 v_p;
+const vec2 C = vec2(${f(W / 2)}, ${f(H / 2)});
+/* turn P about the hinge knuckles' axis (through o, along d) */
+vec3 hinge(vec3 P, vec3 o, vec3 d, float a) {
+  vec3 r = P - o, along = dot(r, d) * d, perp = r - along;
+  return o + along + perp * cos(a) + cross(d, perp) * sin(a);
+}
 void main() {
-  vec3 P = vec3(a_p, 0.);
+  vec3 P = vec3(a_p, 0.), o = vec3(u_axis.x, 0., 0.), d = normalize(vec3(u_axis.y, 1., 0.));
+  float s = 1.;
   if (u_ang != 0.) {
-    /* rotate about the hinge knuckles' axis, x = a + k*y */
-    vec3 o = vec3(u_axis.x, 0., 0.), d = normalize(vec3(u_axis.y, 1., 0.)), r = P - o;
-    vec3 along = dot(r, d) * d, perp = r - along;
-    P = o + along + perp * cos(u_ang) + cross(d, perp) * sin(u_ang);
+    /* the unfold: the wing, flat in the picture, turns on its hinge (x = a + k*y) */
+    P = hinge(P, o, d, u_ang);
+  } else if (u_sway != 0.) {
+    /* the night wind: the painted wing stands turned ~45° toward us, so each texel is lifted onto that panel
+       (where the ray through it meets it), the panel turns a little on its hinge and is looked at again. The
+       wing's width breathes, as a door's does. Plane to plane is one homography, carried exactly by the
+       corners' clip w; at rest it is the identity. */
+    vec3 E = vec3(C, u_f), e = normalize(vec3(1., -u_axis.y, 0.)) * u_wside;
+    vec3 n = cross(d, e + vec3(0., 0., 1.));
+    float N = dot(n, o - E), D = dot(n, P - E);
+    P = hinge(E + (P - E) * (N / D), o, d, u_sway);
+    s = D / N;
   }
   float w = (u_f - P.z) / u_f;
-  vec2 c = vec2(${f(W / 2)}, ${f(H / 2)}), q = c + (P.xy - c) / w;
+  vec2 q = C + (P.xy - C) / w;
   v_p = a_p;
-  gl_Position = vec4((q.x / ${f(W)}) * 2. - 1., 1. - (q.y / ${f(H)}) * 2., 0., 1.) * w;
+  gl_Position = vec4((q.x / ${f(W)}) * 2. - 1., 1. - (q.y / ${f(H)}) * 2., 0., 1.) * w * s;
 }`;
 
 const FS_PANE = `#version 300 es
@@ -76,7 +97,7 @@ precision highp float;
 in vec2 v_p;
 uniform sampler2D u_E, u_fx, u_sky, u_dial;
 uniform int u_side;
-uniform float u_t, u_lit, u_a, u_fxOn, u_ang;
+uniform float u_t, u_lit, u_a, u_fxOn, u_sway, u_wside;
 uniform vec2 u_axis;
 uniform vec4 u_drop[4];
 uniform mat3 u_Hp, u_Hi;
@@ -87,6 +108,7 @@ out vec4 o;
 const vec2 SZ = vec2(${f(W)}, ${f(H)});
 const vec2 DIAL = ${v2(CLK.c)}, HUB = ${v2(CLK.hub)};
 const vec4 DIALP = vec4(${CLK.patch.map(f).join(', ')});
+const vec2 TOUCH = ${v2(toPlane(209, 600))}; /* the painted ripple on the moon's reflection */
 vec2 rot(vec2 p, float a) { float s = sin(a), c = cos(a); return vec2(c * p.x - s * p.y, s * p.x + c * p.y); }
 float seg(vec2 p, vec2 a, vec2 b) { vec2 pa = p - a, ba = b - a; return length(pa - ba * clamp(dot(pa, ba) / dot(ba, ba), 0., 1.)); }
 /* A clock hand like the painted ones: a fine tapered blade with a small open loop. */
@@ -126,9 +148,18 @@ void main() {
       flash += exp(-r * r / 9.) * max(0., 1. - age / .18) * dr.w;
     }
     grad += vec2(sin(q.y * .045 + u_t * .8), cos(q.x * .05 - u_t * .65)) * .025;
-    vec2 ps = proj(u_Hp, q - grad * 5.2), uv2 = ps / SZ;
+    /* The painted ripple never settles: it is where the glass was touched, and slow rings keep leaving it as
+       on a magic surface, while its heart draws in and out a little, as if something were passing into the
+       picture, with a faint light. Its rings bend the image strongly and catch the light softly. */
+    vec2 tv = q - TOUCH;
+    float tr = length(tv) + 1e-3, beat = sin(u_t * 2.4);
+    float tw = smoothstep(0., 10., tr) * (1. - smoothstep(64., 104., tr)) * inversesqrt(1. + tr / 18.) * (.8 + .2 * sin(u_t * .83));
+    vec2 gt = tv / tr * (cos(tr * .35 - u_t * 2.4) * .34 * tw + tr * exp(-tr * tr / 160.) * .03 * (.75 + .25 * beat));
+    vec2 ps = proj(u_Hp, q - (grad + gt) * 5.2), uv2 = ps / SZ;
     float m2 = texture(u_fx, uv2).r;
     c = mix(c, textureGrad(u_E, uv2, dFdx(uv), dFdy(uv)), m * m2);
+    grad += gt * .3;
+    c.rgb += vec3(1., .86, .93) * exp(-tr * tr / 90.) * (.05 + .03 * beat) * m * c.a;
     /* and the rings catch the evening light: slopes facing it brighten, the far sides dim. Worked out on
        the plane too, so on the smooth orange sky they read as rings lying in the glass. */
     float sh = dot(grad, vec2(.63, .77)) * 2.4;
@@ -183,8 +214,8 @@ void main() {
   }
   if (u_side != 0 && m > 0.) {
     /* As a wing turns the light slides over its glass: a faint sheen that moves out from the hinge as the
-       wing swings toward us and back as it turns away; nothing at rest. */
-    float a = u_ang * (u_side == 1 ? 57.3 : -57.3);
+       wing opens and back as it closes; nothing at rest. */
+    float a = u_sway * u_wside * 57.3;
     float sw = abs(v_p.x - u_axis.x - u_axis.y * v_p.y) + (v_p.y - 700.) * .22 - 150. - a * 50.;
     c.rgb += vec3(1., .96, .92) * exp(-sw * sw / 9000.) * min(abs(a) * .02, .045) * m * c.a;
   }
@@ -297,7 +328,7 @@ uniform vec4 u_eyeA[2], u_eyeB[2], u_lid[32], u_shine[4];
 uniform vec4 u_gaze; /* eye content shift (px), sparkle */
 uniform vec4 u_iris[2]; /* iris centre, radii along its axes */
 uniform vec2 u_irisR[2], u_trem; /* iris axis; iris tremble (px) */
-uniform vec4 u_emet; /* shooting star in the eyes: head progress, head, last twinkle, tail */
+uniform vec4 u_emet; /* shooting star in the eyes: head progress, head, -, tail */
 uniform vec2 u_bodyOff, u_atlas;
 out vec4 o;
 const vec2 FD = ${v2([-FU[0], -FU[1]])};
@@ -316,22 +347,22 @@ vec2 irisL(int e, vec2 q) {
 /* The iris trembles as Live2D riggers make 瞳揺れ: the pupil and inner iris move by a fraction of a pixel
    while the rim stays put, so one side stretches as the other gives; the whites and lashes never move. */
 vec2 tremble(int e, vec2 q) { return (1. - smoothstep(.3, .88, length(irisL(e, q)))) * u_trem; }
-/* A shooting star crosses her eyes now and then: one streak of one sky, so the same in both irises (same
-   place from the centre, same angle, same moment), clipped by each iris and hidden by the lids. A bright
-   head with a small cross of light, a fine tail fading into the iris, a last twinkle as it burns out.
-   Widths never drop under a screen pixel, so it stays clean when the canvas is small. */
-const vec2 EM_A = vec2(11., -8.5), EM_B = vec2(-.5, -2.5);
+/* A shooting star crosses her eyes now and then: one streak of one sky, so the same in both irises (the same
+   path across each iris, drawn on the iris's own ellipse, at the same moment), clipped by the iris and hidden
+   by the lids. It comes in over one rim and leaves by the other: a small bright head and a fine tail that
+   thins and fades behind it. Widths never drop under a screen pixel, so it stays clean when the canvas is small. */
+const vec2 EM_A = vec2(1.08, -.42), EM_B = vec2(-1.08, .24);
+vec2 irisP(int e, vec2 u) { vec2 r = u_irisR[e]; u *= u_iris[e].zw; return u_iris[e].xy + r * u.x + vec2(-r.y, r.x) * u.y; }
 vec3 eyeStar(int e, vec2 p, float fw) {
-  float clip = 1. - smoothstep(.8, .94, length(irisL(e, p)));
-  vec2 dir = normalize(EM_B - EM_A), r = p - u_iris[e].xy - mix(EM_A, EM_B, u_emet.x);
-  float along = -dot(r, dir), side = dot(r, vec2(-dir.y, dir.x)), sg = max(.45, .55 * fw), len = length(EM_B - EM_A) * u_emet.x;
-  float tail = exp(-side * side / (2. * sg * sg)) * .6 / sg * step(0., along) * exp(-along / 4.5) * (1. - smoothstep(len * .75, len + .01, along));
-  /* the head's light: a cross and, fainter, its diagonals (十字と斜め), longer as it burns out over the pupil */
-  vec2 a = abs(r), b = abs(vec2(r.x + r.y, r.x - r.y)) * .7071;
-  float d2 = dot(r, r), wx = 2.4 / max(1., fw), rl = .7 / (1. + 1.6 * u_emet.z);
-  float rays = (exp(-a.x * wx - a.y * rl) + exp(-a.y * wx - a.x * rl) + .45 * (exp(-b.x * wx - b.y * rl * 1.7) + exp(-b.y * wx - b.x * rl * 1.7))) / max(1., fw);
-  float head = exp(-d2 / (2. * sg * sg)) * .6 / sg + exp(-d2 / 5.) * .3 + rays * (.22 + .7 * u_emet.z);
-  return (vec3(.86, .9, 1.) * tail * u_emet.w + vec3(1., .97, 1.) * head * u_emet.y) * clip;
+  float clip = 1. - smoothstep(.82, .96, length(irisL(e, p)));
+  vec2 A = irisP(e, EM_A), B = irisP(e, EM_B), dir = normalize(B - A), h = mix(A, B, u_emet.x), r = p - h;
+  float along = -dot(r, dir), side = dot(r, vec2(-dir.y, dir.x)), sg = max(.45, .55 * fw);
+  float L = min(length(B - A) * .5, length(h - A)) + 1e-3, k = clamp(along / L, 0., 1.), w = sg * (1. - .45 * k);
+  float tail = step(0., along) * (1. - k) * (1. - k) * exp(-side * side / (2. * w * w)) * .55 / sg;
+  vec2 a = abs(r);
+  float fr = 2.4 / max(1., fw);
+  float head = exp(-dot(r, r) / (2. * sg * sg)) * .6 / sg + exp(-dot(r, r) / 6.) * .2 + (exp(-a.x * fr - a.y * 1.1) + exp(-a.y * fr - a.x * 1.1)) * .12 / max(1., fw);
+  return (vec3(.84, .88, 1.) * tail * u_emet.w + vec3(1., .98, 1.) * head * u_emet.y) * clip;
 }
 /* Eyelids per pixel, built the way Live2D riggers build a blink: the upper lash line, lashes and all, comes
    straight down the face onto the art's own closed-eye stroke; the lower lid rises to meet it and its lash
@@ -716,13 +747,6 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
   resize();
   new ResizeObserver(resize).observe(canvas);
 
-  const Hi = R.plane.Hi;
-  const toPlane = (x: number, y: number): V2 => {
-    const X = Hi[0] * x + Hi[3] * y + Hi[6];
-    const Y = Hi[1] * x + Hi[4] * y + Hi[7];
-    const Z = Hi[2] * x + Hi[5] * y + Hi[8];
-    return [X / Z, Y / Z];
-  };
   const par = { x: 0, y: 0, tx: 0, ty: 0 };
   const drops = [0, 0, 0, 0].map(() => [0, 0, -99, 0]);
   let nextDrop = 2.9;
@@ -740,7 +764,7 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
   });
   let nextBlink = 3.4;
   /* A shooting star in her eyes, once a cycle (every 19-26 s); no blink ever cuts across it. */
-  const EM_T = 0.62;
+  const EM_T = 1.3;
   let emAt = 11 + Math.random() * 3;
   const blinkNow = (t: number) => {
     if (t > emAt - 0.6 && t < emAt + EM_T + 0.1) {
@@ -765,7 +789,8 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
 
   /* Night wind: a slow swell that never repeats, and every 8-15 s a soft gust that reaches the left wing
      first and the right one 0.45 s later. Each wing answers on its hinge like a light door on a soft
-     spring; the skirt feels the same air a moment later. Angles in degrees. */
+     spring (opening a few degrees: its outer edge travels ~5-10 px); the skirt feels the same air a moment
+     later. */
   const gusts: V2[] = [];
   let nextGust = 6 + Math.random() * 4;
   const windAt = (t: number) =>
@@ -775,6 +800,7 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
       return x > 0 ? s + a * x * x * Math.exp(2 - 2 * x) : s;
     }, 0);
   const wingS = [{ x: 0, v: 0 }, { x: 0, v: 0 }];
+  const WING = 1.5; /* the wings open by this many degrees per unit of wind */
   const skirtS = { x: 0, v: 0 };
 
   /* Iris tremble (px, along the face and up it): soft pendulums the lids kick as they reopen and the head
@@ -817,17 +843,19 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     const min = d.getMinutes() - 1 + step;
     gl.uniform2f(u.u_clk, (((d.getHours() % 12) + d.getMinutes() / 60) / 12) * TAU, (min / 60) * TAU);
     const state = panes.map((p) => {
-      if (!p.side) return [0, 1, Math.min(1, t / 0.9)];
+      if (!p.side) return [0, 0, 1, Math.min(1, t / 0.9)];
       const [ang, lit, a] = unfold((t - p.delay) / 2.8);
-      /* once open, the wing breathes in the night wind (eased in), catching a little more light as it turns */
-      const idle = (debug?.wind ?? wingS[p.side - 1].x) * smooth((t - p.delay - 2.8) / 3);
-      return [ang + idle, lit * (1 + 0.014 * idle), a];
+      /* once open, the wing sways in the night wind (eased in), catching a little more light as it opens */
+      const sway = (debug?.wind ?? wingS[p.side - 1].x) * smooth((t - p.delay - 2.8) / 3);
+      return [ang, sway, lit * (1 + 0.01 * sway), a];
     });
     for (const [i, p] of panes.entries()) {
-      const [ang, lit, a] = state[i];
+      const [ang, sway, lit, a] = state[i];
       gl.uniform1i(u.u_side, p.side);
       gl.uniform2f(u.u_axis, p.axis[0], p.axis[1]);
       gl.uniform1f(u.u_ang, (ang * p.dir * Math.PI) / 180);
+      gl.uniform1f(u.u_wside, -p.dir);
+      gl.uniform1f(u.u_sway, (sway * -p.dir * Math.PI) / 180);
       gl.uniform1f(u.u_lit, lit);
       gl.uniform1f(u.u_a, a);
       gl.bindVertexArray(p.vao);
@@ -944,8 +972,8 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
       nextGust = t + 8 + Math.random() * 7;
     }
     while (gusts.length && t - gusts[0][0] > 14) gusts.shift();
-    spring(wingS[0], windAt(t), 2.1, 0.4, dt);
-    spring(wingS[1], windAt(t - 0.45) * 0.9, 2.35, 0.4, dt);
+    spring(wingS[0], windAt(t) * WING, 2.1, 0.4, dt);
+    spring(wingS[1], windAt(t - 0.45) * 0.9 * WING, 2.35, 0.4, dt);
     /* skirt: a soft pendulum on the waist, trailing the float and pushed by the wind (a gust from the left
        swings the hem right); its waves run fuller while the wind blows */
     const air = windAt(t - 0.2);
@@ -968,13 +996,10 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     const tu = tremS[1].x + qv * wave(t, [[0.09, 0.33, 0.7], [0.065, 0.41, 2.2], [0.045, 0.26, 4.1]]);
     const trem: V2 = debug?.trem ?? [FH[0] * th + FU[0] * tu, FH[1] * th + FU[1] * tu];
 
-    /* the shooting star in her eyes: the head flies (easing out), twinkles and burns out; the tail fades first */
+    /* the shooting star in her eyes: in over one rim, out by the other at an even pace; the tail thins out before the head is gone */
     if (t > emAt + EM_T) emAt = t + 19 + Math.random() * 7;
     const ek = debug?.emet ?? (t - emAt) / EM_T;
-    const emet =
-      ek > 0 && ek < 1
-        ? [1 - (1 - Math.min(1, ek / 0.8)) ** 1.6, smooth(ek / 0.1) * (1 - smooth((ek - 0.85) / 0.15)), smooth((ek - 0.62) / 0.16) * (1 - smooth((ek - 0.8) / 0.2)), smooth(ek / 0.2) * (1 - smooth((ek - 0.6) / 0.3))]
-        : [0, 0, 0, 0];
+    const emet = ek > 0 && ek < 1 ? [ek, smooth(ek / 0.06) * (1 - smooth((ek - 0.94) / 0.06)), 0, smooth(ek / 0.12) * (1 - smooth((ek - 0.78) / 0.22))] : [0, 0, 0, 0];
     const limbs = [
       wave(t, [[0.0022, 5.9, 1], [0.0012, 3.3, 2.5]]) + (mx - lagS.x.x) * 0.0006,
       wave(t, [[0.0048, 6.7, 0.3], [0.0021, 3.9, 1.7]]) - breath * 0.0018,
