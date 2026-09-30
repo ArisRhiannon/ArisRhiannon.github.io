@@ -9,7 +9,7 @@ import rig from './trt-rig.json';
 type V2 = [number, number];
 type Rect = [number, number, number, number];
 type Hair = { root: V2; axis: V2; len: number; nx: number; ny: number; step: number; w: number[] };
-type Eye = { a: V2; ax: V2; len: number; band: [number, number, number]; lid: number[]; shine: [number, number, number, number][] };
+type Eye = { a: V2; E: V2; band: [number, number, number]; lid: number[]; shine: [number, number, number, number][] };
 const R = rig as unknown as {
   rects: Record<string, Rect>;
   pos: Record<string, V2>;
@@ -117,17 +117,29 @@ void main() {
     c.rgb += (vec3(1., .9, .84) * spec * .55 + vec3(1., .95, .9) * flash * .35) * m * c.a;
   } else if (u_side == 0) {
     if (m > 0.) {
-      /* Starry glass: the nebula breathes in slow drifting swells (the stars twinkle in their own pass). */
-      float l = dot(c.rgb, vec3(.3, .59, .11));
+      /* Starry glass, alive as a cluster: every painted speck scintillates on its own phase, slow waves of
+         light roll through the field so neighbours brighten together, the nebula breathes in drifting swells
+         and the galaxy gives off a soft blue glow (the big stars twinkle as sprites in their own pass). */
+      const vec3 LUM = vec3(.3, .59, .11);
+      float l = dot(c.rgb, LUM);
+      vec3 halo = textureLod(u_E, uv, 4.5).rgb;
+      float speck = smoothstep(.03, .14, l - dot(textureLod(u_E, uv, 2.5).rgb, LUM));
+      float h = fract(sin(dot(floor(v_p / 3.), vec2(12.9898, 78.233))) * 43758.5453), h2 = fract(h * 17.13 + .37);
+      float wave = .5 + .5 * sin(dot(v_p, vec2(.043, .025)) - u_t * .8) * sin(dot(v_p, vec2(-.02, .037)) + u_t * .55);
+      float tw = sin(u_t * (1.1 + 2.6 * h) + h2 * 6.2831), up = max(tw, 0.);
+      c.rgb *= 1. + m * speck * ((.35 + 1.15 * wave * wave) * up * up * up - .25 * max(-tw, 0.));
       float n = sin(dot(v_p, vec2(.0105, .0165)) + u_t * .31) * sin(dot(v_p, vec2(-.0142, .0088)) - u_t * .23 + 1.3);
       c.rgb *= 1. + m * smoothstep(.22, .75, l) * .085 * n;
+      float g = dot(halo, LUM) * clamp((halo.b - max(halo.r, halo.g)) * 4., 0., 1.);
+      c.rgb += vec3(.55, .66, 1.) * g * g * m * (.26 + .08 * n) * c.a;
       /* now and then, a shooting star behind Alice */
       float age = u_t - u_met.z;
       if (age > 0. && age < .9) {
         vec2 dir = vec2(cos(u_met.w), sin(u_met.w)), head = u_met.xy + dir * age * 260.;
         float along = dot(v_p - head, -dir), side = abs(dot(v_p - head, vec2(-dir.y, dir.x)));
         float tail = 1. - smoothstep(0., 95., along);
-        float s = step(-1.5, along) * tail * exp(-side * side / (.9 + along * .012)) * sin(3.1416 * age / .9);
+        /* the width only grows behind the head: ahead of it a negative width overflowed to NaN (black glass) */
+        float s = step(-1.5, along) * tail * exp(-side * side / (.9 + max(along, 0.) * .012)) * sin(3.1416 * age / .9);
         c.rgb += vec3(.85, .92, 1.) * s * m * .9 * c.a;
       }
     }
@@ -237,50 +249,64 @@ void main() {
 const FS_ALICE = `#version 300 es
 precision highp float;
 in vec2 v_uv, v_p;
-uniform sampler2D u_tex;
+uniform sampler2D u_tex, u_skin;
 uniform float u_a, u_t, u_isHair;
+uniform vec2 u_close; /* upper lid, lower lid */
 uniform vec4 u_eyeA[2], u_eyeB[2], u_lid[32], u_shine[4];
-uniform vec4 u_lids; /* upper closure, lower closure */
 uniform vec4 u_gaze; /* eye content shift (px), sparkle */
 uniform vec2 u_bodyOff, u_atlas;
 out vec4 o;
-const vec2 LIDSKIN = ${v2([R.pos.eyes[0] - R.rects.eyes[0], R.pos.eyes[1] - R.rects.eyes[1]])};
+const vec2 FD = ${v2([-FU[0], -FU[1]])};
+const vec4 EYES = vec4(${R.rects.eyes.map(f).join(', ')});
 vec4 lidAt(int e, float u) {
   float x = clamp(u, 0., 1.) * 15.;
   int i = int(min(floor(x), 14.));
   return mix(u_lid[e * 16 + i], u_lid[e * 16 + i + 1], x - float(i));
 }
 vec4 tx(vec2 q, vec2 gx, vec2 gy) { return textureGrad(u_tex, (q + u_bodyOff) / u_atlas, gx, gy); }
-/* Real eyelids, per pixel, layered like a Live2D model: the lid skin (the art's own closed-eye repaint)
-   lies under the eye; the upper lash line slides down over it, lashes and all, to the closing line, and
-   the lower one rises a little to meet it. The eye inside the opening is covered, never squashed; with the
+/* Eyelids per pixel, built the way Live2D riggers build a blink: the upper lash line, lashes and all, comes
+   straight down the face onto the art's own closed-eye stroke; the lower lid rises to meet it and its lash
+   hides under the upper one. The eye is covered, never squashed, and sinks a touch with the lid; the skin the
+   lids uncover is the art's closed-eye repaint cleaned of its strokes (top of trt-lid.webp), and in the last
+   frames of the close the lids settle into that closed eye itself (bottom half), the stroke as drawn. With the
    lids open the art is untouched but for the gaze. */
 vec4 eyeCol(int e, vec2 p, vec2 gx, vec2 gy, out float open) {
-  vec2 A = u_eyeA[e].xy, ax = u_eyeA[e].zw, n = vec2(-ax.y, ax.x);
-  float len = u_eyeB[e].x, S = u_eyeB[e].y, Tl = u_eyeB[e].z, Sl = u_eyeB[e].w;
-  vec2 d = p - A;
-  float u = dot(d, ax) / len, v = dot(d, n);
+  vec2 A = u_eyeA[e].xy, E = u_eyeA[e].zw, d = p - A;
+  /* columns run down the face, rows follow the line between the corners */
+  float u = (d.x * FD.y - d.y * FD.x) / (E.x * FD.y - E.y * FD.x);
+  vec2 o = A + E * u;
+  float v = dot(p - o, FD);
   open = 0.;
   vec4 c = tx(p, gx, gy);
   if (u <= 0. || u >= 1.) return c;
   vec4 L = lidAt(e, u); /* upper margin, lash thickness, closing line, lower margin */
-  float dU = (L.z + .6 - L.x) * u_lids.x, dL = (L.w - L.z + .6) * u_lids.y;
+  float S = u_eyeB[e].x, Tl = u_eyeB[e].y, Sl = u_eyeB[e].z;
+  float dU = (L.z + .6 - L.x) * u_close.x, dL = max(0., L.w + Tl - L.z - .6) * u_close.y;
   float mU = L.x + dU, mL = L.w - dL, tU = L.x - L.y - S, bL = L.w + Tl + Sl;
   if (v < tU - 1. || v > bL + 1.) return c;
-  /* the edges get antialiased only once a lid has moved, so the open eye stays texel-exact */
+  /* edges are antialiased only once a lid moves, so the open eye stays texel-exact */
   float kU = max(smoothstep(0., 1., dU), 1e-3), kL = max(smoothstep(0., 1., dL), 1e-3);
-  vec4 skin = textureGrad(u_tex, (p + LIDSKIN) / u_atlas, gx, gy);
-  vec2 o = A + ax * (u * len);
-  if (v < (mU + mL) * .5) {
-    c = mix(c, skin, smoothstep(tU - 1., tU + 1., v) * smoothstep(0., 1.5, dU));
-    c = mix(c, tx(o + n * min(v - dU, L.x - kU), gx, gy), smoothstep(tU + dU - 1., tU + dU + 1., v));
-  } else {
-    c = mix(c, skin, (1. - smoothstep(bL - 1., bL + 1., v)) * smoothstep(0., 1.5, dL));
-    c = mix(c, tx(o + n * max(v + dL, L.w + .9 * kL), gx, gy), 1. - smoothstep(bL - dL - 1., bL - dL + 1., v));
-  }
-  float inside = clamp((v - mU) / kU + .5, 0., 1.) * clamp((mL - v) / kL + .5, 0., 1.);
+  float bu = clamp((v - mU) / kU + .5, 0., 1.), ab = clamp((mL - v) / kL + .5, 0., 1.);
+  vec2 lq = (p - EYES.xy) / EYES.zw * vec2(1., .5);
+  vec4 skin = texture(u_skin, lq);
+  /* lower lid: skin where its lash has left, then the lash line */
+  c = mix(c, skin, (1. - smoothstep(bL - 1., bL + 1., v)) * smoothstep(0., 1.5, dL) * (1. - ab));
+  c = mix(c, tx(o + FD * max(v + dL, L.w + .9 * kL), gx, gy), (1. - smoothstep(bL - dL - 1., bL - dL + 1., v)) * (1. - ab));
+  /* the eye in the opening */
   open = smoothstep(mU, mU + 1.4, v) * (1. - smoothstep(mL - 1.4, mL, v));
-  return inside > 0. ? mix(c, tx(p - u_gaze.xy * open, gx, gy), inside) : c;
+  if (bu * ab > 0.) {
+    /* as the lids meet, what shows of the eye falls into the lashes' shadow (a dark slit, not a white one) */
+    vec4 ec = tx(p - (u_gaze.xy + FD * 1.2 * u_close.x) * open, gx, gy);
+    c = mix(c, vec4(ec.rgb * (1. - .45 * smoothstep(.55, 1., u_close.x)), ec.a), bu * ab);
+  }
+  /* upper lid on top: its lash thins as it rolls down over the eye (the closed keyform's lash is slimmer)
+     and the lid skin above rides on it */
+  float th = L.y * .45 * u_close.x, dS = dU + th;
+  float sv = v > mU - L.y + th ? L.x - (mU - v) * L.y / (L.y - th) : v - dS;
+  c = mix(c, skin, smoothstep(tU - 1., tU + 1., v) * smoothstep(0., 1.5, dS) * (1. - bu));
+  c = mix(c, tx(o + FD * min(sv, L.x - kU), gx, gy), smoothstep(tU + dS - 1., tU + dS + 1., v) * (1. - bu));
+  float shut = smoothstep(.9, 1., u_close.x) * smoothstep(tU - 1., tU, v) * (1. - smoothstep(bL, bL + 1., v));
+  return shut > 0. ? mix(c, texture(u_skin, lq + vec2(0., .5)), shut) : c;
 }
 void main() {
   vec4 c;
@@ -289,7 +315,7 @@ void main() {
   vec2 gx = dFdx(v_uv), gy = dFdy(v_uv);
   if (u_isHair == 0.) {
     for (int e = 0; e < 2; e++) {
-      vec2 d = v_p - (u_eyeA[e].xy + u_eyeA[e].zw * (u_eyeB[e].x * .5));
+      vec2 d = v_p - (u_eyeA[e].xy + u_eyeA[e].zw * .5);
       if (dot(d, d) < 1700.) { eye = e; break; }
     }
   }
@@ -299,7 +325,7 @@ void main() {
     /* Idle shine: the catchlight trembles and breathes like a wet eye; a tiny glint now and then. */
     vec4 s0 = u_shine[eye * 2], s1 = u_shine[eye * 2 + 1];
     float fe = float(eye);
-    vec2 wig = vec2(sin(u_t * 1.9 + fe) + .4 * sin(u_t * 4.1 + 2. * fe), cos(u_t * 1.4 + 1.3 + fe)) * .3 + u_gaze.xy;
+    vec2 wig = vec2(sin(u_t * 1.9 + fe) + .4 * sin(u_t * 4.1 + 2. * fe), cos(u_t * 1.4 + 1.3 + fe)) * .3 + u_gaze.xy + FD * 1.2 * u_close.x;
     vec2 d0 = v_p - s0.xy - wig, d1 = v_p - s1.xy - wig * 1.5;
     float g0 = exp(-dot(d0, d0) / (s0.z * s0.z)) * (.6 + .4 * sin(u_t * 1.05 + fe * 2.)) * s0.w;
     float g1 = exp(-dot(d1, d1) / (s1.z * s1.z)) * (.5 + .5 * sin(u_t * .53 + 1. + fe)) * s1.w;
@@ -491,8 +517,8 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
   const dust = program(VS_DUST, FS_DUST);
   const glint = program(VS_GLINT, FS_GLINT);
 
-  const [mirrorIm, aliceIm, fxIm, skyIm, wIm, dialIm] = await Promise.all(
-    ['trt-mirror.webp', 'trt-alice.webp', 'trt-fx.webp', 'trt-sky.webp', 'trt-w.webp', 'trt-dial.webp'].map(load),
+  const [mirrorIm, aliceIm, fxIm, skyIm, wIm, dialIm, lidIm] = await Promise.all(
+    ['trt-mirror.webp', 'trt-alice.webp', 'trt-fx.webp', 'trt-sky.webp', 'trt-w.webp', 'trt-dial.webp', 'trt-lid.webp'].map(load),
   );
 
   const texture = (im: HTMLImageElement, unit: number, { premul = true, mip = true, repeat = false } = {}) => {
@@ -514,6 +540,7 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
   texture(skyIm, 3, { mip: false, repeat: true });
   texture(wIm, 4, { premul: false, mip: false });
   texture(dialIm, 5, { mip: false });
+  texture(lidIm, 6, { mip: false });
 
   const buffer = (data: Float32Array, attribs: [number, number][]) => {
     const vao = gl.createVertexArray()!;
@@ -595,8 +622,8 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
   const lids = new Float32Array(128);
   const shine = new Float32Array(16);
   R.eyes.forEach((e, i) => {
-    eyeA.set([e.a[0], e.a[1], e.ax[0], e.ax[1]], i * 4);
-    eyeB.set([e.len, ...e.band], i * 4);
+    eyeA.set([e.a[0], e.a[1], e.E[0], e.E[1]], i * 4);
+    eyeB.set([...e.band, 0], i * 4);
     lids.set(e.lid, i * 64);
     e.shine.forEach((s, k) => shine.set(s, (i * 2 + k) * 4));
   });
@@ -657,7 +684,7 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
   let raf = 0;
   let visible = true;
   let shown = false;
-  let debug: { blink?: number; lower?: number } | undefined;
+  let debug: { blink?: number } | undefined;
 
   const drawPanes = (t: number) => {
     gl.useProgram(pane.p);
@@ -773,11 +800,7 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     let lid = 0;
     for (const b of blinks) lid = Math.max(lid, lidOf(b, t));
     while (blinks.length && t - blinks[0].t0 > 1.2) blinks.shift();
-    let lower = lid ** 1.6;
-    if (debug?.blink !== undefined) {
-      lid = debug.blink;
-      lower = debug.lower ?? lid ** 1.6;
-    }
+    if (debug?.blink !== undefined) lid = debug.blink;
     if (t > sparkAt + 0.5) sparkAt = t + 5 + Math.random() * 6;
     const sparkle = t > sparkAt ? Math.sin((Math.PI * (t - sparkAt)) / 0.5) ** 2 : 0;
 
@@ -828,6 +851,7 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     const u = alice.u;
     gl.uniform1i(u.u_tex, 1);
     gl.uniform1i(u.u_W, 4);
+    gl.uniform1i(u.u_skin, 6);
     gl.uniform1f(u.u_t, t);
     gl.uniform3f(u.u_head, roll, turn, nod);
     gl.uniform4fv(u.u_limb, limbs);
@@ -841,7 +865,7 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     gl.uniform4fv(u.u_eyeB, eyeB);
     gl.uniform4fv(u.u_lid, lids);
     gl.uniform4fv(u.u_shine, shine);
-    gl.uniform4f(u.u_lids, lid, lower, 0, 0);
+    gl.uniform2f(u.u_close, lid, lid ** 1.6);
     gl.uniform4f(u.u_gaze, gaze.x + gaze.lead.x, gaze.y + gaze.lead.y, sparkle, 0);
     gl.uniform2f(u.u_bodyOff, R.pos.body[0] - R.rects.body[0], R.pos.body[1] - R.rects.body[1]);
     gl.uniform2f(u.u_atlas, AW, AH);
