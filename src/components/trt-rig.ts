@@ -9,16 +9,17 @@
     Public License (LICENSES/AGPL-3.0-only.txt, https://www.gnu.org/licenses/agpl-3.0.html).
     Source: https://github.com/ArisRhiannon/ArisRhiannon.github.io
 
-    Covered: this file, trt-rig.json and the rig maps trt-w.webp and trt-fx.webp. Not covered: the artwork
-    and every texture cut or repainted from it (trt-key*, trt-alice, trt-mirror, trt-sky, trt-dial, trt-lid),
-    which remain the property of their rights holders (TRianThology, © 07th Expansion). */
+    Covered: this file, trt-rig.json and the rig maps trt-w.webp, trt-fx.webp and trt-n.webp. Not covered:
+    the artwork and every texture cut or repainted from it (trt-key*, trt-alice, trt-mirror, trt-sky, trt-dial,
+    trt-lid), which remain the property of their rights holders (TRianThology, © 07th Expansion). */
 /* The three-sided mirror, alive: WebGL2, no dependencies.
    Canvas space is the 1240×1400 cut-out. The wings unfold on their hinge knuckles, then breathe in a night
    wind; the red glass takes drops like still water (rings drawn on the wing's own plane); the starry glass
    twinkles star by star and the clock keeps the visitor's time; the sky glass drifts. Alice floats with
    follow-through in her hair and sleeves, her skirt sways and ripples like cloth, she breathes, turns her
    head in slow looks, blinks with real eyelids, and her irises tremble like wet eyes; once in a while a
-   shooting star crosses them. Layers and measurements come from trt-rig.json (built from the key art). */
+   shooting star crosses them. The visitor's pointer is a small warm lamp that lights her and the mirror as
+   if they had depth. Layers and measurements come from trt-rig.json (built from the key art). */
 import rig from './trt-rig.json';
 
 type V2 = [number, number];
@@ -57,6 +58,61 @@ const toPlane = (x: number, y: number): V2 => {
 /* Face axes (the head is tilted ~29°): along the eyes, and up the face. */
 const FH: V2 = [0.875, 0.483];
 const FU: V2 = [0.483, -0.875];
+
+/* The visitor's lamp: the cursor is a small warm light held in front of the picture (canvas px, z toward us).
+   It lights the painting as if it had depth, without moving a texel: trt-n.webp carries, for Alice (atlas
+   space) and for the mirror (canvas space), a normal and a height worked out offline (Depth Anything V2 for
+   the forms, bevels where a part stands in front of another) and what each part is made of; the painted
+   lines and folds add a fine relief as it is lit. Every material answers in its own way: skin and cloth
+   soften the light around their forms, satin and lacquer carry a moving highlight, gold tints it, the hair
+   shines in a band across its strands (Kajiya-Kay, along the painted strand direction), gems break it into
+   sparks, glass reflects the lamp. Light is only ever added, in linear light, so nothing gets darker. */
+const LAMP = `
+uniform sampler2D u_nrm;
+uniform vec4 u_light; /* lamp position (canvas px), strength (0: off) */
+const vec3 EYE = vec3(${f(W / 2)}, ${f(H / 2)}, 2500.);
+const vec3 WARM = vec3(1., .66, .38);
+const vec2 NRM = vec2(910., 1361.);
+const vec3 LUMA = vec3(.3, .59, .11);
+vec3 lin(vec3 c) { return pow(max(c, 0.), vec3(2.2)); }
+/* The normal maps are a quarter of the art's size, so they are read through a cubic B-spline (four bilinear
+   taps): even a sharp highlight runs smooth over them. p: position in u_nrm's texels. */
+vec4 nrmAt(vec2 p) {
+  p -= .5;
+  vec2 i = floor(p), f = p - i, f2 = f * f, f3 = f2 * f;
+  vec2 w0 = (1. - 3. * f + 3. * f2 - f3) / 6., w1 = (4. - 6. * f2 + 3. * f3) / 6., w3 = f3 / 6., g0 = w0 + w1, g1 = 1. - g0;
+  vec2 h0 = (i - .5 + w1 / g0) / NRM, h1 = (i + 1.5 + w3 / g1) / NRM;
+  return (texture(u_nrm, h0) * g0.x + texture(u_nrm, vec2(h1.x, h0.y)) * g1.x) * g0.y
+       + (texture(u_nrm, vec2(h0.x, h1.y)) * g0.x + texture(u_nrm, h1) * g1.x) * g1.y;
+}
+float lampAt(vec3 P, out vec3 L) {
+  vec3 v = u_light.xyz - P;
+  float d = max(length(v), 1.);
+  L = v / d;
+  return u_light.w * 1.6 / (1. + d * d / 45000.);
+}
+/* a: diffuse, wrap, specular, shininess; b: metal, rim, anisotropic, painted relief */
+vec3 lampLight(vec3 alb, vec3 N, vec3 P, vec4 a, vec4 b, vec3 T, float gloss, out vec3 spc) {
+  vec3 L;
+  float att = lampAt(P, L);
+  vec3 V = normalize(EYE - P), Hv = normalize(L + V);
+  float ndl = dot(N, L), th = dot(T, Hv);
+  vec3 dif = alb * a.x * max(0., (ndl + a.y) / (1. + a.y));
+  float sp = mix(pow(max(dot(N, Hv), 0.), a.w), pow(max(0., 1. - th * th), a.w * .5), b.z);
+  sp *= a.z * smoothstep(-.15, .35, ndl) * gloss;
+  float rim = b.y * pow(clamp(1. - dot(N, V), 0., 1.), 3.) * max(ndl, 0.);
+  spc = sp * mix(vec3(1.), alb * 1.6, b.x) * WARM * att;
+  return (dif + alb * rim) * WARM * att;
+}
+/* The lamp's light first fills the headroom a colour has left, all channels alike (warmer and brighter, not
+   washed out); what does not fit glows on softly toward white, as do the highlights. Nothing gets darker. */
+vec3 lampMix(vec3 c, float a, vec3 dif, vec3 spc) {
+  vec3 l = lin(c / max(a, 1e-4));
+  float h = max(1. - max(l.r, max(l.g, l.b)), 0.), m = max(dif.r, max(dif.g, dif.b)), s = h / (h + m + 1e-6);
+  l += dif * s;
+  l += (dif * (1. - s) * .7 + spc) * max(1. - l, 0.);
+  return pow(l, vec3(1. / 2.2)) * a;
+}`;
 
 const VS_PANE = `#version 300 es
 in vec2 a_p;
@@ -104,8 +160,15 @@ uniform mat3 u_Hp, u_Hi;
 uniform vec4 u_skyL, u_skyR;
 uniform vec2 u_clk;
 uniform vec4 u_met;
+uniform float u_f;
 out vec4 o;
 const vec2 SZ = vec2(${f(W)}, ${f(H)});
+const vec2 C = vec2(${f(W / 2)}, ${f(H / 2)});
+${LAMP}
+/* frame (satin metal), gold, glass, gems, the clock's enamel, lines */
+const vec4 MA[7] = vec4[7](vec4(0., 0., 0., 1.), vec4(.8, .2, .35, 40.), vec4(.5, 0., 1., 70.), vec4(.05, 0., 2.2, 2500.), vec4(.45, 0., 1.6, 320.), vec4(.8, .1, .6, 220.), vec4(.6, 0., 0., 1.));
+const vec4 MB[7] = vec4[7](vec4(0.), vec4(.4, .15, 0., .7), vec4(1., .15, 0., .8), vec4(0.), vec4(.3, 0., 0., 0.), vec4(0., .1, 0., .3), vec4(0.));
+vec3 turn(vec3 v, vec3 d, float a) { vec3 al = dot(v, d) * d, pe = v - al; return al + pe * cos(a) + cross(d, pe) * sin(a); }
 const vec2 DIAL = ${v2(CLK.c)}, HUB = ${v2(CLK.hub)};
 const vec4 DIALP = vec4(${CLK.patch.map(f).join(', ')});
 const vec2 TOUCH = ${v2(toPlane(209, 600))}; /* the painted ripple on the moon's reflection */
@@ -121,6 +184,7 @@ float hand(vec2 d, float ang, float len, float wid, float at, float lr) {
 }
 vec2 proj(mat3 m, vec2 p) { vec3 q = m * vec3(p, 1.); return q.xy / q.z; }
 void main() {
+  vec2 rip = vec2(0.);
   vec2 uv = v_p / SZ;
   vec4 fx = texture(u_fx, uv);
   /* Which pane owns this texel (painted gaps, knuckles kept with the centre), antialiased: the wings are
@@ -159,6 +223,7 @@ void main() {
     float m2 = texture(u_fx, uv2).r;
     c = mix(c, textureGrad(u_E, uv2, dFdx(uv), dFdy(uv)), m * m2);
     grad += gt * .3;
+    rip = grad * m;
     c.rgb += vec3(1., .86, .93) * exp(-tr * tr / 90.) * (.05 + .03 * beat) * m * c.a;
     /* and the rings catch the evening light: slopes facing it brighten, the far sides dim. Worked out on
        the plane too, so on the smooth orange sky they read as rings lying in the glass. */
@@ -219,6 +284,48 @@ void main() {
     float sw = abs(v_p.x - u_axis.x - u_axis.y * v_p.y) + (v_p.y - 700.) * .22 - 150. - a * 50.;
     c.rgb += vec3(1., .96, .92) * exp(-sw * sw / 9000.) * min(abs(a) * .02, .045) * m * c.a;
   }
+  if (u_light.w > 0. && c.a > .002) {
+    /* The lamp: each pane is lit on its own plane (the wings stand turned toward us, and sway), the frame's
+       bars and carvings in relief; the glass reflects it, and its rings on the red glass catch it. What each
+       texel is made of is blended over the four nearest texels of the half-size map. */
+    vec2 mp = v_p * .5 - .5, mf = fract(mp);
+    vec4 a = vec4(0.), b = vec4(0.);
+    float shine = 0.;
+    for (int k = 0; k < 4; k++) {
+      ivec2 o = ivec2(k & 1, k >> 1);
+      int mat = int(texelFetch(u_nrm, clamp(ivec2(floor(mp)) + o, ivec2(0), ivec2(619, 699)), 0).g * 255. + .5) >> 4;
+      float w = mix(1. - mf.x, mf.x, float(o.x)) * mix(1. - mf.y, mf.y, float(o.y));
+      a += MA[mat] * w;
+      b += MB[mat] * w;
+      shine += mat == 3 || mat == 4 ? w : 0.;
+    }
+    vec4 nm = nrmAt(v_p * .25 + vec2(457., 908.));
+    vec3 n = vec3(nm.xy * 2. - 1., 0.);
+    if (b.w > 0.) {
+      float l0 = dot(c.rgb, LUMA);
+      n.xy -= vec2(dot(texture(u_E, uv + vec2(1. / SZ.x, 0.)).rgb, LUMA) - l0, dot(texture(u_E, uv + vec2(0., 1. / SZ.y)).rgb, LUMA) - l0) * 5. * b.w;
+    }
+    n.xy -= rip * 2.4;
+    n.z = sqrt(max(.02, 1. - dot(n.xy, n.xy)));
+    n = normalize(n);
+    vec3 P = vec3(v_p, 0.), Tx = vec3(1., 0., 0.), By = vec3(0., 1., 0.), Nw = vec3(0., 0., 1.);
+    if (u_side != 0) {
+      vec3 ov = vec3(u_axis.x, 0., 0.), d = normalize(vec3(u_axis.y, 1., 0.)), E = vec3(C, u_f);
+      vec3 e = normalize(vec3(1., -u_axis.y, 0.)), pn = cross(d, e * u_wside + vec3(0., 0., 1.));
+      P = E + (P - E) * dot(pn, ov - E) / dot(pn, P - E);
+      P = ov + turn(P - ov, d, u_sway);
+      Tx = turn(normalize(vec3(e.xy, u_wside)), d, u_sway);
+      By = d;
+      Nw = normalize(cross(Tx, By));
+      Nw *= sign(Nw.z);
+    }
+    vec3 N = normalize(n.x * Tx + n.y * By + n.z * Nw);
+    P += Nw * nm.z * 318.75;
+    vec3 col = c.rgb / c.a;
+    float gloss = mix(smoothstep(.06, .25, dot(col, LUMA)), 1., shine);
+    vec3 spc, dif = lampLight(lin(col), N, P, a, b, vec3(0.), gloss, spc);
+    c.rgb = lampMix(c.rgb, c.a, dif, spc);
+  }
   o = vec4(c.rgb * u_lit, c.a) * edge * u_a;
 }`;
 
@@ -259,7 +366,7 @@ uniform vec2 u_move, u_moveLag, u_root, u_axis;
 uniform vec3 u_head;
 uniform vec4 u_limb, u_skirt;
 uniform float u_t, u_breath, u_hair, u_len, u_ph, u_spin, u_spinLag, u_isHair;
-out vec2 v_uv, v_p;
+out vec2 v_uv, v_p, v_q;
 const vec2 NECK = ${v2(B.neck)}, NB = ${v2(B.neckBase)}, FACE = ${v2(B.face)}, WAIST = ${v2(B.waist)};
 const vec2 ELL = ${v2(B.elbowL)}, ELR = ${v2(B.elbowR)}, COM = ${v2(B.com)};
 const vec2 FH = ${v2(FH)}, FU = ${v2(FU)};
@@ -315,12 +422,13 @@ void main() {
   p = rotA(p, COM, mix(u_spin, u_spinLag, lag)) + mix(u_move, u_moveLag, lag);
   v_uv = a_uv;
   v_p = a_p;
+  v_q = p;
   gl_Position = vec4(p.x / ${f(W)} * 2. - 1., 1. - p.y / ${f(H)} * 2., 0., 1.);
 }`;
 
 const FS_ALICE = `#version 300 es
 precision highp float;
-in vec2 v_uv, v_p;
+in vec2 v_uv, v_p, v_q;
 uniform sampler2D u_tex, u_skin;
 uniform float u_a, u_t, u_isHair;
 uniform vec2 u_close; /* upper lid, lower lid */
@@ -332,6 +440,15 @@ uniform vec4 u_emet; /* shooting star in the eyes: head progress, head, -, tail 
 uniform vec2 u_bodyOff, u_atlas;
 out vec4 o;
 const vec2 FD = ${v2([-FU[0], -FU[1]])};
+${LAMP}
+const vec2 ATL = vec2(${f(R.atlas[0])}, ${f(R.atlas[1])});
+/* skin, hair, satin, cloth, pink satin, red satin, gold, gem, lacquer, leather, knit, eye, line, dark cloth */
+const vec4 MA[15] = vec4[15](vec4(0., 0., 0., 1.), vec4(1., .5, .05, 14.), vec4(.8, .3, .35, 36.), vec4(.8, .2, .45, 90.), vec4(.8, .4, .04, 10.),
+  vec4(.8, .25, .35, 70.), vec4(.8, .2, .4, 80.), vec4(.5, 0., 1., 70.), vec4(.45, 0., 1.6, 320.), vec4(.4, 0., .6, 120.), vec4(.7, .1, .5, 110.),
+  vec4(.85, .3, .06, 12.), vec4(.6, 0., 0., 1.), vec4(.6, 0., 0., 1.), vec4(.8, .2, .1, 20.));
+const vec4 MB[15] = vec4[15](vec4(0.), vec4(0., .12, 0., 0.), vec4(.5, .15, 1., .45), vec4(.3, .25, 0., .7), vec4(0., .2, 0., .6),
+  vec4(.3, .2, 0., .6), vec4(.3, .2, 0., .6), vec4(1., .15, 0., .7), vec4(.3, 0., 0., 0.), vec4(0., .15, 0., 0.), vec4(0., .15, 0., .4),
+  vec4(0., .15, 0., .6), vec4(0.), vec4(0.), vec4(0., .2, 0., .6));
 const vec4 EYES = vec4(${R.rects.eyes.map(f).join(', ')});
 vec4 lidAt(int e, float u) {
   float x = clamp(u, 0., 1.) * 15.;
@@ -436,6 +553,58 @@ void main() {
     float sp = u_gaze.z * (exp(-q.x * 1.5 - q.y * .38) + exp(-q.y * 1.5 - q.x * .38)) * .55;
     c.rgb += vec3(1., .97, 1.) * (g0 + g1 + sp) * open * c.a;
     if (u_emet.y + u_emet.w > 0.) c.rgb += eyeStar(eye, v_p - u_gaze.xy - u_trem, fw) * open * c.a;
+  }
+  if (u_light.w > 0. && c.a > .002) {
+    /* what she is made of, blended over the four nearest texels of the half-size map (the strand directions
+       as doubled angles: a strand has no head or tail) */
+    vec2 mp = v_uv * ATL * .5 - .5, mf = fract(mp), sd = vec2(0.);
+    vec4 a = vec4(0.), b = vec4(0.);
+    float gem = 0., shine = 0.;
+    for (int k = 0; k < 4; k++) {
+      ivec2 o = ivec2(k & 1, k >> 1);
+      int code = int(texelFetch(u_nrm, clamp(ivec2(floor(mp)) + o, ivec2(0), ivec2(909, 905)), 0).r * 255. + .5), mat = code >> 4;
+      float w = mix(1. - mf.x, mf.x, float(o.x)) * mix(1. - mf.y, mf.y, float(o.y)), an = float(code & 15) * .3927;
+      a += MA[mat] * w;
+      b += MB[mat] * w;
+      sd += vec2(cos(an), sin(an)) * w * MB[mat].z;
+      gem += mat == 8 ? w : 0.;
+      shine += mat == 8 || mat == 9 ? w : 0.;
+    }
+    vec4 nm = nrmAt(v_uv * ATL * .25 + vec2(0., 908.));
+    vec3 N = vec3(nm.xy * 2. - 1., 0.);
+    if (b.w > 0.) {
+      /* the painted lines and folds as fine relief (brighter stands higher) */
+      vec2 px = 1. / ATL;
+      float l0 = dot(texture(u_tex, v_uv).rgb, LUMA);
+      N.xy -= vec2(dot(texture(u_tex, v_uv + vec2(px.x, 0.)).rgb, LUMA) - l0, dot(texture(u_tex, v_uv + vec2(0., px.y)).rgb, LUMA) - l0) * 6. * b.w;
+    }
+    if (gem > 0.) {
+      /* a gem's facets: each small cell turns its own way, so the lamp breaks into sparks as it moves */
+      vec2 cell = floor(v_p / 3.2);
+      N.xy += (fract(sin(vec2(dot(cell, vec2(127.1, 311.7)), dot(cell, vec2(269.5, 183.3)))) * 43758.5453) - .5) * 1.1 * gem;
+    }
+    N.z = sqrt(max(.02, 1. - dot(N.xy, N.xy)));
+    N = normalize(N);
+    vec3 P = vec3(v_q, nm.z * 318.75), T = vec3(0.);
+    if (b.z > 0.) {
+      /* the strand runs along the painted hair, over the surface */
+      float an = atan(sd.y, sd.x + 1e-6) * .5;
+      vec2 t2 = vec2(cos(an), sin(an));
+      T = normalize(vec3(t2, -dot(N.xy, t2) / max(N.z, .2)));
+    }
+    vec3 col = c.rgb / c.a;
+    float gloss = mix(smoothstep(.06, .25, dot(col, LUMA)), 1., shine);
+    vec3 spc, dif = lampLight(lin(col), N, P, a, b, T, gloss, spc);
+    if (eye >= 0 && open > 0.) {
+      /* the lamp's own reflection on the eye's wet dome, a tiny warm catchlight that follows it */
+      vec3 L;
+      float att = lampAt(P, L);
+      vec3 Hv = normalize(L + normalize(EYE - P));
+      vec2 d = v_p - u_gaze.xy - u_iris[eye].xy;
+      vec3 nC = normalize(vec3(d / (max(u_iris[eye].z, u_iris[eye].w) * 1.6), 1.));
+      spc += WARM * pow(max(dot(nC, Hv), 0.), 1500.) * (1. - smoothstep(.85, 1.1, length(irisL(eye, v_p - u_gaze.xy)))) * att * 1.6 * open;
+    }
+    c.rgb = lampMix(c.rgb, c.a, dif, spc);
   }
   o = c * (1. - smoothstep(1290., 1400., v_p.y)) * u_a;
 }`;
@@ -588,6 +757,8 @@ const lidOf = (b: Blink, t: number) => {
 
 export interface MirrorRig {
   pointer(nx: number, ny: number): void;
+  /* the lamp, in canvas px (anywhere, even off the canvas); on: 1 to light it, 0 to let it fade */
+  light(x: number, y: number, on: number): void;
 }
 
 export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: () => boolean; onShow: () => void; onLost: () => void }): Promise<MirrorRig> {
@@ -645,6 +816,15 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
   texture(wIm, 4, { premul: false, mip: false });
   texture(dialIm, 5, { mip: false });
   texture(lidIm, 6, { mip: false });
+  /* the lamp's maps come after the mirror is up: until then the lamp stays off (a blank texel stands in) */
+  gl.activeTexture(gl.TEXTURE7);
+  gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([128, 128, 0, 255]));
+  let lampReady = false;
+  load('trt-n.webp').then((im) => {
+    texture(im, 7, { premul: false, mip: false });
+    lampReady = true;
+  }, () => {});
 
   const buffer = (data: Float32Array, attribs: [number, number][]) => {
     const vao = gl.createVertexArray()!;
@@ -815,8 +995,14 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
   let raf = 0;
   let visible = true;
   let shown = false;
-  /* dev-only hooks for captures: hold the lids, the wings, the eye star; drop a drop; still the skirt */
-  let debug: { blink?: number; wind?: number; emet?: number; trem?: V2; drop?: V2; noSkirt?: boolean; out?: number[] } | undefined;
+  /* dev-only hooks for captures: hold the lids, the wings, the eye star, the lamp, the clock; drop a drop; still the skirt */
+  let debug: { blink?: number; wind?: number; emet?: number; trem?: V2; drop?: V2; noSkirt?: boolean; lamp?: [number, number, number]; t?: number; out?: number[] } | undefined;
+
+  /* The lamp follows the pointer with a little lag, fades in as it arrives and out as it leaves, and breathes
+     like a small flame. */
+  const lamp = { x: W / 2, y: H / 2, tx: W / 2, ty: H / 2, on: 0, k: 0 };
+  const LAMP_Z = 420;
+  let lampU = [0, 0, LAMP_Z, 0];
 
   const drawPanes = (t: number) => {
     gl.useProgram(pane.p);
@@ -834,6 +1020,8 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     gl.uniform4f(u.u_skyL, s.l[0], s.l[1], s.y0, s.y1 - s.y0);
     gl.uniform4f(u.u_skyR, s.r[0], s.r[1], s.p, 0);
     gl.uniform1f(u.u_fxOn, Math.min(1, Math.max(0, (t - 2.6) / 1.2)));
+    gl.uniform1i(u.u_nrm, 7);
+    gl.uniform4fv(u.u_light, lampU);
     gl.uniform4fv(u.u_met, met);
     /* the visitor's time; the minute hand steps each minute with a small mechanical overshoot */
     const d = new Date();
@@ -877,10 +1065,10 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
   const frame = (now: number) => {
     raf = 0;
     if (!visible) return;
-    const t = (now - t0) / 1000;
+    if (import.meta.env.DEV) debug = (window as unknown as { __trt?: typeof debug }).__trt;
+    const t = debug?.t ?? (now - t0) / 1000;
     const dt = Math.min(0.1, Math.max(0, (now - last) / 1000));
     last = now;
-    if (import.meta.env.DEV) debug = (window as unknown as { __trt?: typeof debug }).__trt;
 
     /* drops on the red glass: open spots, never the same twice running */
     if (t > nextDrop) {
@@ -965,6 +1153,15 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     spring(lagS.y, my, 3.4, 1, dt);
     spring(lagS.s, spin, 3.4, 1, dt);
     const breath = 0.5 + 0.5 * Math.sin((t * TAU) / 4.2);
+
+    /* the lamp */
+    const lf = 1 - Math.exp(-dt * 11);
+    lamp.x += (lamp.tx - lamp.x) * lf;
+    lamp.y += (lamp.ty - lamp.y) * lf;
+    lamp.k += (lamp.on - lamp.k) * (1 - Math.exp(-dt * (lamp.on > lamp.k ? 3.5 : 1.4)));
+    const flame = 1 + 0.03 * wave(t, [[1, 2.9, 0], [0.6, 1.3, 1.7], [0.3, 0.7, 4.1]]);
+    const lampK = lampReady ? lamp.k * flame * Math.min(1, Math.max(0, (t - 3.4) / 1.5)) : 0;
+    lampU = debug?.lamp ? [debug.lamp[0], debug.lamp[1], LAMP_Z, debug.lamp[2]] : [lamp.x, lamp.y, LAMP_Z, lampK > 0.002 ? lampK : 0];
 
     /* the night wind on the wings and the skirt */
     if (t > nextGust) {
@@ -1055,6 +1252,8 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     gl.uniform4f(u.u_gaze, gaze.x + gaze.lead.x, gaze.y + gaze.lead.y, sparkle, 0);
     gl.uniform2f(u.u_bodyOff, R.pos.body[0] - R.rects.body[0], R.pos.body[1] - R.rects.body[1]);
     gl.uniform2f(u.u_atlas, AW, AH);
+    gl.uniform1i(u.u_nrm, 7);
+    gl.uniform4fv(u.u_light, lampU);
     gl.uniform1f(u.u_isHair, 0);
     gl.uniform1f(u.u_hair, 0);
     gl.bindVertexArray(body.vao);
@@ -1089,7 +1288,7 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     gl.drawArrays(gl.POINTS, 0, 1);
     drawDust(t, 1, dustA, [mx, my]);
 
-    if (import.meta.env.DEV && debug) debug.out = [t, trem[0], trem[1], wingS[0].x, wingS[1].x, skirtS.x, lid, ek];
+    if (import.meta.env.DEV && debug) debug.out = [t, trem[0], trem[1], wingS[0].x, wingS[1].x, skirtS.x, lid, ek, ...lampU];
     if (!shown) {
       shown = true;
       opts.onShow();
@@ -1122,6 +1321,15 @@ export async function startMirror(canvas: HTMLCanvasElement, opts: { skipOpen: (
     pointer(nx, ny) {
       par.tx = nx;
       par.ty = ny;
+    },
+    light(x, y, on) {
+      if (lamp.k < 0.01) {
+        lamp.x = x;
+        lamp.y = y;
+      }
+      lamp.tx = x;
+      lamp.ty = y;
+      lamp.on = on;
     },
   };
 }

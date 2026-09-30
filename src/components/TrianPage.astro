@@ -595,7 +595,7 @@ const jsonLd = {
      layers are in. Reduced motion, no WebGL or a slow network keep the still. */
   const figure = document.querySelector<HTMLElement>('[data-mirror]');
   const glCanvas = document.querySelector<HTMLCanvasElement>('[data-mirror-gl]');
-  let rig: { pointer(nx: number, ny: number): void } | undefined;
+  let rig: { pointer(nx: number, ny: number): void; light(x: number, y: number, on: number): void } | undefined;
   const still = () => figure?.classList.add('is-still', 'is-ready');
   if (figure && glCanvas && !reduce) {
     const slow = setTimeout(still, 3500);
@@ -622,11 +622,16 @@ const jsonLd = {
     still();
   }
 
-  /* Pointer: Alice's parallax, and the rain umbrella. */
+  /* Pointer: Alice's parallax, the rain umbrella, and the lamp (a small warm light the pointer holds up to the mirror). */
 
   const pointer = { x: -1e4, y: -1e4, on: false };
   const mirror = document.querySelector<HTMLElement>('[data-mirror]');
   let mirrorQueued = false;
+  /* the lamp, in the canvas's own px (1240 x 1400) */
+  const light = (x: number, y: number, on: boolean) => {
+    const r = mirror?.getBoundingClientRect();
+    if (r) rig?.light(((x - r.left) / r.width) * 1240, ((y - r.top) / r.height) * 1400, on ? 1 : 0);
+  };
   const updateMirror = () => {
     mirrorQueued = false;
     if (!mirror) return;
@@ -634,6 +639,7 @@ const jsonLd = {
     const nx = Math.max(0, Math.min(1, (pointer.x - r.left) / r.width));
     const ny = Math.max(0, Math.min(1, (pointer.y - r.top) / r.height));
     rig?.pointer((nx - 0.5) * 2, (ny - 0.5) * 2);
+    light(pointer.x, pointer.y, pointer.on);
   };
   if (fine && !reduce) {
     addEventListener(
@@ -649,7 +655,22 @@ const jsonLd = {
       },
       { passive: true }
     );
-    document.documentElement.addEventListener('pointerleave', () => (pointer.on = false));
+    document.documentElement.addEventListener('pointerleave', () => {
+      pointer.on = false;
+      light(pointer.x, pointer.y, false);
+    });
+    /* the page scrolls under a still pointer: the lamp stays with the pointer */
+    addEventListener('scroll', () => pointer.on && light(pointer.x, pointer.y, true), { passive: true });
+  } else if (!reduce && mirror) {
+    /* touch: the lamp lights where a finger rests on the mirror and fades when it lifts (nothing else follows) */
+    let down = false;
+    const touch = (e: PointerEvent, on: boolean) => {
+      down = on;
+      light(e.clientX, e.clientY, on);
+    };
+    mirror.addEventListener('pointerdown', (e) => touch(e, true), { passive: true });
+    mirror.addEventListener('pointermove', (e) => down && touch(e, true), { passive: true });
+    for (const type of ['pointerup', 'pointercancel', 'pointerleave'] as const) mirror.addEventListener(type, (e) => touch(e, false), { passive: true });
   }
 
   /* Cards: flip + holographic foil */
