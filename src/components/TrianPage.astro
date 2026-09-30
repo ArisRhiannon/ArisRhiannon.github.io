@@ -183,16 +183,15 @@ const stats = [18056, 412, 4].map((n, i) => ({ n, shown: nf.format(n), label: co
 
 /* Logo glyphs live in trt-sprite.svg (traced from the game's title logo). */
 const glyphs = ['t1', 'r', 'i', 'a', 'n', 't2', 'h', 'o', 'l', 'o2', 'g', 'y'];
+/* As in the game: "ian" and "hology" tuck in under the arms of the big T's. */
+const glyphShift: Record<string, number> = { i: -33, a: -33, n: -33, h: -30, o: -30, l: -30, o2: -30, g: -30, y: -30 };
 
-/* The painted mirror, cut out of the key art. Seams follow the hinges (they lean with the
-   perspective); wings swing on those slanted axes. Coordinates are % of the 1920×1080 art. */
-const panes = ['l', 'c', 'r'];
-
-/* Top edge of the cut-out (fraction of height, 160 columns; 9 = empty) for rain splashes. */
+/* Top edge of mirror + Alice (fraction of height, 160 columns; 9 = empty) for rain splashes. */
 const mirrorTop =
-  '9 9 9 9 9 9 .467 .449 .435 .422 .413 .406 .398 .393 .388 .384 .381 .377 .374 .372 .37 .37 .37 .346 .293 .249 .23 .213 .199 .186 .174 .164 .155 .146 .139 .131 .127 .122 .119 .117 .117 .117 .118 .121 .124 .086 .074 .07 .067 .062 .056 .05 .04 .026 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .018 .033 .045 .054 .059 .064 .068 .072 .077 .102 .122 .119 .117 .117 .117 .118 .12 .125 .13 .135 .142 .15 .158 .169 .181 .193 .206 .22 .239 .262 .292 .34 .414 .454 .472 .484 .494 .505 .806 .823 .86 9 9 9 9 9 9 9 9 9 9 9 9 9 9';
+  '9 .389 .376 .367 .361 .356 .351 .348 .345 .342 .339 .337 .335 .334 .332 .308 .285 .266 .253 .241 .234 .225 .218 .211 .206 .201 .195 .191 .187 .184 .18 .177 .175 .173 .171 .171 .17 .17 .17 .171 .172 .174 .169 .151 .146 .144 .141 .139 .137 .135 .131 .127 .122 .114 .104 .091 .089 .088 .086 .084 .082 .08 .078 .074 .071 .066 .062 .057 .054 .05 .046 .043 .04 .037 .035 .033 .031 .029 .028 .027 .026 .026 .025 .025 .025 .025 .026 .026 .026 .028 .029 .03 .032 .034 .036 .039 .042 .044 .048 .052 .056 .06 .064 .069 .074 .077 .081 .084 .086 .089 .09 .091 .093 .096 .111 .121 .128 .133 .137 .14 .143 .145 .147 .149 .152 .163 .18 .179 .177 .176 .176 .176 .176 .178 .179 .181 .184 .186 .189 .193 .197 .201 .206 .211 .218 .224 .231 .24 .249 .259 .274 .294 .326 .359 .374 .383 .389 .394 .4 .406';
 
-/* Background of the key art, redrawn: stars (x, y, radius, float period) and bubbles, in art px.
+/* Background of the key art, redrawn: stars (x, y, radius, float period) and bubbles, in key-art px
+   (1920×1080); ART_BOX maps that space onto the 1240×1400 mirror canvas.
    Glints run around the mirror in order, so their delay comes from the angle to its centre. */
 const stars = [
   [485, 24, 40, 9], [335, 142, 28, 11], [250, 252, 25, 8], [196, 362, 46, 12], [226, 484, 21, 10], [128, 624, 17, 9],
@@ -220,8 +219,9 @@ const alternates = [
   { hreflang: 'ja', href: urls.ja },
 ];
 
-const imgSizes = '(max-width: 760px) 92vw, 50vw';
-const imgSrcset = '/trianthology/mirror-880.webp 880w, /trianthology/mirror.webp 1600w';
+const imgSizes = '(max-width: 760px) 92vw, 44vw';
+const imgSrcset = '/trianthology/trt-key-620.webp 620w, /trianthology/trt-key.webp 1240w';
+const ART_BOX = '113 -187.9 1602.9 1809.8';
 const strip = (html: string) => html.replace(/<[^>]+>/g, '');
 
 const PERSON = `${SITE}/#person`;
@@ -333,8 +333,9 @@ const jsonLd = {
   jsonLd={jsonLd}
 >
   <Fragment slot="head">
+    <script is:inline>document.documentElement.classList.add('trt-js');</script>
     <link rel="preload" href="/trianthology/bodoni-trt-normal.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" as="image" href="/trianthology/mirror.webp" imagesrcset={imgSrcset} imagesizes={imgSizes} fetchpriority="high" />
+    <link rel="preload" as="image" href="/trianthology/trt-key.webp" imagesrcset={imgSrcset} imagesizes={imgSizes} fetchpriority="high" />
   </Fragment>
 
   <Fragment set:html={sprite} />
@@ -360,16 +361,16 @@ const jsonLd = {
           <svg class="logo__svg" viewBox="0 -8 880 388">
             <use class="logo__kana" href="#lg-kana" />
             <rect class="logo__rule" x="14" y="244.2" width="852" height="1.6" fill="url(#trt-rule)" />
-            <path class="logo__swash" d="M290 224C330 262 470 273 610 263 720 255 800 246 868 234 800 253 700 264 600 270 470 279 336 272 290 224Z" />
-            {glyphs.map((g, i) => <use class={`g g--${g}`} href={`#lg-${g}`} style={`--i:${i}`} />)}
-            <g transform="translate(422 -2) rotate(-8 31 40) scale(1.5)">
+            <path class="logo__swash" d="M238 236C320 284 520 300 680 288 760 282 810 268 848 249 790 266 700 276 620 280 480 285 330 270 238 236Z" />
+            {glyphs.map((g, i) => <use class={`g g--${g}`} href={`#lg-${g}`} x={glyphShift[g]} style={`--i:${i}`} />)}
+            <g transform="translate(445 28.5) scale(1.05) rotate(-4 30.5 49)">
               <g class="crown">
                 <use href="#trt-crown" />
                 <g clip-path="url(#trt-crown-front)"><path class="crown__glint" d="M-16 60h7l12-44h-7Z" /></g>
                 <path class="crown__spark" d="m11 54.6.9 3 3 .9-3 .9-.9 3-.9-3-3-.9 3-.9Z" />
               </g>
             </g>
-            <use class="logo__sub" href="#lg-sub" />
+            <use class="logo__sub" href="#lg-sub" y="28" />
           </svg>
         </div>
 
@@ -397,7 +398,7 @@ const jsonLd = {
 
       <div class="hero__art">
         <figure class="mirror" data-mirror data-top={mirrorTop} role="img" aria-label={copy.mirrorAlt}>
-          <svg class="halo" viewBox="0 0 1920 1080" aria-hidden="true">
+          <svg class="halo" viewBox={ART_BOX} aria-hidden="true">
             {orbits.map(([rx, ry, tilt, dur, dir], k) => (
               <g class="orbit" transform={`rotate(${tilt} 960 560)`}>
                 <g class="orbit__spin" style={`--spin:${140 + k * 47}s;--dur:${dur}s`}>
@@ -408,7 +409,7 @@ const jsonLd = {
               </g>
             ))}
           </svg>
-          <svg class="sky" viewBox="0 0 1920 1080" aria-hidden="true">
+          <svg class="sky" viewBox={ART_BOX} aria-hidden="true">
             {bubbles.map(([x, y, r], k) => (
               <circle class="bubble" cx={x} cy={y} r={r} style={`--d:${(k * 0.73) % 5}s`} />
             ))}
@@ -422,50 +423,42 @@ const jsonLd = {
               </g>
             ))}
           </svg>
-          <div class="mirror__stage">
-            {panes.map((p, i) => (
-              <div class={`pane pane--${p}`}>
-                <img
-                  src="/trianthology/mirror.webp"
-                  srcset={imgSrcset}
-                  sizes={imgSizes}
-                  width="1600"
-                  height="900"
-                  alt=""
-                  fetchpriority={i === 1 ? 'high' : undefined}
-                  decoding="async"
-                />
-                {p === 'c' && (
-                  <svg class="clock" data-clock viewBox="-50 -50 100 100">
-                    <defs>
-                      <radialGradient id="trt-face">
-                        <stop offset="0" stop-color="#fdfbf5" />
-                        <stop offset=".8" stop-color="#ece6dc" />
-                        <stop offset="1" stop-color="#bfb6b0" />
-                      </radialGradient>
-                    </defs>
-                    <circle r="48" fill="url(#trt-face)" stroke="#3a2f3d" stroke-width="3" />
-                    <circle r="40" fill="none" stroke="#3a2f3d" stroke-width=".8" />
-                    {Array.from({ length: 12 }, (_, k) => (
-                      <line y1="-44.5" y2={k % 3 ? '-41' : '-38.5'} transform={`rotate(${k * 30})`} stroke="#3a2f3d" stroke-width={k % 3 ? 1.2 : 2.4} />
-                    ))}
-                    <g class="clock__num" fill="#2b2230">
-                      <text y="-27">XII</text>
-                      <text x="29" y="1">III</text>
-                      <text y="29">VI</text>
-                      <text x="-29" y="1">IX</text>
-                    </g>
-                    <line class="hand hand--h" y1="5" y2="-21" />
-                    <line class="hand hand--m" y1="7" y2="-33" />
-                    <line class="hand hand--s" y1="10" y2="-37" />
-                    <circle r="2.8" fill="#1d1620" />
-                  </svg>
-                )}
-                <span class="pane__glare"></span>
-              </div>
-            ))}
-          </div>
-          <span class="mirror__sheen"></span>
+          <img
+            class="mirror__still"
+            src="/trianthology/trt-key.webp"
+            srcset={imgSrcset}
+            sizes={imgSizes}
+            width="1240"
+            height="1400"
+            alt=""
+            fetchpriority="high"
+            decoding="async"
+          />
+          <canvas class="mirror__gl" data-mirror-gl aria-hidden="true"></canvas>
+            <svg class="clock" data-clock viewBox="-50 -50 100 100">
+              <defs>
+                <radialGradient id="trt-face">
+                  <stop offset="0" stop-color="#fdfbf5" />
+                  <stop offset=".8" stop-color="#ece6dc" />
+                  <stop offset="1" stop-color="#bfb6b0" />
+                </radialGradient>
+              </defs>
+              <circle r="48" fill="url(#trt-face)" stroke="#3a2f3d" stroke-width="3" />
+              <circle r="40" fill="none" stroke="#3a2f3d" stroke-width=".8" />
+              {Array.from({ length: 12 }, (_, k) => (
+                <line y1="-44.5" y2={k % 3 ? '-41' : '-38.5'} transform={`rotate(${k * 30})`} stroke="#3a2f3d" stroke-width={k % 3 ? 1.2 : 2.4} />
+              ))}
+              <g class="clock__num" fill="#2b2230">
+                <text y="-27">XII</text>
+                <text x="29" y="1">III</text>
+                <text y="29">VI</text>
+                <text x="-29" y="1">IX</text>
+              </g>
+              <line class="hand hand--h" y1="5" y2="-21" />
+              <line class="hand hand--m" y1="7" y2="-33" />
+              <line class="hand hand--s" y1="10" y2="-37" />
+              <circle r="2.8" fill="#1d1620" />
+            </svg>
         </figure>
       </div>
     </section>
@@ -627,12 +620,38 @@ const jsonLd = {
     });
   }
 
-  /* Mirror entrance waits for the art (CSS keeps it paused until .is-ready). */
-  const mirrorImg = document.querySelector<HTMLImageElement>('.pane--c img');
-  const ready = () => document.querySelector('[data-mirror]')?.classList.add('is-ready');
-  if (mirrorImg) mirrorImg.decode().then(ready, ready);
+  /* Mirror: the still paints first; the living WebGL mirror (trt-rig.ts) takes over once its
+     layers are in. Reduced motion, no WebGL or a slow network keep the still. */
+  const figure = document.querySelector<HTMLElement>('[data-mirror]');
+  const glCanvas = document.querySelector<HTMLCanvasElement>('[data-mirror-gl]');
+  let rig: { pointer(nx: number, ny: number): void } | undefined;
+  const still = () => figure?.classList.add('is-still', 'is-ready');
+  if (figure && glCanvas && !reduce) {
+    const slow = setTimeout(still, 3500);
+    import('./trt-rig')
+      .then(({ startMirror }) =>
+        startMirror(glCanvas, {
+          skipOpen: () => figure.classList.contains('is-still'),
+          onShow: () => {
+            clearTimeout(slow);
+            figure.classList.add('is-gl', 'is-ready');
+          },
+          onLost: () => {
+            figure.classList.remove('is-gl');
+            still();
+          },
+        })
+      )
+      .then((r) => (rig = r))
+      .catch(() => {
+        clearTimeout(slow);
+        still();
+      });
+  } else {
+    still();
+  }
 
-  /* Pointer: mirror parallax + glare, and the rain umbrella. */
+  /* Pointer: Alice's parallax, and the rain umbrella. */
 
   const pointer = { x: -1e4, y: -1e4, on: false };
   const mirror = document.querySelector<HTMLElement>('[data-mirror]');
@@ -643,10 +662,7 @@ const jsonLd = {
     const r = mirror.getBoundingClientRect();
     const nx = Math.max(0, Math.min(1, (pointer.x - r.left) / r.width));
     const ny = Math.max(0, Math.min(1, (pointer.y - r.top) / r.height));
-    mirror.style.setProperty('--px', ((nx - 0.5) * 2).toFixed(3));
-    mirror.style.setProperty('--py', ((ny - 0.5) * 2).toFixed(3));
-    mirror.style.setProperty('--gx', `${(nx * 100).toFixed(1)}%`);
-    mirror.style.setProperty('--gy', `${(ny * 100).toFixed(1)}%`);
+    rig?.pointer((nx - 0.5) * 2, (ny - 0.5) * 2);
   };
   if (fine && !reduce) {
     addEventListener(
@@ -672,18 +688,52 @@ const jsonLd = {
       button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true'))
     );
     if (!fine || reduce) return;
+    /* Lift and tilt follow the pointer through a critically damped spring, so the card eases
+       back to its place on leave. The hit area (the <li>) never moves, so edges don't flicker. */
+    const now = { tx: 0, ty: 0, lift: 0 };
+    const goal = { tx: 0, ty: 0, lift: 0 };
+    let raf = 0;
+    let last = 0;
+    const step = (t: number) => {
+      const k = 1 - Math.exp(-Math.min(0.05, (t - last) / 1000) * 14);
+      last = t;
+      let moving = false;
+      for (const key of ['tx', 'ty', 'lift'] as const) {
+        now[key] += (goal[key] - now[key]) * k;
+        if (Math.abs(goal[key] - now[key]) > 0.001) moving = true;
+        else now[key] = goal[key];
+      }
+      card.style.setProperty('--tx', now.tx.toFixed(4));
+      card.style.setProperty('--ty', now.ty.toFixed(4));
+      card.style.setProperty('--lift', now.lift.toFixed(4));
+      raf = moving ? requestAnimationFrame(step) : 0;
+    };
+    const kick = () => {
+      if (raf) return;
+      last = performance.now();
+      raf = requestAnimationFrame(step);
+    };
     card.addEventListener('pointermove', (e) => {
       const r = card.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width;
-      const y = (e.clientY - r.top) / r.height;
+      const x = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      const y = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
       card.style.setProperty('--mx', `${(x * 100).toFixed(1)}%`);
       card.style.setProperty('--my', `${(y * 100).toFixed(1)}%`);
-      card.style.setProperty('--tx', (x - 0.5).toFixed(3));
-      card.style.setProperty('--ty', (y - 0.5).toFixed(3));
+      goal.tx = x - 0.5;
+      goal.ty = y - 0.5;
+      goal.lift = 1;
+      kick();
     });
     card.addEventListener('pointerleave', () => {
-      card.style.setProperty('--tx', '0');
-      card.style.setProperty('--ty', '0');
+      goal.tx = goal.ty = goal.lift = 0;
+      kick();
+    });
+    /* Keyboard focus lifts too; a mouse click must not leave the card stuck up. */
+    button?.addEventListener('focus', () => {
+      if (button.matches(':focus-visible')) (goal.lift = 1), kick();
+    });
+    button?.addEventListener('blur', () => {
+      if (!card.matches(':hover')) (goal.lift = 0), kick();
     });
   });
 
@@ -1389,137 +1439,72 @@ const jsonLd = {
   }
 
   /* ---------- Three-sided mirror ---------- */
-  @property --open {
-    syntax: '<angle>';
-    inherits: false;
-    initial-value: 0deg;
-  }
-
-  @property --sway {
-    syntax: '<angle>';
-    inherits: false;
-    initial-value: 0deg;
-  }
-
-  @property --lit {
-    syntax: '<number>';
-    inherits: false;
-    initial-value: 1;
-  }
-
-  @property --px {
-    syntax: '<number>';
-    inherits: true;
-    initial-value: 0;
-  }
-
   .hero__art {
     padding-block: 0.4rem 0;
   }
 
   .mirror {
-    --gx: 50%;
-    --gy: 30%;
     position: relative;
-    margin: 0;
-    aspect-ratio: 16 / 9;
+    width: min(100%, calc(86svh * 1240 / 1400));
+    margin: 0 auto;
+    aspect-ratio: 1240 / 1400;
     container-type: inline-size;
-    transition: --px 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .mirror::before {
+    position: absolute;
+    inset: 12% 8% 14%;
+    border-radius: 50%;
+    background: rgb(0 0 0 / 55%);
+    filter: blur(2.4rem);
+    content: '';
   }
 
   .halo,
   .sky,
-  .mirror__stage,
-  .pane,
-  .pane__glare,
-  .mirror__sheen {
+  .mirror__still,
+  .mirror__gl {
     position: absolute;
     inset: 0;
   }
 
-  /* The art is cropped at top and bottom; fade those edges instead of cutting them. */
-  .mirror__stage {
-    perspective: 1400px;
-    filter: drop-shadow(0 1.2rem 1.6rem rgb(0 0 0 / 60%));
-    mask: linear-gradient(transparent, #000 3.5%, #000 84%, transparent);
-  }
-
-  /* Hold the entrance until the art is decoded, so nothing opens empty. */
-  :global(html.trt-js) .mirror:not(.is-ready) :is(.pane, .halo, .sky, .mirror__sheen) {
-    animation-play-state: paused;
-  }
-
-  /* The art is one cut-out; each pane shows its slice and swings on its own hinge line. */
-  .pane {
-    --open: 0deg;
-    --sway: 0deg;
-    --lit: 1;
-    clip-path: var(--clip);
-    transform: rotate3d(var(--ax, 0), 1, 0, calc((var(--open) + var(--sway)) * var(--dir, 1) + var(--px) * var(--tilt, 0deg)));
-    transform-origin: var(--ox, 50%) 0;
-    filter: brightness(var(--lit));
-  }
-
-  .pane img {
-    display: block;
+  .mirror__still,
+  .mirror__gl {
     width: 100%;
     height: 100%;
   }
 
-  .pane--c {
-    --clip: polygon(27.34% 0, 71.72% 0, 67.29% 100%, 34.74% 100%);
-    animation: trt-rise 1.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  /* Fades only once a state is chosen, so the still never flashes before the living mirror. */
+  .mirror.is-still .mirror__still,
+  .mirror__gl {
+    transition: opacity 700ms ease;
   }
 
-  .pane--l,
-  .pane--r {
-    --tilt: 1.6deg;
-    z-index: 1;
-    animation:
-      trt-open 2.8s linear 0.2s both,
-      trt-sway 8s ease-in-out 2.5s infinite alternate;
+  .mirror__gl {
+    opacity: 0;
   }
 
-  .pane--l {
-    --clip: polygon(0 0, 27.6% 0, 35% 100%, 0 100%);
-    --ox: 27.34%;
-    --ax: 0.131;
+  .mirror.is-gl .mirror__gl {
+    opacity: 1;
   }
 
-  .pane--r {
-    --clip: polygon(71.46% 0, 100% 0, 100% 100%, 67.03% 100%);
-    --ox: 71.72%;
-    --ax: -0.079;
-    --dir: -1;
-    animation-delay: 0.38s, 3.2s;
-    animation-duration: 2.8s, 9s;
+  /* With JS the still waits: either the living mirror unfolds, or the still fades in. */
+  :global(html.trt-js) .mirror:not(.is-still) .mirror__still,
+  .mirror.is-gl .mirror__still {
+    opacity: 0;
   }
 
-  .pane__glare,
-  .mirror__sheen {
-    mask: url('/trianthology/mirror-mask.png') 0 0 / 100% 100%;
-    pointer-events: none;
-  }
-
-  .pane__glare {
-    background:
-      radial-gradient(circle at var(--gx) var(--gy), rgb(255 255 255 / 28%), transparent 24%),
-      linear-gradient(115deg, transparent calc(var(--gx) - 12%), rgb(255 255 255 / 10%) var(--gx), transparent calc(var(--gx) + 6%));
-    mix-blend-mode: soft-light;
-  }
-
-  /* One glint across the glass once the wings settle. */
-  .mirror__sheen {
-    background: linear-gradient(100deg, transparent 42%, rgb(255 250 235 / 65%) 50%, transparent 58%) 100% 0 / 300% 100% no-repeat;
-    mix-blend-mode: overlay;
-    animation: trt-sheen 1.8s ease-in-out 2.4s both;
+  /* Hold the background until the mirror shows, so nothing plays around an empty frame. */
+  :global(html.trt-js) .mirror:not(.is-ready) :is(.halo, .sky, .clock) {
+    animation-play-state: paused;
   }
 
   .clock {
     position: absolute;
-    top: 10.32%;
-    left: 49.79%;
-    width: 7.3%;
+    top: 16.39%;
+    left: 52.86%;
+    width: 8.9%;
+    animation: trt-fade 900ms 300ms both;
     translate: -50% -50%;
     overflow: visible;
     filter: drop-shadow(0 0.1cqw 0.2cqw rgb(0 0 0 / 45%));
@@ -1561,7 +1546,7 @@ const jsonLd = {
 
   .orbit__spin {
     transform-box: view-box;
-    transform-origin: 960px 560px;
+    transform-origin: 960px 560px; /* key-art px (the SVG viewBox is key-art space) */
     animation: trt-spin-slow var(--spin) linear infinite;
   }
 
@@ -1757,9 +1742,9 @@ const jsonLd = {
     flex: 0 0 clamp(10rem, 12.4vw, 12rem);
     aspect-ratio: 5 / 7;
     margin-inline: 0.05rem;
+    --lift: 0;
     perspective: 900px;
     transform: translateY(var(--y)) rotate(var(--r));
-    transition: transform 380ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   .card:nth-child(1) { --r: -7deg; --y: 0.9rem; }
@@ -1767,10 +1752,14 @@ const jsonLd = {
   .card:nth-child(3) { --r: 2.3deg; --y: 0.1rem; }
   .card:nth-child(4) { --r: 7deg; --y: 0.9rem; }
 
+  /* The <li> stays put (stable hit area); only the drawn card lifts. JS springs --lift/--tx/--ty. */
   .card:hover,
-  .card:focus-within {
+  .card:has(.card__flip:focus-visible) {
     z-index: 3;
-    transform: translateY(-0.9rem) rotate(0deg) scale(1.05);
+  }
+
+  .card:has(.card__flip:focus-visible) {
+    --lift: 1;
   }
 
   .card__flip {
@@ -1791,13 +1780,16 @@ const jsonLd = {
   }
 
   .card__tilt {
-    transform: rotateX(calc(var(--ty, 0) * -10deg)) rotateY(calc(var(--tx, 0) * 12deg));
-    transition: transform 200ms ease-out;
+    transform:
+      translateY(calc(var(--lift) * -0.9rem)) rotate(calc(var(--lift) * var(--r) * -1)) scale(calc(1 + var(--lift) * 0.05))
+      rotateX(calc(var(--ty, 0) * -10deg)) rotateY(calc(var(--tx, 0) * 12deg));
+    pointer-events: none;
   }
 
   .card__inner {
     position: relative;
-    transition: transform 700ms cubic-bezier(0.3, 0.7, 0.2, 1);
+    transition: transform 720ms cubic-bezier(0.45, 0.05, 0.2, 1);
+    will-change: transform;
   }
 
   .card__flip[aria-pressed='true'] + .card__tilt .card__inner {
@@ -2021,7 +2013,7 @@ const jsonLd = {
   /* Swap faces at mid-turn so a flipped card never shows its mirrored front. */
   .card__front,
   .card__back {
-    transition: visibility 0s linear 330ms;
+    transition: visibility 0s linear 360ms;
   }
 
   .card__flip[aria-pressed='true'] + .card__tilt .card__front,
@@ -2216,29 +2208,6 @@ const jsonLd = {
   @keyframes trt-spark {
     0%, 84%, 100% { opacity: 0; scale: 0.2; rotate: 0deg; }
     90% { opacity: 1; scale: 1; rotate: 45deg; }
-  }
-
-  @keyframes trt-rise {
-    from { opacity: 0; translate: 0 1.2rem; --lit: 0.35; }
-  }
-
-  /* Wings unfold from behind, overshoot a touch and settle flat (the art is flat at rest). */
-  @keyframes trt-open {
-    0% { --open: -70deg; --lit: 0.15; opacity: 0; animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1); }
-    10% { opacity: 1; }
-    56% { --open: 3.2deg; --lit: 1.14; animation-timing-function: cubic-bezier(0.4, 0, 0.4, 1); }
-    76% { --open: -1deg; --lit: 1; animation-timing-function: cubic-bezier(0.4, 0, 0.4, 1); }
-    90% { --open: 0.3deg; animation-timing-function: ease-out; }
-    100% { --open: 0deg; --lit: 1; }
-  }
-
-  @keyframes trt-sway {
-    from { --sway: -0.6deg; }
-    to { --sway: 0.6deg; }
-  }
-
-  @keyframes trt-sheen {
-    to { background-position: 0 0; }
   }
 
   @keyframes trt-spin {
@@ -2469,9 +2438,8 @@ const jsonLd = {
       scroll-snap-align: start;
     }
 
-    .card:hover,
-    .card:focus-within {
-      transform: none;
+    .card:has(.card__flip:focus-visible) {
+      --lift: 0;
     }
 
     .info {
@@ -2489,8 +2457,6 @@ const jsonLd = {
     .halo,
     .sep__band,
     .sep::after,
-    .pane__glare,
-    .mirror__sheen,
     .card__front::after {
       display: none;
     }
