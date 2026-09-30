@@ -184,7 +184,7 @@ const stats = [18056, 412, 4].map((n, i) => ({ n, shown: nf.format(n), label: co
 /* Logo glyphs live in trt-sprite.svg (traced from the game's title logo). */
 const glyphs = ['t1', 'r', 'i', 'a', 'n', 't2', 'h', 'o', 'l', 'o2', 'g', 'y'];
 /* As in the game: "ian" and "hology" tuck in under the arms of the big T's. */
-const glyphShift: Record<string, number> = { i: -12, a: -22, n: -22, h: -30, o: -30, l: -30, o2: -30, g: -30, y: -30 };
+const glyphShift: Record<string, number> = { i: -2, a: -12, n: -12, t2: -22, h: -50, o: -50, l: -50, o2: -50, g: -50, y: -50 };
 
 /* Top edge of mirror + Alice (fraction of height, 160 columns; 9 = empty) for rain splashes. */
 const mirrorTop =
@@ -358,12 +358,12 @@ const jsonLd = {
         <h1 id="trt-title" class="sr-only">{copy.h1}</h1>
 
         <div class="logo" aria-hidden="true">
-          <svg class="logo__svg" viewBox="0 -8 880 388">
+          <svg class="logo__svg" viewBox="0 -8 800 388">
             <use class="logo__kana" href="#lg-kana" />
-            <rect class="logo__rule" x="14" y="244.2" width="852" height="1.6" fill="url(#trt-rule)" />
-            <path class="logo__swash" d="M238 236C320 284 520 300 680 288 760 282 810 268 848 249 790 266 700 276 620 280 480 285 330 270 238 236Z" />
+            <rect class="logo__rule" x="14" y="244.2" width="776" height="1.6" fill="url(#trt-rule)" />
+            <path class="logo__swash" d="M238 236C310 284 484 300 624 288 693 282 737 268 770 249 719 266 641 276 571 280 449 285 318 270 238 236Z" />
             {glyphs.map((g, i) => <use class={`g g--${g}`} href={`#lg-${g}`} x={glyphShift[g]} style={`--i:${i}`} />)}
-            <g transform="translate(449.6 49) scale(0.66)">
+            <g transform="translate(427.6 49) scale(0.66)">
               <g class="crown">
                 <use href="#trt-crown" />
                 <path class="crown__spark" d="m30.5 0 1.3 6.7 6.7 1.3-6.7 1.3-1.3 6.7-1.3-6.7-6.7-1.3 6.7-1.3Z" />
@@ -1266,19 +1266,19 @@ const jsonLd = {
 
   .logo__kana {
     fill: var(--gold);
-    animation: trt-fade 900ms 700ms both;
+    animation: trt-letter 1100ms ease-out 700ms both;
   }
 
   .logo__sub {
     fill: var(--ivory);
-    animation: trt-fade 900ms 950ms both;
+    animation: trt-letter 1200ms ease-out 1000ms both;
   }
 
   .g {
     fill: var(--ivory);
     transform-box: fill-box;
-    animation: trt-letter 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-    animation-delay: calc(var(--i) * 55ms + 120ms);
+    animation: trt-letter 1100ms cubic-bezier(0.25, 0.6, 0.3, 1) both;
+    animation-delay: calc(var(--i) * 70ms + 120ms);
   }
 
   .g--r {
@@ -2174,7 +2174,8 @@ const jsonLd = {
 
   /* ---------- Motion ---------- */
   @keyframes trt-letter {
-    from { opacity: 0; translate: 0 26px; }
+    from { opacity: 0; filter: blur(10px); }
+    40% { opacity: 0.6; }
   }
 
   @keyframes trt-fade {
@@ -2191,7 +2192,7 @@ const jsonLd = {
   }
 
   @keyframes trt-crown {
-    from { opacity: 0; translate: 0 -18px; }
+    from { opacity: 0; filter: blur(6px); }
   }
 
   @keyframes trt-spark {
