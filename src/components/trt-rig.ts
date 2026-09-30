@@ -171,7 +171,7 @@ const vec4 MB[7] = vec4[7](vec4(0.), vec4(.4, .15, 0., .7), vec4(1., .15, 0., .8
 vec3 turn(vec3 v, vec3 d, float a) { vec3 al = dot(v, d) * d, pe = v - al; return al + pe * cos(a) + cross(d, pe) * sin(a); }
 const vec2 DIAL = ${v2(CLK.c)}, HUB = ${v2(CLK.hub)};
 const vec4 DIALP = vec4(${CLK.patch.map(f).join(', ')});
-const vec2 TOUCH = ${v2(toPlane(209, 600))}; /* the painted ripple on the moon's reflection */
+const vec2 TOUCH = ${v2(toPlane(221, 558))}; /* the painted ripple's centre (its rings curve round it) on the moon's reflection */
 vec2 rot(vec2 p, float a) { float s = sin(a), c = cos(a); return vec2(c * p.x - s * p.y, s * p.x + c * p.y); }
 float seg(vec2 p, vec2 a, vec2 b) { vec2 pa = p - a, ba = b - a; return length(pa - ba * clamp(dot(pa, ba) / dot(ba, ba), 0., 1.)); }
 /* A clock hand like the painted ones: a fine tapered blade with a small open loop. */
