@@ -440,30 +440,6 @@ const jsonLd = {
             decoding="async"
           />
           <canvas class="mirror__gl" data-mirror-gl aria-hidden="true"></canvas>
-            <svg class="clock" data-clock viewBox="-50 -50 100 100">
-              <defs>
-                <radialGradient id="trt-face">
-                  <stop offset="0" stop-color="#fdfbf5" />
-                  <stop offset=".8" stop-color="#ece6dc" />
-                  <stop offset="1" stop-color="#bfb6b0" />
-                </radialGradient>
-              </defs>
-              <circle r="48" fill="url(#trt-face)" stroke="#3a2f3d" stroke-width="3" />
-              <circle r="40" fill="none" stroke="#3a2f3d" stroke-width=".8" />
-              {Array.from({ length: 12 }, (_, k) => (
-                <line y1="-44.5" y2={k % 3 ? '-41' : '-38.5'} transform={`rotate(${k * 30})`} stroke="#3a2f3d" stroke-width={k % 3 ? 1.2 : 2.4} />
-              ))}
-              <g class="clock__num" fill="#2b2230">
-                <text y="-27">XII</text>
-                <text x="29" y="1">III</text>
-                <text y="29">VI</text>
-                <text x="-29" y="1">IX</text>
-              </g>
-              <line class="hand hand--h" y1="5" y2="-21" />
-              <line class="hand hand--m" y1="7" y2="-33" />
-              <line class="hand hand--s" y1="10" y2="-37" />
-              <circle r="2.8" fill="#1d1620" />
-            </svg>
         </figure>
       </div>
     </section>
@@ -594,17 +570,6 @@ const jsonLd = {
   const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const numberFormat = new Intl.NumberFormat(document.documentElement.lang);
 
-  /* Clock: real local time; CSS spins the hands from these start angles. */
-  const clock = document.querySelector<SVGSVGElement>('[data-clock]');
-  if (clock) {
-    const now = new Date();
-    const s = now.getSeconds() + now.getMilliseconds() / 1000;
-    const m = now.getMinutes() + s / 60;
-    const h = (now.getHours() % 12) + m / 60;
-    clock.style.setProperty('--ah', `${h * 30}deg`);
-    clock.style.setProperty('--am', `${m * 6}deg`);
-    clock.style.setProperty('--as', `${s * 6}deg`);
-  }
 
   /* Counters */
   if (!reduce) {
@@ -1495,40 +1460,9 @@ const jsonLd = {
   }
 
   /* Hold the background until the mirror shows, so nothing plays around an empty frame. */
-  :global(html.trt-js) .mirror:not(.is-ready) :is(.halo, .sky, .clock) {
+  :global(html.trt-js) .mirror:not(.is-ready) :is(.halo, .sky) {
     animation-play-state: paused;
   }
-
-  .clock {
-    position: absolute;
-    top: 16.39%;
-    left: 52.86%;
-    width: 8.9%;
-    animation: trt-fade 900ms 300ms both;
-    translate: -50% -50%;
-    overflow: visible;
-    filter: drop-shadow(0 0.1cqw 0.2cqw rgb(0 0 0 / 45%));
-  }
-
-  .clock__num text {
-    font-family: 'Bodoni TRT', 'Times New Roman', serif;
-    font-size: 11px;
-    text-anchor: middle;
-    dominant-baseline: middle;
-  }
-
-  .hand {
-    stroke: #1d1620;
-    stroke-linecap: round;
-    transform-box: view-box;
-    transform-origin: 0 0; /* viewBox is centred on 0,0 */
-    rotate: var(--a);
-    animation: trt-spin var(--dur) linear infinite;
-  }
-
-  .hand--h { --a: var(--ah, 0deg); --dur: 43200s; stroke-width: 3.4; }
-  .hand--m { --a: var(--am, 0deg); --dur: 3600s; stroke-width: 2.2; }
-  .hand--s { --a: var(--as, 0deg); --dur: 60s; stroke: #b3122e; stroke-width: 1; }
 
   /* The key art's background, redrawn around the mirror: orbits, stars and bubbles. */
   .halo,
@@ -2204,10 +2138,6 @@ const jsonLd = {
   @keyframes trt-spark {
     0%, 84%, 100% { opacity: 0; scale: 0.2; rotate: 0deg; }
     90% { opacity: 1; scale: 1; rotate: 45deg; }
-  }
-
-  @keyframes trt-spin {
-    to { rotate: calc(var(--a) + 360deg); }
   }
 
   @keyframes trt-spin-slow {
